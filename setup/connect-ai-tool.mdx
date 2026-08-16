@@ -1,218 +1,178 @@
 ---
-title: "How to Connect HireOtto to Claude, ChatGPT, and Make"
-description: "Step-by-step setup instructions for adding HireOtto’s Google Ads MCP server to Claude, ChatGPT, Make.com, and other remote MCP clients."
+title: "How to Connect HireOtto to Claude, ChatGPT, Make, Grok, or Perplexity"
+description: "Add the HireOtto servers you need, authorize the relevant Google services, and verify the connection with a practical first request."
 sidebarTitle: "Connect HireOtto to Claude, ChatGPT, and Make"
 ---
 
-HireOtto is a remote MCP server, so connecting it to your AI tool is a matter of adding a small JSON configuration block — there is nothing to install locally. Pick your tool below, paste the config, restart the application, and you are ready to manage Google Ads in plain language.
+# What you need
 
-<Tabs>
-  <Tab title="Claude Web">
-    Claude Web makes it super easy to add a custom connector.
+HireOtto is a hosted remote MCP service. You do not need a Google Cloud project, API keys, JSON credentials, a terminal, or a local process.
 
-    <iframe src="https://www.youtube.com/embed/38FS_3VVDi0" title="YouTube video player" frameborder="0" className="w-full aspect-video rounded-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
+- An AI client or agent that supports remote MCP servers over HTTP and OAuth.
+- A HireOtto trial or paid plan.
+- A Google login with access to the Google Ads accounts, Tag Manager containers, Search Console properties, or GA4 properties you want to use.
 
-    <Steps>
-      <Step title="Open the connectors page">
-        Head over to:
+Add only the servers you need. Each server is a separate MCP connection, while Search Console is currently available through the Google Ads connection.
 
-        ```text
-        https://claude.ai/customize/connectors
-        ```
+# Choose the HireOtto server URLs
 
-        You'll see a '\+' icon → Add custom connector.
+## Google Ads and Search Console
 
-        <Note>
-          Free plan allows only one custom connector.
-        </Note>
-      </Step>
-      <Step title="Add the HireOtto server url">
-        Paste the following url. Give it a friendly name like **HireOtto – Google Ads MCP** and click **Add**.
-
-        ```text
-        https://googleads.hireotto.com/mcp
-        ```
-      </Step>
-      <Step title="Click connect">
-        A Google sign‑in window opens. This is a quick handshake so the server can recognize your workspace. Approve the prompt.
-
-        You’ll see “Successfully connected” in Claude (blue banner). That confirms HireOtto is reachable as a remote MCP server.
-      </Step>
-      <Step title="Ask Claude to connect Google Ads (one time action)">
-        Try a plain-English prompt like **“Connect Google Ads”** or **“Authenticate Google Ads.”**
-
-        Claude will return a link - **open it** and grant access. During this step you’ll also be asked to **select which Google Ads accounts** HireOtto can access.
-
-        When the auth page says you’re done, close that window and return to Claude.
-
-        HireOtto is now fully set up.
-      </Step>
-      <Step title="Sanity check (optional)">
-        Open a new conversation in Claude and type:
-
-        ```text
-        List my accessible accounts
-        ```
-
-        or
-
-        ```text
-        List campaigns for <account id>.
-        ```
-
-        Claude should respond with a list of your accounts or campaigns.
-      </Step>
-    </Steps>
-  </Tab>
-  <Tab title="ChatGPT">
-    ChatGPT supports MCP servers through 'apps'.
-
-    - Settings → Apps → Advanced settings → Enable Developer Mode (this is to allow adding custom servers) Once enabled, you'll see a 'Create app' button. Use that, paste the server URL, select `OAuth` as the Authentication and Create.
-
-    <Steps>
-      <Step title="Open settings">
-        Head over to Settings → Apps → Advanced settings → Enable Developer Mode.
-
-        <Note>
-          This is to allow adding custom servers.
-        </Note>
-      </Step>
-      <Step title="Create app">
-        Once dev mode is enabled, you'll see a 'Create app' button.
-
-        - Click on 'create app'
-        - paste the server URL
-        - add a name
-        - select `OAuth` as the Authentication
-        - and create.
-      </Step>
-      <Step title="Click create">
-        A Google sign‑in window opens. This is a quick handshake so the server can recognize your workspace. Approve the prompt.
-
-        Once completed successfully, you’ll see the server listed under Enabled apps. That confirms HireOtto is reachable as a remote MCP server.
-      </Step>
-      <Step title="Ask ChatGPT to connect Google Ads (one time action)">
-        Try a plain-English prompt like **“Connect Google Ads”** or **“Authenticate Google Ads.”**
-
-        ChatGPT will return a link - **open it** and grant access. During this step you’ll also be asked to **select which Google Ads accounts** HireOtto can access.
-
-        When the auth page says you’re done, close that window and return to Claude.
-
-        HireOtto is now fully set up.
-
-        <Note>
-          You need to stay in Developer Mode to use a custom server in ChatGPT.
-        </Note>
-      </Step>
-      <Step title="Verify the connection">
-        Open a new conversation in ChatGPT and type:
-
-        ```text
-        List my accessible accounts
-        ```
-
-        or
-
-        ```text
-        List campaigns for <account id>.
-        ```
-
-        ChatGPT should respond with a list of your accounts or campaigns.
-      </Step>
-    </Steps>
-  </Tab>
-  <Tab title="Make.com">
-    Make enables MCP server via 'Make AI Agents' or Scenarios.\
-    With agents, you'll see an option to add a MCP server right below the system prompt. With Scenarios, you'll need to add a MCP node.
-
-    <Check>
-      [Make.com](http://Make.com) already has the HireOtto server added in their supported servers list. So you don't even need the server url to get started.
-    </Check>
-
-    <iframe src="https://www.youtube.com/embed/D-hKIy5td9w" title="YouTube video player" frameborder="0" className="w-full aspect-video rounded-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
-
-    <Steps>
-      <Step title="Add the server">
-        In the MCP modal, add a name and then 'select a server'.
-
-        Search for `GoogleAds` in the dropdown. The server there is pre-configured HireOtto server. All you need to do is click Add.
-      </Step>
-      <Step title="Click Add">
-        A Google sign‑in window opens. This is a quick handshake so the server can recognize your workspace. Approve the prompt.
-
-        You’ll see a successfully connected message in Make. That confirms HireOtto is reachable as a remote MCP server.
-      </Step>
-      <Step title="Ask Make to connect Google Ads (one time action)">
-        Try a plain-English prompt like **“Connect Google Ads”** or **“Authenticate Google Ads.”**
-
-        The server will return a link - **open it** and grant access. During this step you’ll also be asked to **select which Google Ads accounts** HireOtto can access.
-
-        When the auth page says you’re done, close that window and return to Make.
-
-        HireOtto is now fully set up.
-      </Step>
-      <Step title="Verify the connection">
-        Open a new conversation in Claude and type:
-
-        ```text
-        List my accessible accounts
-        ```
-
-        or
-
-        ```text
-        List campaigns for <account id>.
-        ```
-
-        Claude should respond with a list of your accounts or campaigns.
-      </Step>
-    </Steps>
-  </Tab>
-  <Tab title="Other MCP clients">
-    Any MCP-compatible client that supports the HTTP transport can connect to HireOtto. Use the following details when configuring your client.
-
-    **Transport:** HTTP
-
-    **Endpoint URL:**
-
-    ```text
-    https://googleads.hireotto.com/mcp
-    ```
-
-    Simply add the server and complete the handshake.\
-    Once that is done, input a simple prompt like "authenticate google ads". This will return a link. Follow that to authenticate Google ads & select accounts that you'd like to access via the server.
-
-    Run a simple sanity check such as "list my campaigns for \<account id\>"
-  </Tab>
-</Tabs>
-
-## Optional: Connect Google Search Console
-
-If you want to analyze organic search data, connect Google Search Console separately. In your AI assistant, ask:
+Use this connection for Google Ads reporting and supported account actions. It also exposes Search Console tools, but Search Console requires its own Google authorization after the server is connected.
 
 ```text
-Connect my Google Search Console account.
+https://googleads.hireotto.com/mcp
 ```
 
-HireOtto will return an authentication link. Open it, choose the Google account that has access to your Search Console properties, and approve access.
+- Google Ads: read reporting data and run supported campaign-management actions.
+- Search Console: inspect properties, organic performance, URLs, and sitemaps using a separate Google permission.
 
-Then verify the connection:
+## Google Tag Manager
+
+Use this connection to inspect Tag Manager accounts, containers, workspaces, tags, triggers, variables, folders, and tag wiring.
 
 ```text
-Show me the Search Console sites I have access to.
+https://tagmanager.hireotto.com/mcp
 ```
 
-For examples and reporting workflows, see [Google Search Console MCP reporting](/guides/google-search-console).
+The current Tag Manager server is read-only. It does not create, edit, delete, or publish container changes.
 
-## Next steps
+## Google Analytics 4 – beta
 
-Once your AI tool shows a list of accounts or campaigns after the verification prompt, your connection is working.
+Use this connection for GA4 property discovery, metadata, report compatibility checks, standard reports, comparisons, and basic realtime reporting.
 
-And once HireOtto is connected, you can use these guides to run real Google Ads workflows:
+```text
+https://ga4.hireotto.com/mcp
+```
 
-- [Analyze Google Ads performance reports with AI](/guides/reporting)
-- [Google Ads Account Audit with AI](/guides/google-ads-account-audit-with-ai)
-- [Google Ads Keyword Research with AI](/guides/keyword-research-ai)
-- [Manage Performance Max Campaigns with AI](/guides/manage-performance-max-campaigns)
+GA4 access is read-only and currently in beta. HireOtto cannot edit GA4 properties or configuration.
+
+# Connect HireOtto to your AI client
+
+The menu names below reflect the current client interfaces. Admin controls and feature availability can vary by plan or workspace.
+
+## Claude
+
+1. Open Customize → Connectors.
+2. Select \+, then Add custom connector.
+3. Give the connection a clear name, such as HireOtto — Google Ads, and paste the matching server URL.
+4. Select Add, then Connect, and complete the authorization prompt.
+
+Claude Free accounts currently support one custom connector. Pro and Max users can add custom connectors directly; Team and Enterprise workspaces have owner-managed setup.
+
+## ChatGPT
+
+1. Open Plugins → '\+' and provide the HireOtto server endpoint.
+2. Give the connection a clear name, such as HireOtto – Google Ads, and paste the matching server URL.
+3. Select Add, then Sign in, and complete the authorization prompt.
+
+## Make AI Agents
+
+1. Open the scenario containing Make AI Agents (New) → Run an agent.
+2. From the agent module, select Add MCP.
+3. Create a connection with the matching HireOtto server URL.
+4. Select only the tools the agent needs, then save the connection and the agent.
+5. Test the agent in Make before using it in a live scenario.
+
+Limiting enabled MCP tools keeps the agent’s tool list clearer and can reduce unnecessary model usage.
+
+## Grok, Perplexity, or another remote MCP client
+
+1. Open the client’s MCP or tools settings.
+2. Create a remote HTTP MCP connection and paste the matching HireOtto server URL.
+3. Use OAuth if the client asks for an authentication method.
+4. Complete the authorization prompt, enable the server, and confirm that its tools are visible.
+
+HireOtto is hosted remotely, so do not configure it as a local command or stdio process.
+
+# Complete the platform connection
+
+Connecting the MCP server and connecting the marketing platform are two separate steps. First your AI client connects to HireOtto. Then a HireOtto authentication tool connects the specific Google service and saves the access granted by that Google login.
+
+## Google Ads
+
+1. Ask: “Connect my Google Ads account.”
+2. Open the authorization link returned by HireOtto.
+3. Choose a Google login with access to the required Google Ads account or MCC, grant permission, and select the accounts HireOtto should save.
+4. Return to the AI client and ask: “List my accessible Google Ads accounts.”
+
+## Google Search Console
+
+1. In the Google Ads HireOtto connection, ask: “Connect my Google Search Console account.”
+2. Open the authorization link and choose a Google login that can access the required Search Console properties.
+3. Grant the Search Console permission, then ask: “List the Search Console properties I can access.”
+
+Connecting Google Ads does not automatically grant Search Console access. Google treats them as separate services and permissions.
+
+## Google Tag Manager
+
+1. Ask: “Connect my Google Tag Manager account.”
+2. Open the authorization link and choose a Google login with access to the required Tag Manager accounts and containers.
+3. Grant read-only Tag Manager access, then ask: “List my Tag Manager accounts and containers.”
+
+## Google Analytics 4
+
+1. Ask: “Connect my Google Analytics account.”
+2. Open the authorization link and choose a Google login with access to the required GA4 properties.
+3. Grant read-only Analytics access, then ask: “List my GA4 accounts and properties.”
+
+# Verify the connection
+
+Use a small read request before starting a longer workflow. A successful response confirms both the MCP connection and the platform authorization.
+
+- Google Ads: “List my accessible accounts.”
+- Search Console: “Show the Search Console properties I can access.”
+- Tag Manager: “List my Tag Manager accounts and web containers.”
+- GA4: “List my GA4 accounts and properties.”
+
+For Google Ads, ask for an account-specific read next, such as “List the enabled campaigns in account 1234567890.” Review the returned account name and ID before requesting any change.
+
+# Plans, profiles, and access
+
+- The free trial, Starter, Pro, and Agency plans include supported core access across Google Ads, Tag Manager, Search Console, and GA4 beta.
+- The trial ends after 14 days or 200 credits, whichever comes first.
+- Starter includes 2,000 credits per month; Pro includes 5,000 credits per month; Agency includes unlimited credits.
+- Agency is required for audits, multiple connected Google profiles, team billing, and additional seats.
+- Connecting another profile means authorizing a different Google login. Giving the same login another nickname does not expand its account access.
+
+HireOtto can access only the accounts, containers, and properties available to the Google login you authorize. It does not bypass Google’s roles or permissions.
+
+# Common setup problems
+
+## The server is connected, but no tools appear
+
+- Confirm that the endpoint ends with /mcp and matches the intended HireOtto server.
+- Complete the client-level OAuth prompt, then rescan or refresh the server tools.
+- Enable the connector or app in the current chat or agent.
+- Restart or reconnect the client if its MCP tool list is cached.
+
+## The tool asks you to authenticate again
+
+- Run the relevant connect prompt and open the newest authorization link.
+- Finish the Google consent flow in the same browser session and return to the original AI client.
+- If the connection was revoked or the Google password or security policy changed, reconnect the service.
+
+## No accounts, containers, or properties appear
+
+- Confirm that the selected Google login can open the required resource directly in Google’s interface.
+- For Google Ads, refresh accessible accounts after Google grants or changes access.
+- For nested Google Ads manager structures, connect a Google login with direct access to the relevant inner MCC when the account is not discoverable from the existing profile.
+- On Agency, use a distinct profile name when connecting another Google login.
+
+## A client menu does not match this guide
+
+MCP client interfaces change frequently. Look for Apps, Connectors, Tools, Integrations, or MCP settings, then add a remote HTTP server with OAuth. If the client does not support remote MCP or OAuth, it cannot complete the hosted HireOtto connection.
+
+# Security and control
+
+- HireOtto uses OAuth; you do not paste Google passwords, API keys, or refresh tokens into the conversation.
+- Google Ads supports both read workflows and supported account actions. Review important or bulk changes before they are applied.
+- Tag Manager and GA4 are read-only in their current releases.
+- Search Console uses its own Google permission and is limited to the resources available to that Google login.
+- Disconnect the app in your AI client or revoke the relevant Google authorization when access is no longer needed.
+
+# Next steps
+
+After the verification request succeeds, continue with the guide or tools reference for the server you connected. Start with a read workflow, confirm the account or property, and move to reviewable actions only when the server supports them.
 
 If setup fails, go to [Troubleshooting](/troubleshooting).
