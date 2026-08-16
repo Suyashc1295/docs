@@ -1,0 +1,141 @@
+---
+title: "Google Ads Keyword Research with AI"
+description: "Generate keyword ideas, get search volume, check competition, review CPC ranges, and export Google Keyword Planner data using HireOtto."
+sidebarTitle: "Keyword Research"
+---
+
+---
+
+HireOtto connects directly to the Google Keyword Planner API — the same data source the Google Ads UI uses, without the extra clicks. You can generate new keyword ideas from seed terms or a URL, score a list of keywords you already have, or do both in a single conversation.
+
+## Two modes: ideas vs. metrics
+
+**Keyword ideas** — you give HireOtto seed keywords or a landing page URL, and it returns an expanded list of related keywords with search volume, competition, and CPC ranges. Use this when you're building a new campaign or exploring a new topic.
+
+**Historical metrics** — you give HireOtto a list of specific keywords you already have, and it returns search volume, competition, and bid data for exactly those terms. No expansion. Use this to score and prioritise a keyword list you've already built.
+
+---
+
+## Generating keyword ideas
+
+**From seed keywords:**
+
+```text
+Generate keyword ideas for [SEED_KEYWORD_1], [SEED_KEYWORD_2] — target [LOCATION].
+```
+
+**From a URL:**
+
+```text
+Generate keyword ideas from this URL: [YOUR_URL] — target [LOCATION].
+```
+
+**Combining seeds and a URL:**
+
+```text
+Generate keyword ideas for "[SEED_KEYWORD]" and this page: [YOUR_URL] — target United States.
+```
+
+**Options you can add:**
+
+Filter by competition level to focus on winnable terms:
+
+```text
+Generate keyword ideas for "[SEED_KEYWORD]" — target US, low competition only, minimum 500 monthly searches.
+```
+
+Sort by a different metric:
+
+```text
+Generate keyword ideas for "[SEED_KEYWORD]" — sort by competition (ascending), target UK.
+```
+
+Get more results than the default (25):
+
+```text
+Generate keyword ideas for "[SEED_KEYWORD]" — return top 50 results, target US.
+```
+
+Export for further analysis:
+
+```text
+Generate keyword ideas for "[SEED_KEYWORD]" — target US, export to CSV.
+```
+
+---
+
+## Getting historical metrics for a known list
+
+Use this when you already have keywords and want to score them before adding to a campaign.
+
+```text
+Get historical metrics for these keywords: [KW1], [KW2], [KW3] — target [LOCATION].
+```
+
+**Tip:** If you're passing more than 25 keywords, tell HireOtto to increase the limit — otherwise results will be cut off:
+
+```text
+Get historical metrics for these 40 keywords: [LIST] — target US, show all results.
+```
+
+---
+
+## Targeting multiple locations
+
+By default results are aggregated across all locations you specify. If you want separate results per location (e.g. to compare US vs UK volume), ask for per-location mode:
+
+```text
+Generate keyword ideas for "[SEED_KEYWORD]" — show results separately for US, UK, and Australia.
+```
+
+```text
+Get historical metrics for [KW1], [KW2] — per location: United States, Canada, India.
+```
+
+---
+
+## Language targeting
+
+Default is English. To target a different language:
+
+```text
+Generate keyword ideas for "[SEED_KEYWORD]" — target Germany, language German.
+```
+
+---
+
+## Including Google Search Partners
+
+By default, results reflect Google Search only. To include Search Partners in the network:
+
+```text
+Generate keyword ideas for "[SEED_KEYWORD]" — target US, include Search Partners.
+```
+
+---
+
+## Typical keyword research workflow
+
+A full research session for a new campaign might look like this:
+
+**Step 1 — Explore and expand:**
+
+```text
+Generate keyword ideas for "[CORE_TOPIC]" — target [LOCATION], minimum 200 monthly searches, show top 50.
+```
+
+**Step 2 — Score your shortlist:**
+
+```text
+Get historical metrics for these keywords: [SHORTLISTED_KWs] — target [LOCATION].
+```
+
+**Step 3 — Export for the campaign:**
+
+```text
+Export the keyword ideas to CSV.
+```
+
+## Next step: build the campaign
+
+Once you have a keyword list, use [How to Create a Google Ads Campaign with AI](/guides/create-a-google-ads-campaign-with-ai) to turn those keywords into ad groups, match types, responsive search ads, and a paused Search campaign you can review before launch.

@@ -1,0 +1,135 @@
+---
+title: "Fix HireOtto MCP Connection Issues"
+description: "Troubleshoot HireOtto MCP setup, Claude connector errors, missing Google Ads accounts, OAuth problems, permission issues, and failed tool calls."
+sidebarTitle: "Troubleshooting"
+---
+
+---
+
+<AccordionGroup>
+  <Accordion title="Error during tool execution">
+    **Symptom:** Everything was working fine, then multiple tools start returning "Error occurred during tool execution" — or all tool calls fail uniformly. No single tool is broken; they all are.
+
+    This is almost never a server-side issue. It's a known quirk with how Claude manages MCP connector sessions. The connection occasionally enters a stale state on Claude's side, and requests stop reaching HireOtto's server entirely.
+
+    **Fix: disconnect and reconnect the Otto connector**
+
+    1. Go to [claude.ai/customize/connectors](https://claude.ai/customize/connectors)
+    2. Disconnect the HireOtto connector
+    3. Reconnect it
+    4. Try any tool call again
+
+    This resolves the issue in almost every case. If tools are still failing after reconnecting, copy the exact error text from the tool output and email it to [suyash@hireotto.com](mailto:suyash@hireotto.com).
+
+    **How to tell this apart from a real outage:** if the failure is session-related, all tools fail uniformly with a generic execution error. A real server-side issue tends to be more tool-specific.
+  </Accordion>
+
+  <Accordion title="No accounts showing up after authentication">
+    **Symptom:** You completed the Google OAuth flow, but `list_accessible_accounts` returns empty, or HireOtto says no accounts are found.
+
+    **The most likely cause:** you completed OAuth but didn't select and save accounts on the account selection screen. The OAuth consent and the account save are two separate steps — completing one doesn't complete the other.
+
+    **Fix:**
+
+    ```text
+    Re-authenticate my Google Ads account.
+    ```
+
+    When you reach the account selection screen after Google sign-in, select the accounts you want to work with (you can select all or pick specific ones) and confirm the save before returning to your client.
+
+    **Other causes:**
+
+    - You authenticated with a Google login that doesn't have access to any Google Ads accounts. Sign in to [ads.google.com](http://ads.google.com) with the same account to confirm.
+    - Your campaigns are under a Manager account (MCC) that's nested two levels deep. HireOtto resolves one level down automatically — for deeper hierarchies, you'll need to connect a separate Google login with direct access to the inner MCC. See the [Authentication guide](https://docs.hireotto.com/authentication-1).
+  </Accordion>
+
+  <Accordion title="MCP server not connecting">
+    **Symptom:** Your AI client reports it can't find the MCP server, or shows "Could not connect to MCP server."
+
+    **Check the endpoint URL**
+
+    The URL must be exactly:
+
+    ```text
+    https://googleads.hireotto.com/mcp
+    ```
+
+    Common mistakes: trailing slash, missing `s` in `https`, typo in the hostname.
+  </Accordion>
+
+  <Accordion title="Authentication errors">
+    **Symptom:** "Authorization required", "Not authenticated", or HireOtto returns an auth URL you haven't clicked yet.
+
+    Complete the one-time OAuth flow:
+
+    1. Your AI client should show an authorization URL. If it doesn't, trigger it:
+       ```text
+       Connect my Google Ads account.
+       ```
+    2. Open the URL, sign in with the Google account that has access to your Google Ads, and complete the consent screen.
+    3. On the account selection screen, select and save your accounts.
+    4. Return to your client and retry.
+
+    If you previously authorized but are seeing this again, your token may have been revoked (this can happen if you changed your Google password or revoked third-party app access). Re-run the connect flow to get a fresh token.
+  </Accordion>
+
+  <Accordion title="Insufficient permissions or access denied">
+    **Symptom:** "Insufficient permissions", "Access denied", or "You don't have permission to perform this action."
+
+    **Check the authorized account**
+
+    Sign in to [ads.google.com](http://ads.google.com) with the same Google account used during OAuth. If you can't see the campaigns you're trying to manage, you authorized the wrong account. Re-authenticate with the correct one:
+
+    ```text
+    Re-authenticate my Google Ads account.
+    ```
+
+    **Check your user role**
+
+    Google Ads enforces role-based permissions:
+
+    | Role | Read | Write (create, update, pause) |
+    | :-- | :-- | :-- |
+    | Read-only | Yes | No |
+    | Standard | Yes | Yes |
+    | Admin | Yes | Yes |
+
+    If you're Read-only, you can pull reports and list campaigns but cannot create campaigns, modify budgets, or add keywords. Contact the account owner to upgrade your role.
+  </Accordion>
+
+  <Accordion title="Campaign creation fails">
+    **Symptom:** Campaign creation returns an error or the campaign doesn't appear in Google Ads.
+
+    **Check account standing**
+
+    Google blocks campaign creation if there are billing issues, policy violations, or the account is suspended. Check at [ads.google.com](http://ads.google.com):
+
+    - Valid payment method on file
+    - No policy violation warnings
+    - Account not suspended
+
+    **Check your role**
+
+    Campaign creation requires Standard or Admin access. Read-only users cannot create campaigns.
+
+    **Partial creation**
+
+    If a campaign was partially created before the error (campaign exists but ad groups weren't created), review and clean up in the Google Ads UI before retrying.
+  </Accordion>
+</AccordionGroup>
+
+If you have not added HireOtto to your AI client yet, start with [Connect Google Ads MCP](/quickstart).
+
+If your AI client is connected but Google Ads is not authorized, use [Google Ads OAuth Authentication in HireOtto](/authentication-1).
+
+If you are using Claude, ChatGPT, or Make, check the client-specific setup guide: [Connect HireOtto to Claude, ChatGPT, and Make](/setup/connect-ai-tool).
+
+---
+
+## Still stuck?
+
+Email [suyash@hireotto.com](mailto:suyash@hireotto.com) with:
+
+- Your Google Ads Email address
+- The exact error text from the tool output
+- What you were trying to do when the error occurred

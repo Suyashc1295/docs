@@ -1,0 +1,168 @@
+---
+title: "HireOtto FAQs: Google Ads MCP, Privacy, Billing"
+description: "Answers to common questions about HireOtto, including supported AI tools, Google Ads permissions, data privacy, billing, and campaign actions."
+sidebarTitle: "FAQs"
+keywords: ["hireotto faq", "hireotto faqs"]
+---
+
+HireOtto works as a remote MCP server — which means many questions about setup, permissions, and capabilities come up frequently. This page answers the most common ones. If you don't find what you're looking for, email [suyash@hireotto.com](mailto:suyash@hireotto.com)
+
+## General
+
+<AccordionGroup>
+  <Accordion title="What is HireOtto and how does it work?">
+    HireOtto is a remote Model Context Protocol (MCP) server that gives your AI assistant direct access to your Google Ads account(s). When you ask your AI tool (Claude, ChatGPT, Make, Cursor, Windsurf, etc.) to "list my campaigns" or "create a new Search campaign," it calls HireOtto's MCP tools behind the scenes, which communicate with the Google Ads API on your behalf.
+
+    There is no code to write and no local service to run — HireOtto is a hosted service you connect to via a single URL.
+  </Accordion>
+
+  <Accordion title="Which AI tools does HireOtto support?">
+    HireOtto works with any AI tool that supports the remote Model Context Protocol (MCP). Currently tested and supported:
+
+    - **Claude Web, Code, Desktop** (Anthropic)
+    - **ChatGPT**
+    - **Make.com**
+    - Any other MCP-compatible client that supports remote servers
+
+    See [Connect your AI tool](/setup/connect-ai-tool) for setup instructions for each tool.
+  </Accordion>
+
+  <Accordion title="Is there a local installation required?">
+    No. HireOtto is a fully remote MCP server. You only need to add the server URL to your AI tool — no packages to install, no servers to run.
+  </Accordion>
+
+  <Accordion title="What Google Ads features does HireOtto support?">
+    HireOtto currently supports:
+
+    - Listing, creating, updating, and pausing campaigns
+    - Managing ad groups and keywords (add, view, pause)
+    - Setting keyword match types (broad, phrase, exact)
+    - Adding negative keywords
+    - Viewing performance reports (clicks, impressions, cost, conversions, ROAS)
+    - Account-level and campaign-level summaries
+    - Adjusting daily budgets and bidding strategies
+
+    Support for Display campaigns, ad creative management, and audience targeting is on the roadmap.
+  </Accordion>
+
+  <Accordion title="Does HireOtto replace the Google Ads UI?">
+    No — HireOtto complements the Google Ads interface. It's best for making quick changes, pulling reports, and bulk-updating settings via conversation. For tasks like uploading image creatives, building complex audience segments, or reviewing ad previews, you'll still use the Google Ads UI directly.
+  </Accordion>
+</AccordionGroup>
+
+## Privacy & Security
+
+<AccordionGroup>
+  <Accordion title="What Google Ads data can HireOtto access?">
+    HireOtto requests the `https://www.googleapis.com/auth/adwords` OAuth scope, which grants read and write access to your Google Ads account. This allows HireOtto to read campaign data and make changes on your behalf — such as creating campaigns or adjusting budgets.
+
+    HireOtto only accesses data when you or your AI assistant explicitly requests an action.
+  </Accordion>
+
+  <Accordion title="Does HireOtto store my Google Ads data?">
+    HireOtto does not persistently store your campaign data. Query results are returned in real time from the Google Ads API and passed directly to your AI assistant. HireOtto stores OAuth tokens (encrypted) so you don't need to re-authorize on every session.
+  </Accordion>
+
+  <Accordion title="Is my Google account password ever shared with HireOtto?">
+    No. Authentication uses Google's OAuth2 flow. You sign in directly on Google's servers — HireOtto never sees your password. HireOtto only receives a scoped access token after you grant permission.
+  </Accordion>
+
+  <Accordion title="Can I revoke HireOtto's access to my Google Ads account?">
+    Yes. You can revoke access at any time:
+
+    1. Go to [myaccount.google.com/permissions](https://myaccount.google.com/permissions)
+    2. Find HireOtto in the list of connected apps
+    3. Click **Remove access**
+
+    After revocation, HireOtto can no longer access your Google Ads account until you re-authorize.
+  </Accordion>
+</AccordionGroup>
+
+## Google Ads accounts
+
+<AccordionGroup>
+  <Accordion title="Can I use HireOtto with a Google Ads Manager (MCC) account?">
+    Yes. If you have a Manager account (MCC), you can select that and child accounts while authenticating Google Ads. Once done, you'll able to access all accounts within that MCC through HireOtto. Looking for MCC within MCC? - Let's chat: [suyash@hireotto.com](mailto:suyash@hireotto.com)
+  </Accordion>
+
+  <Accordion title="Can I connect multiple Google Ads accounts?">
+    Yes. HireOtto is designed to work with multiple accounts. Select the accounts you want to access via HireOtto during the authentication or just prompt "Authenticate Google ads". To see your current accounts use "List my accessible accounts". When you add new accounts, you can simply ask the AI tool to refresh your accounts. No auth required again.
+  </Accordion>
+
+  <Accordion title="What user role do I need to use HireOtto?">
+    - **Read-only operations** (listing campaigns, pulling reports): any role works, including Read-only
+    - **Write operations** (creating campaigns, updating budgets, adding keywords): you need **Standard** or **Admin** access to the Google Ads account
+
+    If you attempt a write operation with a Read-only account, HireOtto will return a permission error.
+  </Accordion>
+
+  <Accordion title="Does HireOtto support Google Ads for small businesses (Smart campaigns)?">
+    HireOtto is primarily designed for standard Google Ads (Search, App, Pmax) campaigns. Smart campaigns are on the roadmap. Check with the HireOtto team for the current status.
+  </Accordion>
+</AccordionGroup>
+
+## Google Search Console
+
+<AccordionGroup>
+  <Accordion title="Does HireOtto support Google Search Console?">
+    Yes. Google Search Console support is available in beta. You can use HireOtto to analyze organic queries, page performance, country/device breakdowns, CSV exports, sitemaps, and URL indexing checks from your AI assistant. To get started, ask:
+
+    ```text
+    Connect my Google Search Console account.
+    ```
+  </Accordion>
+
+  <Accordion title="I connected Google Ads. Do I also need to connect Search Console?">
+    Yes. Google Ads and Google Search Console are separate Google products with separate permissions.
+
+    Connecting Google Ads lets HireOtto work with your Google Ads accounts. Connecting Search Console lets HireOtto access Search Console properties and organic search data.
+  </Accordion>
+
+  <Accordion title="Does Search Console cost extra?">
+    No. Google Search Console support is included in current HireOtto plans at no additional cost.
+  </Accordion>
+
+  <Accordion title="What can I ask HireOtto to do with Search Console?">
+    You can ask for organic query reports, page performance, country/device breakdowns, CSV exports, Search Console sites, submitted sitemaps, and URL indexing checks.
+
+    Example:
+
+    ```text
+    Show me page performance for the last 28 days split by country and device. Give me the top pages inline and export the full data.
+    ```
+  </Accordion>
+
+  <Accordion title="Why do I not see any Search Console sites after connecting?">
+    You may have selected a Google account that does not have access to any Search Console properties. Reconnect Search Console with the Google account that has property access.
+  </Accordion>
+</AccordionGroup>
+
+## Capabilities & limits
+
+<AccordionGroup>
+  <Accordion title="Can HireOtto create Display or Video campaigns?">
+    HireOtto currently focuses on Search, App and PMax campaigns. Display and Video campaign creation is on the roadmap. You can still view performance data for existing Display and Video campaigns.
+  </Accordion>
+
+  <Accordion title="Can HireOtto upload ad creatives or images?">
+    Yes for PMax.
+  </Accordion>
+
+  <Accordion title="Are there rate limits on how many changes I can make?">
+    HireOtto respects the Google Ads API rate limits. For most accounts, this means thousands of operations per day. If you hit a rate limit, HireOtto will return an error message and you can retry after a short wait.
+  </Accordion>
+
+  <Accordion title="What happens if my AI assistant makes an unintended change?">
+    HireOtto executes exactly what the MCP tool call specifies. Before making bulk changes, your AI assistant should confirm the action with you. If an unintended change is made (e.g., a campaign is paused accidentally), you can ask the AI to reverse it immediately — for example: "Re-enable the 'Summer Sale' campaign."
+
+    <Warning>
+      Some changes — like deleting a campaign — cannot be undone through HireOtto or the Google Ads API. Always confirm destructive operations before proceeding.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Can HireOtto manage sitelinks, callouts, and other Google Ads extensions?">
+    Yes. HireOtto can list, create, link, reuse, and unlink extension-style assets including sitelinks, callouts, structured snippets, call assets, and price assets.\
+    \
+    It can also report on extension asset performance at the account, campaign, or ad group level.
+  </Accordion>
+</AccordionGroup>

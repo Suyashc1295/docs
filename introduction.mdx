@@ -1,0 +1,131 @@
+---
+title: "What Is HireOtto? Google Ads MCP Server for AI Tools"
+description: "HireOtto is a remote MCP server for search marketing workflows. It gives AI assistants access to Google Ads, and now supports Google Search Console reporting in beta for organic queries, page performance, CSV exports, and URL indexing checks."
+sidebarTitle: "What Is HireOtto?"
+---
+
+Instead of switching between your AI tool and the Google Ads UI, you describe what you want in plain language — and HireOtto handles the rest. There is nothing to install locally; you point your MCP client at the HireOtto endpoint and authenticate with your Google account.
+
+**Built by a marketer, for marketers.**
+
+I’m a solo builder - expect speed and opinionated defaults (with the occasional paper cut). If you hit one, don’t bounce - ping me and we’ll fix it together. 💪
+
+# What this is (and why it’s different)
+
+- **Remote Google Ads MCP server.** Unlike most MCP servers that run locally and expect you to fiddle with Google Cloud, edit MCP JSON, and babysit a process. HireOtto is fully hosted. You just paste a URL and go.
+- **Safer by design.** Local setups can accidentally expose files, tokens, or system permissions. HireOtto uses modern OAuth flows aligned with the **latest MCP auth spec** and scopes tokens to this server only.
+- **Built for marketers.** Opinionated defaults and prompts that map to how PPC is actually run - fast, consistent, low-friction.
+- **Search Console reporting in beta.** Alongside Google Ads workflows, HireOtto can now connect to Google Search Console so you can ask for organic query reports, page performance, country/device breakdowns, CSV exports, and URL indexing checks from your AI assistant.
+
+<Check>
+  Who it’s for: in-house marketers, agencies, and consultants who want speed without wrestling with setup.
+</Check>
+
+## Prerequisites
+
+- A MCP client that supports **remote MCP servers** (Claude Web, Desktop, Claude Code, etc).
+- A Google account with access to the Google Ads accounts you’ll manage.
+- Optional: A Google account with access to the Google Search Console properties you want to analyze.
+
+## How it works
+
+MCP (Model Context Protocol) is an open standard that lets AI assistants call external tools and services in a structured way. HireOtto implements MCP as a remote server, meaning the server runs in the cloud and your AI client connects to it over the network. 
+
+When you ask your assistant to "pause all underperforming keywords" or "show me last week's spend by campaign," it routes that request through HireOtto to the Google Ads API and returns the result directly in your conversation.
+
+<CardGroup cols={2}>
+  <Card title="No local install" icon="cloud">
+    HireOtto runs remotely. Add the endpoint URL to your AI tool config and you're connected — no packages, no CLIs, no setup scripts.
+  </Card>
+
+  <Card title="Natural language control" icon="a">
+    Manage campaigns, budgets, and keywords by describing what you want. HireOtto translates your intent into Google Ads API calls.
+  </Card>
+
+  <Card title="Works where you already work" icon="laptop-mobile">
+    Use HireOtto from Claude Desktop, Cursor, Windsurf, or any MCP-compatible client. No context switching required.
+  </Card>
+
+  <Card title="Secure OAuth access" icon="shield">
+    HireOtto accesses your Google Ads account through OAuth2. You authorize it once through Google's consent flow; HireOtto never sees your password.
+  </Card>
+</CardGroup>
+
+For Search Console workflows, connect Google Search Console separately after connecting HireOtto. Google Ads and Search Console use different Google permissions, so authorizing one does not automatically authorize the other.
+
+## What you can do
+
+Once connected, you can ask your AI assistant to perform any of the following directly in conversation:
+
+- **List campaigns** — retrieve all campaigns with their status, budget, and performance metrics
+- **Create campaigns** — set up new Search campaigns with custom budgets and targeting
+- **Update budgets** — raise or lower daily budgets across one or multiple campaigns
+- **Manage keywords** — add, pause, or remove keywords and adjust match types or bids
+- **Pull performance reports** — get impressions, clicks, cost, conversions, and ROAS for any date range
+- **Pause or enable ads** — change the status of individual ads or entire ad groups
+
+For practical examples, start with:
+
+- [Google Ads Account Audit with AI](/guides/google-ads-account-audit-with-ai)
+- [Analyze Google Ads performance reports with AI](/guides/reporting)
+- [How to Create a Google Ads Campaign with AI](/guides/create-a-google-ads-campaign-with-ai)
+- [Manage Negative Keywords in Google Ads with AI](/guides/manage-negative-keywords-in-google-ads-with-ai)
+
+<Note>
+  HireOtto operates on whichever Google Ads accounts you authorize during setup. If you add more accounts, you can refresh accessible accounts.
+</Note>
+
+## Supported AI tools
+
+HireOtto works with any MCP-compatible client. The following tools are tested and supported out of the box:
+
+| AI tool | Notes |
+| --- | --- |
+| **Claude** | Full support; configure via `connectors` |
+| **Cursor** | Full support; configure via `.cursor/mcp.json` |
+| **Windsurf** | Full support; configure via Windsurf MCP settings |
+| **Any MCP client** | Any tool that supports remote MCP servers |
+
+## Why MCP matters for Google Ads
+
+Google Ads is a rich platform, but routine tasks — checking budgets, adjusting bids, generating reports — require navigating multiple screens. MCP closes the gap between your AI assistant and the tools it needs to act. Rather than describing a change and then making it yourself, your assistant can execute the change in the same step. HireOtto makes this possible for Google Ads without any infrastructure on your side.
+
+<Info>
+  MCP is an open protocol published by Anthropic. HireOtto's remote server is compatible with any client that implements the MCP specification, not just Anthropic's products.
+</Info>
+
+## Privacy & security
+
+- **Stored:** encrypted OAuth tokens required to call the Google Ads API on your behalf.
+- **Not stored long‑term:** your Google Ads data; it’s processed to answer your request and not retained.
+- **You’re in control:** revoke anytime from your Google Account → Security → Third‑party access.
+
+> ✅ Remote server = no local file exposure, no system‑wide permissions.
+
+## FAQ
+
+> **Which clients are supported?** Any MCP client that supports **remote MCP servers** should work. HireOtto is tested with Claude Web, ChatGPT (dev mode), [Make.com](http://Make.com) and Claude Desktop. If you run into issues with any client, email [**suyash@hireotto.com**](mailto:suyash@hireotto.com).
+
+CSV exports work best in clients that can fetch URLs (Claude Web/Desktop, [Make.com](http://Make.com) scenarios).
+
+> **Do I need Google Cloud or JSON editing?** No. Paste the URL, connect, authenticate, use.
+
+> **Pricing?** Live at: [https://www.hireotto.com/pricing](https://www.hireotto.com/pricing)
+
+> **Will HireOtto change my campaigns automatically?** Only when you ask for edits (e.g., creating/updating). Reports are read‑only.
+
+## Next step
+
+If you’re new to HireOtto, start with [Connect Google Ads MCP](/quickstart). If you already use Claude, ChatGPT, or Make, follow the client-specific setup guide: [Connect HireOtto to Claude, ChatGPT, and Make](/setup/connect-ai-tool).
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Connect HireOtto to your AI tool and run your first query in under 5 minutes.
+  </Card>
+
+  <Card title="Setup" icon="key" href="/setup/connect-ai-tool">
+    Connect HireOtto to Claude, ChatGPT, Make and more.
+  </Card>
+</CardGroup>

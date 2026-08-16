@@ -1,0 +1,98 @@
+{
+  "projectType": "saas",
+  "projectName": "HireOtto Google Ads MCP Server",
+  "projectDescription": "A remote Model Context Protocol (MCP) server that connects AI coding tools to Google Ads, enabling natural-language campaign management directly from your AI assistant.",
+  "theme": "luma",
+  "primaryColor": "#7c7c7c",
+  "lightColor": "#121212",
+  "darkColor": "#c1c1c1",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Setup",
+            "pages": [
+              "setup/connect-ai-tool",
+              "setup/google-ads-access",
+              "setup/configuration"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/manage-campaigns",
+              "guides/keyword-research",
+              "guides/reporting",
+              "guides/budget-optimization"
+            ]
+          },
+          {
+            "group": "Support",
+            "pages": [
+              "troubleshooting",
+              "faq"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "MCP Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "mcp-reference/overview",
+              "mcp-reference/tools"
+            ]
+          },
+          {
+            "group": "Campaigns",
+            "pages": [
+              "mcp-reference/campaigns/list",
+              "mcp-reference/campaigns/create",
+              "mcp-reference/campaigns/update"
+            ]
+          },
+          {
+            "group": "Reporting",
+            "pages": [
+              "mcp-reference/reporting/performance",
+              "mcp-reference/reporting/keywords"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Remote MCP server — no local installation required",
+    "Natural-language Google Ads management via AI assistants",
+    "Campaign creation, editing, and budget management",
+    "Keyword research and ad group management",
+    "Performance reporting and insights",
+    "Compatible with Claude, Cursor, Windsurf, and other MCP-enabled tools",
+    "Secure OAuth-based Google Ads authorization"
+  ],
+  "publicApiSurface": [
+    "MCP tool: list_campaigns",
+    "MCP tool: create_campaign",
+    "MCP tool: update_campaign",
+    "MCP tool: pause_campaign",
+    "MCP tool: get_keywords",
+    "MCP tool: add_keywords",
+    "MCP tool: get_performance_report",
+    "MCP tool: get_account_summary",
+    "Remote MCP endpoint URL (SSE/HTTP transport)",
+    "OAuth2 Google Ads authorization flow"
+  ]
+}

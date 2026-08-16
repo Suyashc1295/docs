@@ -1,0 +1,117 @@
+---
+title: "Google Ads Report Output Modes: Summary and CSV"
+description: "Learn when to use summary, summary_and_csv, and csv_only output modes for Google Ads reports, audits, and exports in HireOtto."
+sidebarTitle: "Output modes"
+---
+
+---
+
+## The three modes
+
+### `summary` (default)
+
+Returns results inline in your AI client — readable in the conversation, no download required. Limited to 50 rows by default (you can ask for more).
+
+Best for: quick checks, reviewing a handful of campaigns, anything you want to read and act on immediately.
+
+```text
+Show campaign performance for the last 30 days.
+```
+
+### `summary_and_csv`
+
+Returns the inline summary **plus** a signed download link for a CSV file. The inline view gives you a fast read; the CSV has the full export (up to 5,000 rows by default).
+
+Best for: when you want to glance at results in chat and also download the full data for a spreadsheet or report.
+
+```text
+Pull keyword performance for the last month and also export to CSV.
+```
+
+### `csv_only`
+
+Returns only the CSV download link, with minimal metadata in-chat. Nothing gets printed inline.
+
+Best for: automation, large accounts, or any time you're pulling data you'll use elsewhere — the AI client doesn't need to process thousands of rows.
+
+```text
+Export search terms report for last 30 days to CSV only.
+```
+
+---
+
+## CSV download links
+
+CSV links are signed and expire after **30 minutes** by default. If you need more time, ask for a longer TTL:
+
+```text
+Export campaign performance to CSV with a 2-hour link.
+```
+
+The file itself may persist longer on the server, but the link won't work after the TTL. Download it before it expires.
+
+---
+
+## Controlling how many rows you get
+
+**Inline limit** — how many rows appear in the conversation (default: 50). To see more or fewer:
+
+```text
+Show me the top 10 campaigns by cost — last 30 days.
+```
+
+```text
+Show me all campaigns, no row limit.
+```
+
+**Export limit** — how many rows go into the CSV (default: 5,000). For very large accounts:
+
+```text
+Export up to 10,000 search terms to CSV.
+```
+
+Note: the export limit also controls how many rows are fetched from Google Ads, so setting it very high on large accounts can slow down the response.
+
+---
+
+## When to use which mode
+
+| Situation | Mode |
+| :-- | :-- |
+| Checking performance on 5–10 campaigns | `summary` |
+| Weekly review you'll paste into a report | `summary_and_csv` |
+| Daily audit across 50\+ accounts via automation | `csv_only` |
+| Finding the top 3 wasted search terms to act on now | `summary` |
+| Pulling the full search terms list for analysis | `summary_and_csv` or `csv_only` |
+| Running a [Make.com](http://Make.com) automation that processes data downstream | `csv_only` |
+
+---
+
+## Specifying output mode in a prompt
+
+You can say it naturally — HireOtto understands intent:
+
+```text
+Get last month's campaign performance. Export to CSV.
+```
+
+```text
+Pull the search terms report — I just want the CSV, don't show it in chat.
+```
+
+```text
+Show me keyword performance for the last 7 days (top 20 by cost).
+```
+
+Or be explicit if you prefer:
+
+```text
+Get campaign performance for LAST_30_DAYS, output mode: csv_only, export limit 10000.
+```
+
+## Used in these workflows
+
+- [Analyze Google Ads performance reports with AI](/guides/reporting)
+- [Google Ads Account Audit with AI](/guides/google-ads-account-audit-with-ai)
+- [Manage Negative Keywords in Google Ads with AI](/guides/manage-negative-keywords-in-google-ads-with-ai)
+- [Manage Performance Max Campaigns with AI](/guides/manage-performance-max-campaigns)

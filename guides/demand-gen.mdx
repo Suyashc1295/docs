@@ -1,0 +1,474 @@
+---
+title: "Demand Gen campaigns with AI"
+description: "Create and manage Demand Gen campaigns in plain English — campaign setup, ad group channel controls, asset creation, and ads across YouTube, Discover, Gmail, and Display."
+sidebarTitle: "Demand Gen"
+---
+
+Demand Gen campaigns run across YouTube (in-stream, in-feed, Shorts), Discover, Gmail, and Display from a single campaign structure. They are Google's primary upper-funnel campaign type for visual creative at scale.
+
+Setting one up in the UI involves several distinct layers: campaign shell → ad group → channel controls → assets → ads. 
+
+HireOtto handles each step in a single conversation, and lets you inspect and update each layer independently.
+
+---
+
+## Step 1 — Create the campaign shell
+
+At minimum, you need a campaign name and a budget (either a daily amount or an existing budget ID). Everything else has a sensible default.
+
+### Campaign goals and bidding
+
+| Goal | Bidding strategy | Optional target |
+| :-- | :-- | :-- |
+| `CONVERSIONS` | Maximize Conversions | `target_cpa` |
+| `CONVERSION_VALUE` | Maximize Conversion Value | `target_roas` (e.g. `3.5` for 350%) |
+| `CLICKS` | Maximize Clicks | `target_cpc` |
+| `YOUTUBE_ENGAGEMENTS` | Maximize Engagements | — |
+
+If you omit a target, Google Ads uses unconstrained bidding for the chosen goal.
+
+```text
+Create a Demand Gen campaign called "[CAMPAIGN_NAME]" — $100/day budget, Maximize Conversions, target CPA $20.
+```
+
+```text
+Create a Demand Gen campaign — $500/day, Maximize Conversion Value, target ROAS 4.0.
+```
+
+```text
+Create a Demand Gen campaign for brand awareness — $200/day, YouTube Engagements goal.
+```
+
+---
+
+### Budget
+
+Two options:
+
+- **New budget:** Pass a `budget_amount`. HireOtto creates a new non-shared daily budget attached to this campaign.
+- **Existing budget:** Pass an existing `budget_id`. Must be a non-shared budget — Demand Gen campaigns cannot use shared budgets.
+
+```text
+Create a Demand Gen campaign and attach it to existing budget [BUDGET_ID].
+```
+
+---
+
+### Device targeting
+
+By default, all devices are eligible. Restrict to specific devices if your creative or landing page is optimised for a subset.
+
+Accepted: `DESKTOP`, `MOBILE`, `TABLET`, `CONNECTED_TV`
+
+```text
+Create a Demand Gen campaign — $100/day, mobile and tablet only.
+```
+
+```text
+Create a Demand Gen campaign targeting desktop and Connected TV.
+```
+
+---
+
+### Geo target type
+
+Controls how location targeting is interpreted.
+
+| Setting | Behaviour |
+| :-- | :-- |
+| `PRESENCE` (default) | Targets people physically present in the location |
+| `PRESENCE_OR_INTEREST` | Targets people present in or interested in the location |
+
+The negative geo target type is always `PRESENCE` — people physically in an excluded location are excluded regardless.
+
+```text
+Create a Demand Gen campaign targeting people interested in London, not just physically there.
+```
+
+---
+
+### Ad schedule
+
+Restrict when ads are eligible to show. Pass a list of day/time windows.
+
+Each window accepts:
+
+- `day_of_week`: MONDAY through SUNDAY
+- `start_hour` / `end_hour`: 0–23
+- `start_minute` / `end_minute`: ZERO, FIFTEEN, THIRTY, FORTY\_FIVE
+
+```text
+Create a Demand Gen campaign — weekdays only, 8am to 6pm.
+```
+
+```text
+Run ads Monday to Friday 9am–5pm and Saturday 10am–2pm.
+```
+
+---
+
+### Start and end dates
+
+```text
+Create a Demand Gen campaign — run from [START_DATE] to [END_DATE].
+```
+
+Accepted formats: `YYYYMMDD` or standard datetime strings.
+
+---
+
+### Tracking
+
+```text
+Create a Demand Gen campaign — tracking template: {lpurl}?utm_source=google&utm_medium=demand_gen&utm_campaign={campaignid}
+```
+
+```text
+Use final URL suffix: utm_source=google&utm_medium=cpc
+```
+
+---
+
+### EU political advertising
+
+Defaults to `DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING`. 
+
+Declare `CONTAINS_EU_POLITICAL_ADVERTISING` if applicable.
+
+---
+
+### Status
+
+Campaigns are created **paused by default**. Review the full structure before enabling.
+
+---
+
+## Step 2 — Add an ad group
+
+Ad groups in Demand Gen control which inventory your ads run on. Each ad group has its own channel controls, location targeting, language, and audience.
+
+### Channel strategy vs explicit channel selection
+
+**Preset strategy** — two broad inventory presets:
+
+| Strategy | Inventory included |
+| :-- | :-- |
+| `ALL_CHANNELS` | YouTube in-stream, in-feed, Shorts, Discover, Gmail, Display |
+| `ALL_OWNED_AND_OPERATED_CHANNELS` | YouTube, Discover, Gmail — no Display Expansion |
+
+**Explicit channel selection** — name exactly which channels to include:
+
+| Channel | Inventory |
+| :-- | :-- |
+| `youtube_in_stream` | Skippable and non-skippable pre-roll ads |
+| `youtube_in_feed` | YouTube search results and homepage feed |
+| `youtube_shorts` | YouTube Shorts vertical feed |
+| `discover` | Google Discover feed |
+| `gmail` | Gmail promotions tab |
+| `display` | Google Display Network |
+
+Use a preset for broad reach. Use explicit selection when you need a specific inventory mix — for example, a Shorts-only ad group for vertical video, or a Gmail \+ Discover ad group for a promotional push.
+
+Do not pass both `channel_strategy` and `selected_channels` unless you want explicit channels to override the strategy.
+
+```text
+Add a Demand Gen ad group to campaign [CAMPAIGN_ID] — all channels, India, English.
+```
+
+```text
+Create a Demand Gen ad group for YouTube Shorts only — US, English.
+```
+
+```text
+Add an ad group targeting Gmail and Discover — UK, English.
+```
+
+```text
+Create an ad group — all owned and operated channels (no Display), Australia.
+```
+
+---
+
+### Location targeting
+
+Pass human-readable location names. HireOtto resolves them to Google Ads geo target IDs.
+
+- `locations`: include (target)
+- `negative_locations`: exclude
+
+```text
+Add a Demand Gen ad group — include US and Canada, exclude India.
+```
+
+---
+
+### Language
+
+Defaults to English. Pass any supported language name or ISO code, or `None` to leave language unset.
+
+Supported: English (en), Spanish (es), French (fr), German (de), Italian (it), Portuguese (pt), Japanese (ja), Korean (ko), Hindi (hi), Chinese (zh)
+
+---
+
+### Audience targeting
+
+Demand Gen ad groups support one audience resource name. To get available audience resource names:
+
+```text
+List all audiences in account [CUSTOMER_ID].
+```
+
+Then:
+
+```text
+Add a Demand Gen ad group — audience: [AUDIENCE_RESOURCE_NAME], all channels, US, English.
+```
+
+---
+
+## Step 3 — Create assets (optional)
+
+Create standalone assets when the same image or video will appear across multiple ads. HireOtto returns the asset resource name, which you then reference when building ads.
+
+For one-off ads, skip this step and pass image URLs or YouTube video IDs inline when creating the ad.
+
+### Supported asset types
+
+| Type | Required input |
+| :-- | :-- |
+| `MARKETING_IMAGE` | Image URL (landscape) |
+| `SQUARE_MARKETING_IMAGE` | Image URL (1:1) |
+| `LOGO_IMAGE` | Image URL |
+| `YOUTUBE_VIDEO` | YouTube video ID (not full URL) |
+| `TEXT` | Text string |
+| `CALL_TO_ACTION` / `CTA` | CTA display text |
+
+**Supported CTA values:** Apply now, Book now, Contact us, Download, Get quote, Learn more, See more, Shop now, Sign up, Subscribe, Visit site, Donate now
+
+```text
+Create a marketing image asset from [IMAGE_URL] — name it "[ASSET_NAME]".
+```
+
+```text
+Create a square marketing image from [IMAGE_URL] — name it "[ASSET_NAME]".
+```
+
+```text
+Create a YouTube video asset — video ID [VIDEO_ID], name "[ASSET_NAME]".
+```
+
+```text
+Create a CTA asset: "Shop now".
+```
+
+---
+
+## Step 4 — Create ads
+
+All ads are created **paused by default**.
+
+### Single image / Multi-asset
+
+The standard Demand Gen format. Works across most inventory types.
+
+**Minimum:** one marketing image (or square), one headline, one description, final URL.
+
+**Optional:** logo, additional image formats (portrait, tall portrait, classic display), business name, CTA, multiple headlines and descriptions.
+
+```text
+Create a multi-asset ad in ad group [ADGROUP_ID]:
+  marketing image: [IMAGE_URL]
+  logo: [LOGO_URL]
+  headline: "[HEADLINE]"
+  description: "[DESCRIPTION]"
+  business name: "[BUSINESS_NAME]"
+  CTA: "Learn more"
+  final URL: [URL]
+```
+
+To pass existing asset resource names instead of inline URLs:
+
+```text
+Create a single image ad in ad group [ADGROUP_ID]:
+  marketing image asset: [ASSET_RESOURCE_NAME]
+  headline: "[HEADLINE]"
+  description: "[DESCRIPTION]"
+  final URL: [URL]
+```
+
+For campaigns running across multiple placements, passing portrait and square variants alongside landscape gives Google more to work with:
+
+```text
+Create a multi-asset ad — landscape: [URL_1], square: [URL_2], portrait: [URL_3], headline: "[HEADLINE]", description: "[DESCRIPTION]", final URL: [URL].
+```
+
+---
+
+### Carousel image
+
+Pass cards inline or by existing card asset resource names. Each card can carry its own image.
+
+```text
+Create a carousel ad in ad group [ADGROUP_ID]:
+  cards: [IMAGE_URL_1], [IMAGE_URL_2], [IMAGE_URL_3]
+  headline: "[HEADLINE]"
+  CTA: "Shop now"
+  final URL: [URL]
+```
+
+`breadcrumb1` and `breadcrumb2` are optional display path fields for carousel ads.
+
+---
+
+### Video / Video responsive
+
+Requires at least one YouTube video ID. HireOtto creates a CTA asset internally from your `call_to_action_text`.
+
+```text
+Create a video ad in ad group [ADGROUP_ID]:
+  YouTube video: [VIDEO_ID]
+  headline: "[HEADLINE]"
+  business name: "[BUSINESS_NAME]"
+  CTA: "Sign up"
+  final URL: [URL]
+```
+
+For video responsive, pass multiple video IDs:
+
+```text
+Create a video responsive ad — videos: [VIDEO_ID_1], [VIDEO_ID_2], headline: "[HEADLINE]", description: "[DESCRIPTION]", final URL: [URL].
+```
+
+---
+
+### CTA text
+
+For Single image / Multi-asset ads, `call_to_action_text` is passed as display text. Use human-readable values — not enum-style values like `LEARN_MORE` (Google may reject those).
+
+---
+
+## Inspecting Demand Gen structure
+
+Three listing actions. Run these before making changes.
+
+```text
+Show me all Demand Gen campaigns in account [CUSTOMER_ID].
+```
+
+Returns: campaign IDs, goals, bidding, devices, geo settings, ad schedule.
+
+```text
+Get the channel settings for all Demand Gen ad groups in campaign [CAMPAIGN_ID].
+```
+
+Returns: channel controls, locations, languages, audiences per ad group.
+
+```text
+Show me all ads in ad group [ADGROUP_ID].
+```
+
+Returns: ad IDs, type, status, creative asset references.
+
+---
+
+## Updating campaigns
+
+Pass only the fields you want to change. All other settings remain unchanged.
+
+```text
+Update campaign [CAMPAIGN_ID] — change goal to Maximize Conversion Value, target ROAS 3.5.
+```
+
+```text
+Pause campaign [CAMPAIGN_ID].
+```
+
+```text
+Update campaign [CAMPAIGN_ID] — restrict to mobile only.
+```
+
+```text
+Add a weekday 9am–6pm ad schedule to campaign [CAMPAIGN_ID].
+```
+
+```text
+Update tracking template for campaign [CAMPAIGN_ID]: {lpurl}?utm_campaign={campaignid}
+```
+
+When updating ad schedules, the default mode is `REPLACE` — existing schedules are removed before new ones are applied. Use `APPEND` to add without removing.
+
+```text
+Add Saturday 10am–4pm to campaign [CAMPAIGN_ID] without removing the existing weekday schedule.
+```
+
+---
+
+## Updating ad groups
+
+```text
+Switch ad group [ADGROUP_ID] to YouTube Shorts and Gmail only.
+```
+
+```text
+Update ad group [ADGROUP_ID] — all owned and operated channels.
+```
+
+```text
+Rename ad group [ADGROUP_ID] to "[NEW_NAME]".
+```
+
+```text
+Pause ad group [ADGROUP_ID].
+```
+
+---
+
+## Updating ad creative
+
+Demand Gen creative fields cannot be edited directly via the Google Ads API. The correct approach is replacement: HireOtto creates a new ad with the updated creative, then pauses the old one.
+
+```text
+Replace the creative on ad [AD_ID] in ad group [ADGROUP_ID]:
+  new marketing image: [IMAGE_URL]
+  headline: "[NEW_HEADLINE]"
+  description: "[NEW_DESCRIPTION]"
+  final URL: [URL]
+```
+
+The old ad is paused automatically. Pass `pause old ad: false` to keep both running.
+
+To change status only (no creative change):
+
+```text
+Pause ad [AD_ID] in ad group [ADGROUP_ID].
+```
+
+```text
+Enable ad [AD_ID] in ad group [ADGROUP_ID].
+```
+
+---
+
+## What to check before enabling
+
+- Campaign goal matches your active conversion actions
+- At least one approved ad exists in each ad group before the campaign goes live
+- Channel selection matches your creative formats — Shorts requires vertical video; carousel and multi-asset work broadly
+- Device targeting is consistent with your landing page experience
+- Location and audience targeting is set at the ad group level (campaign-level geo type controls how location targeting is interpreted, but actual locations are set per ad group)
+
+---
+
+## Recommended workflow
+
+1. Create the campaign shell (paused)
+2. List available audiences → `List all audiences in account [CUSTOMER_ID]`
+3. Add ad group with channel controls, locations, language, audience
+4. Create reusable assets if the same creative will appear in multiple ads
+5. Create ads (paused)
+6. Inspect → campaign settings, ad group channel controls, ads
+7. Enable when structure looks right
+
+→ See the full tools reference at [/google-ads-mcp-tools](/google-ads-mcp-tools#demand-gen-campaigns)
+
+→ See the changelog at [/changelog](/changelog)

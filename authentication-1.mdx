@@ -1,0 +1,174 @@
+---
+title: "Google Ads OAuth Authentication in HireOtto"
+description: "Learn how HireOtto connects to Google Ads with OAuth, handles MCC access, supports multiple Google logins, and resolves account permissions."
+sidebarTitle: "Authentication"
+---
+
+---
+
+## First-time setup
+
+Ask your AI client:
+
+```text
+Connect my Google Ads account to HireOtto.
+```
+
+HireOtto will return an authorization URL.
+
+- Open it, sign in with the Google account that has access to your Google Ads, and complete the consent screen.
+- After consent, you'll see a list of all accessible accounts — you can select all of them or pick specific ones, then **SAVE**.
+  - This step is important: if you skip saving, HireOtto won't have any accounts to work with even though the OAuth itself completed successfully.
+- Once saved, come back to your client — you're connected.
+
+If you have not added HireOtto to your AI client yet, start with [Connect Google Ads MCP](/quickstart). If you are setting up Claude, ChatGPT, or Make specifically, use [Connect HireOtto to Claude, ChatGPT, and Make](/setup/connect-ai-tool).
+
+---
+
+## How HireOtto resolves accounts
+
+When you connect a Google login, HireOtto looks one level down from each account it can see:
+
+- Direct Google Ads accounts are included as-is
+- If any of those accounts is a Manager account (MCC), HireOtto also includes all the child accounts directly under it
+
+So a single connected login can give you access to your own accounts plus all client accounts under a Manager — without any extra setup.
+
+**Where this stops:** if your MCC contains another MCC (a nested Manager hierarchy), HireOtto won't automatically traverse further. To access accounts at that deeper level, you need to connect a separate Google login that has direct access to the inner MCC. See [Connecting multiple Google logins](#connecting-multiple-google-logins) below.
+
+---
+
+## Connecting multiple Google logins
+
+There are two common reasons to connect more than one Google login:
+
+1. **Deep MCC hierarchies** — you have an MCC inside an MCC, and the outer login can't reach the inner accounts directly
+2. **Access spread across multiple Gmails** — you or your team have client account access granted to different Google logins, and you want all of them available through one HireOtto connector
+
+In both cases, the setup is the same: connect each Google login as a separate profile with a nickname.
+
+```text
+Connect another Google account. Call it "client_mcc".
+```
+
+HireOtto will generate a second authorization URL. Complete the OAuth flow with that Google login, select the accounts you want to save, and you're done. Repeat for as many logins as you need.
+
+**Example: three-level MCC hierarchy**
+
+Say you have this structure:
+
+- Level 0: Your agency MCC — accessible via your primary Gmail
+- Level 1: A client's MCC — accessible via a separate Gmail
+- Level 2: The client's individual accounts under their MCC
+
+Your primary Gmail gets you to Level 0 and everything directly under it. But to reach Level 2, you need to connect the Gmail that has direct access to the Level 1 MCC:
+
+```text
+Connect another Google account. Call it "client_level1_mcc".
+```
+
+Sign in with that Gmail during OAuth, save the accounts — HireOtto will now see the Level 2 accounts under that MCC.
+
+One important note: connecting the same Gmail twice under different profile names won't help — you'll get the same account access either way. The key is using a different Google login that actually has direct access to the deeper MCC.
+
+**Profile name tips**
+
+- Keep it short and memorable: `agency_mcc`, `client_ops`, `jane_gmail`
+- Avoid colons (`:`) — they're used internally
+- Multiple profiles require the Agency plan
+
+---
+
+## Refreshing accounts after adding new ones
+
+If you've been granted access to a new Google Ads account after your initial setup, HireOtto won't see it automatically. Tell your client:
+
+```text
+Refresh my Google Ads accounts.
+```
+
+To refresh accounts for a specific connected login:
+
+```text
+Refresh accounts for myemail@gmail.com.
+```
+
+---
+
+## When auth breaks
+
+Common signs something's off:
+
+- You see an error like `Google Ads isn't connected`
+- `list_accessible_accounts` returns an empty list
+- Requests fail with a permissions or authentication error
+
+The most common cause: completing OAuth but not saving any accounts during the flow. Re-run auth and make sure you select and save accounts before finishing:
+
+```text
+Re-authenticate my Google Ads account.
+```
+
+If a specific connected login is failing:
+
+```text
+Re-authenticate myemail@gmail.com.
+```
+
+Go to [Troubleshooting](/troubleshooting) for common fixes around missing accounts, OAuth errors, connector issues, and Google Ads permissions.
+
+---
+
+## Google Search Console authentication
+
+Google Search Console uses a separate Google permission flow from Google Ads.
+
+Even if you have already connected Google Ads, you still need to connect Search Console before asking for organic search reports.
+
+Ask your AI client:
+
+```text
+Connect my Google Search Console account.
+```
+
+HireOtto will return an authorization URL.
+
+- Open it and sign in with the Google account that has access to your Search Console properties.
+- Complete the Google consent screen.
+- When the auth page says Search Console is connected, close the window and return to your AI client.
+
+Then verify access:
+
+```text
+Show me the Search Console sites I have access to.
+```
+
+Unlike Google Ads, there is no account selection step after Search Console authentication. HireOtto saves the accessible Search Console properties automatically.
+
+### Connecting multiple Search Console logins
+
+If Search Console access is spread across multiple Google accounts, you can connect another Google login by asking to connect another Search Console profile.
+
+Example:
+
+```text
+Connect another Google Search Console account.
+```
+
+Use this when a different Gmail has access to different Search Console properties.
+
+---
+
+## Frequently asked questions
+
+**Does HireOtto store my Google credentials?**
+
+No. HireOtto uses OAuth tokens — not your Google password. You can revoke access at any time from your [Google account security settings](https://myaccount.google.com/permissions).
+
+**Can I connect a Google Ads Manager account (MCC)?**
+
+Yes. Connect the Google login that has access to the MCC. HireOtto will include the MCC itself plus all accounts directly under it. For accounts nested under a second-level MCC, connect a separate Google login that has direct access to that inner MCC.
+
+**I completed OAuth but my accounts still aren't showing up.**
+
+You likely didn't select and save any accounts during the OAuth flow. Re-authenticate, and when you reach the account selection screen, make sure to select the accounts you want and confirm the save before returning to your client.

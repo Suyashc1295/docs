@@ -1,0 +1,91 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "luma",
+  "name": "HireOtto",
+  "colors": {
+    "primary": "#7c7c7c",
+    "light": "#121212",
+    "dark": "#c1c1c1"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "setup/connect-ai-tool",
+              "changelog"
+            ]
+          },
+          {
+            "group": "How HireOtto Works",
+            "pages": [
+              "authentication-1",
+              "credits-and-billing",
+              "output-modes"
+            ]
+          },
+          {
+            "group": "Tools Reference",
+            "pages": [
+              "google-ads-mcp-tools"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/reporting",
+              "guides/google-ads-account-audit-with-ai",
+              "guides/keyword-research-ai",
+              "guides/create-a-google-ads-campaign-with-ai",
+              "guides/manage-negative-keywords-in-google-ads-with-ai",
+              "guides/google-ads-daily-optimization-with-ai",
+              "guides/manage-performance-max-campaigns",
+              "guides/extension-assets",
+              "guides/demand-gen",
+              "guides/google-search-console"
+            ]
+          },
+          {
+            "group": "Support",
+            "pages": [
+              "faq",
+              "troubleshooting"
+            ]
+          },
+          {
+            "group": "Video Library",
+            "pages": [
+              {
+                "group": "Claude Web",
+                "pages": [
+                  "connect-hireotto-to-claude-web",
+                  "connect-google-ads-to-claude",
+                  "manage-google-ads-conversions-with-ai"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/hireotto"
+    }
+  },
+  "favicon": "/images/OTTO-Beehiiv-Icon(1).png",
+  "logo": "/images/OTTO-Beehiiv-Icon(1).png",
+  "appearance": {
+    "default": "light"
+  },
+  "seo": {
+    "indexing": "all"
+  }
+}

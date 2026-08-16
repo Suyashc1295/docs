@@ -1,0 +1,1044 @@
+---
+title: "Google Ads MCP Tools Reference | HireOtto"
+description: "Browse HireOtto’s Google Ads MCP tools for reporting, keyword research, audits, campaign creation, Performance Max, and account management."
+sidebarTitle: "Tools"
+---
+
+## Account discovery
+
+List all Google Ads accounts accessible to your connected Google login(s).
+
+**Options**
+
+- Refresh live from Google (useful after being added to new accounts)
+- Filter by a specific connected profile / email
+
+**Example prompts**
+
+```text
+Show me all my Google Ads accounts.
+```
+
+```text
+Refresh accounts for `xyz@gmail.com`.
+```
+
+---
+
+## Account hygiene
+
+Four point-in-time checks you can run on any account. Good first step whenever you take on a new account or do a quarterly review.
+
+**What you can check**
+
+- **Auto-tagging** — whether auto-tagging is enabled. HireOtto can also turn it on if it's off.
+- **Auto-apply recommendations** — which Google recommendations are set to apply automatically. HireOtto can disable them.
+- **Disapproved ads** — any ads currently disapproved, with disapproval reasons.
+- **Negative keywords** — negative keywords at the campaign and ad group level. Optionally filtered to a specific campaign.
+
+**Options**
+
+- Account to audit (required; HireOtto will ask if you have multiple)
+- For auto-tagging: whether to apply the fix, or just report
+- For auto-apply: whether to disable the subscriptions, or just report
+- For negative keywords: optionally filter to a specific campaign
+
+**Example prompts**
+
+```text
+Run a full hygiene audit on account [CUSTOMER_ID].
+```
+
+```text
+Check auto-tagging for my account and turn it on if it's off.
+```
+
+```text
+Show me all disapproved ads.
+```
+
+```text
+Review negative keywords for campaign [CAMPAIGN_ID].
+```
+
+---
+
+## Discovery & listing
+
+Browse the structure of any account — campaigns, ad groups, keywords, ads, and negative keyword lists. These are navigation actions, not performance reports; they return IDs and status, not metrics.
+
+**What you can list**
+
+- Campaigns (ID, name, status)
+- Ad groups (filterable by campaign)
+- Keywords / positive keywords (filterable by campaign or ad group)
+- Ads (filterable by campaign, ad group, or ad ID)
+- Negative keyword lists (optionally include the keywords inside each list)
+- Campaign settings — bidding strategy, geo targeting, networks, ad schedule, devices
+- Performance Max asset groups, assets, and signals (see Performance Max section)
+- Audiences available in the account (used for PMax audience signals)
+- Demand Gen campaign settings — goal, bidding, devices, geo targeting
+- Demand Gen ad group settings — channel controls, locations, languages, audiences
+- Demand Gen ads and creative asset references
+
+**Example prompts**
+
+```text
+List all campaigns in account [CUSTOMER_ID].
+```
+
+```text
+Show me the ad groups in campaign [CAMPAIGN_ID].
+```
+
+```text
+List all keywords in ad group [ADGROUP_ID].
+```
+
+```text
+Show me my negative keyword lists (include the keywords in each list).
+```
+
+```text
+What are the current campaign settings for campaign [CAMPAIGN_ID]?
+```
+
+```text
+Show me all Demand Gen campaigns in account [CUSTOMER_ID].
+```
+
+```text
+Get the channel settings for all Demand Gen ad groups in campaign [CAMPAIGN_ID].
+```
+
+```text
+Show me all ads in Demand Gen ad group [ADGROUP_ID].
+```
+
+---
+
+## Performance reporting
+
+Pull metrics for any level of your account across any date range. All reports support filtering, sorting, and CSV export.
+
+**Available reports**
+
+_Common reports_
+
+- Campaign performance
+- Ad group performance
+- Ad performance
+- Keyword performance
+- Search terms report
+- Geographic performance
+- Device performance
+- Impression share (competitive visibility)
+- Conversion actions
+- Age range performance
+- Gender performance
+- Extension asset performance
+
+_Performance Max_
+
+- PMax campaign performance
+- PMax campaign placements
+- PMax campaign feed types
+- PMax asset group performance
+- PMax asset group strength (ad strength \+ action items)
+- PMax asset-level performance
+- Top asset combinations
+- PMax search terms report
+
+_Custom (Agency plan only)_
+
+- Custom GAQL query — write any read-only SELECT query against the Google Ads API
+
+**Options**
+
+- Date range: predefined (`LAST_7_DAYS`, `LAST_30_DAYS`, `LAST_MONTH`, `THIS_MONTH`, etc.) or a custom start/end date
+- Filter by campaign or ad group
+- Sort by: cost, clicks, impressions, conversions, CTR, average CPC, cost per conversion
+- Segment by day
+- Output mode: `summary` (default), `summary_and_csv`, `csv_only`
+- Inline row limit (default 50)
+
+**Example prompts**
+
+```text
+Show campaign performance for the last 30 days.
+```
+
+```text
+Pull keyword performance for campaign [CAMPAIGN_ID] from April 1 to April 30, sorted by cost.
+```
+
+```text
+Get the search terms report for last month and export to CSV.
+```
+
+```text
+Show device performance for account [CUSTOMER_ID] — last 7 days.
+```
+
+```text
+Pull impression share data for last month.
+```
+
+```text
+Get PMax asset group strength for all asset groups.
+```
+
+```text
+Show extension asset performance for account [CUSTOMER_ID] over the last 30 days.
+```
+
+```text
+Show campaign-level sitelink performance for campaign [CAMPAIGN_ID] over the last 30 days.
+```
+
+```text
+Show customer-level call asset performance for account [CUSTOMER_ID] this month.
+```
+
+→ For a practical workflow, see [Analyze Google Ads performance reports with AI](/guides/reporting).
+
+---
+
+## Keyword research
+
+Generate keyword ideas or get historical metrics for a list of known keywords. Uses the same underlying Google Keyword Planner API.
+
+**What you can do**
+
+- **Keyword ideas** — generate new keyword suggestions from seed keywords or a URL
+- **Historical metrics** — get search volume, competition, and bid ranges for keywords you already have
+
+**Options**
+
+- Seed keywords or a page URL (for ideas)
+- Locations (country, region, or city — one or multiple)
+- Location mode: aggregated across all locations, or separate results per location
+- Language
+- Network: Google Search only, or Google Search \+ partners
+- Date range for historical data (default: last 12 complete months)
+- Sort by: average monthly searches, competition, bid ranges
+- Filter by minimum search volume or competition level (Low / Medium / High)
+
+**Example prompts**
+
+```text
+Generate keyword ideas for "project management software" targeting the US.
+```
+
+```text
+Keyword ideas based on this URL: [YOUR_URL] — target UK and Australia separately.
+```
+
+```text
+Get historical metrics for these keywords: [KEYWORD_1], [KEYWORD_2], [KEYWORD_3] — US, last 12 months.
+```
+
+```text
+Find low-competition keywords related to "accounting software" with at least 500 monthly searches.
+```
+
+→ For a practical workflow, see [Google Ads keyword research with AI](/guides/keyword-research-ai).
+
+---
+
+## Campaign creation
+
+### Search campaigns
+
+Create a new Search campaign, paused by default so you can review before launching.
+
+**What gets set at creation**
+
+- Campaign name and daily budget
+- Location and language targeting
+- Bidding strategy
+- UTM tracking template (applied automatically)
+- EU political advertising: doesn't contain
+- Status: paused
+- Network targeting: Google search only (no display or partners)
+- Location presence targeting: 'Presence' not 'Presence or Interest'
+
+**Bidding strategies**
+
+- Maximise clicks (with optional max CPC cap)
+- Maximise conversions (with optional target CPA)
+- Maximise conversion value (with optional target ROAS)
+- Target impression share (requires: location preference, share target, max CPC cap)
+- Manual CPC
+
+**Example prompt**
+
+```text
+Create a Search campaign called "[CAMPAIGN_NAME]" with a $[BUDGET]/day budget, targeting [LOCATION], with Maximise Conversions bidding and a target CPA of $[TARGET_CPA].
+```
+
+#### Ad & keyword management
+
+**Responsive Search Ads**
+
+Create new RSAs or update existing ones.
+
+**Create**
+
+- Requires: ad group, headlines (3–15, max 30 chars each), descriptions (2–4, max 90 chars each), final URL, and optional display URL paths
+- Supports headline and description pinning
+
+**Update**
+
+- Change headlines, descriptions, or display URL paths on an existing ad
+- Change ad status (enable, pause, remove)
+
+**Example prompts**
+
+```text
+Create a responsive search ad in ad group [ADGROUP_ID] with these headlines: [H1], [H2], [H3] and descriptions: [D1], [D2]. Final URL: [URL].
+```
+
+```text
+Pause ad [AD_ID].
+```
+
+```text
+Update the headlines on ad [AD_ID] — replace "[OLD_HEADLINE]" with "[NEW_HEADLINE]".
+```
+
+#### Keywords
+
+Add positive (targeted) keywords to an ad group, or manage negative keywords at the campaign level.
+
+**Match types:** Broad, Phrase, Exact
+
+**Example prompts**
+
+```text
+Add these keywords to ad group [ADGROUP_ID] as exact match: [KW1], [KW2], [KW3].
+```
+
+```text
+Add "[KEYWORD]" as a phrase match negative keyword to campaign [CAMPAIGN_ID].
+```
+
+#### Negative keyword lists
+
+Create shared negative keyword lists and assign them to campaigns.
+
+**Example prompts**
+
+```text
+Create a negative keyword list called "[LIST_NAME]" with these keywords: [KW1], [KW2].
+```
+
+```text
+Assign negative list [LIST_ID] to campaign [CAMPAIGN_ID].
+```
+
+```text
+Add "[KEYWORD]" to negative list [LIST_ID].
+```
+
+→ For a practical workflow, see [Manage Google Ads negative keywords with AI](/guides/manage-negative-keywords-in-google-ads-with-ai).
+
+#### Ad groups
+
+Create ad groups or update their name and status.
+
+**Example prompts**
+
+```text
+Create an ad group called "[ADGROUP_NAME]" in campaign [CAMPAIGN_ID].
+```
+
+```text
+Pause ad group [ADGROUP_ID].
+```
+
+---
+
+### Performance Max campaigns
+
+Create a full PMax campaign with budget, asset group, and initial assets in one step.
+
+See the [Performance Max section](#performance-max) for the full breakdown.
+
+---
+
+### App campaigns
+
+Create campaigns to drive app installs, in-app actions, or pre-registrations.
+
+**Goals**
+
+- `installs` — drive app downloads
+- `in_app_actions` — drive specific in-app events
+- `in_app_action_value` — optimize for conversion value
+- `engagement_in_app_actions` — re-engage existing users
+- `pre_registration` — pre-launch registrations
+
+**Example prompt**
+
+```text
+Create an App Installs campaign called "[CAMPAIGN_NAME]" for app ID [APP_ID] on Google Play, $[BUDGET]/day budget, targeting [LOCATION].
+```
+
+→ For a practical workflow, see [Google Ads campaign management with AI](/guides/create-a-google-ads-campaign-with-ai).
+
+---
+
+### Demand Gen campaigns
+
+Create and manage Demand Gen campaigns — Google's cross-inventory campaign type that runs across YouTube (in-stream, in-feed, Shorts), Discover, Gmail, and Display.
+
+Demand Gen has more moving parts than Search: campaign shell, ad group channel controls, assets, and ads are all separate layers. HireOtto handles each step in plain English.
+
+#### Campaign shell
+
+**What gets set at creation**
+
+- Campaign name
+- Budget: new daily budget (by amount) or an existing non-shared budget ID
+- Campaign goal: Conversions, Clicks, Conversion Value, or YouTube Engagements
+- Optional bid targets: target CPA, target ROAS, or target CPC
+- Device targeting (all devices eligible by default)
+- Geo target type (Presence or Presence or Interest)
+- Ad schedule
+- Status: Paused by default — review before enabling
+
+**Example prompts**
+
+```text
+Create a Demand Gen campaign called "[CAMPAIGN_NAME]" with a $100/day budget, Maximize Conversions goal, target CPA of $15.
+```
+
+```text
+Create a Demand Gen campaign with a $50/day budget targeting mobile and tablet only.
+```
+
+#### Ad groups
+
+**What you can control**
+
+- Channel strategy: `ALL_CHANNELS` (all supported Demand Gen inventory) or `ALL_OWNED_AND_OPERATED_CHANNELS` (YouTube, Discover, Gmail — no Display)
+- Explicit channel selection: YouTube in-stream, in-feed, Shorts, Discover, Gmail, Display, Maps
+- Location targeting (human-readable names: "India", "Mumbai")
+- Language targeting
+- Audience targeting (audience resource names — use _List Audiences_ to get these)
+- Status: Paused by default
+
+Use channel strategy for broad presets. Use explicit channel selection when you want to include or exclude specific inventory.
+
+**Example prompts**
+
+```text
+Add a Demand Gen ad group to campaign [CAMPAIGN_ID] — all channels, targeting India, English.
+```
+
+```text
+Create a Demand Gen ad group for YouTube Shorts and Discover only — US, English.
+```
+
+#### Assets
+
+Create reusable assets before or during ad creation.
+
+**Supported asset types**
+
+- `MARKETING_IMAGE` — standard landscape image
+- `SQUARE_MARKETING_IMAGE` — square image
+- `LOGO_IMAGE` — brand logo
+- `YOUTUBE_VIDEO` — YouTube video by video ID
+- `TEXT` — standalone text asset
+- `CALL_TO_ACTION` / `CTA` — supported values include: Apply now, Book now, Contact us, Download, Get quote, Learn more, Shop now, Sign up, Subscribe, Visit site
+
+**Example prompts**
+
+```text
+Create a marketing image asset from [IMAGE_URL] — name it "[ASSET_NAME]".
+```
+
+```text
+Create a CTA asset: "Learn more".
+```
+
+#### Ads
+
+**Supported ad types**
+
+- Single image / Multi-asset
+- Carousel image
+- Video / Video responsive
+
+**What you can set**
+
+- Final URLs
+- Business name
+- Headlines, descriptions, long headlines
+- Call to action text
+- Image assets: marketing, square, portrait, tall portrait, logo, classic display (by resource name or inline URL)
+- Video assets (by resource name or YouTube video ID)
+- Carousel cards (inline or by existing card asset resource names)
+- Breadcrumbs (carousel)
+
+For one-off ads, inline image URLs and YouTube video IDs are usually easiest. For reusable creative libraries, create assets first and pass their resource names.
+
+**Example prompts**
+
+```text
+Create a single image ad in ad group [ADGROUP_ID] — marketing image: [IMAGE_URL], headline: "[HEADLINE]", description: "[DESCRIPTION]", CTA: "Learn more", final URL: [URL].
+```
+
+```text
+Create a video ad using YouTube video [VIDEO_ID] — business name: "[BUSINESS_NAME]", headline: "[HEADLINE]", CTA: "Sign up", final URL: [URL].
+```
+
+```text
+Create a carousel ad with these cards: [CARD_1_IMAGE_URL] / [CARD_2_IMAGE_URL] — headline: "[HEADLINE]", final URL: [URL].
+```
+
+#### Inspect and update
+
+**Inspect**
+
+Three listing actions are available under _Discovery & listing_:
+
+- `get_demand_gen_campaign_settings` — campaign goal, bidding, devices, geo settings
+- `get_demand_gen_ad_group_settings` — channel controls, locations, languages, audiences
+- `get_demand_gen_ads` — ads and their creative asset references (optionally include removed ads)
+
+**Update campaigns**
+
+- Campaign name, status, goal, bidding targets
+- Budget assignment
+- Device targeting, geo target type, ad schedule
+- Start and end dates
+
+**Update ad groups**
+
+- Channel strategy or explicit channel selection
+- Ad group name and status
+
+**Update ads**
+
+- Ad status (pause or enable)
+- Creative replacement: pass the new creative details and HireOtto creates a replacement ad, then pauses the old one
+
+Creative fields in Demand Gen cannot be edited directly — replacement is the correct pattern.
+
+**Example prompts**
+
+```text
+Show me the channel settings for all Demand Gen ad groups in account [CUSTOMER_ID].
+```
+
+```text
+Switch ad group [ADGROUP_ID] to YouTube Shorts and Gmail only.
+```
+
+```text
+Show me all ads in Demand Gen campaign [CAMPAIGN_ID], including removed ones.
+```
+
+```text
+Pause Demand Gen campaign [CAMPAIGN_ID].
+```
+
+→ For a step-by-step workflow, see [Demand Gen campaigns with AI](/guides/demand-gen).
+
+---
+
+## Extension assets
+
+Manage Google Ads extension-style assets such as sitelinks, callouts, structured snippets, call assets, and price assets.\
+\
+These are reusable Google Ads assets. You can create an asset once, link it at the account, campaign, or ad group level where supported, and reuse the same asset across multiple eligible levels without recreating it.
+
+### What you can do
+
+- List existing extension assets and see their `asset_resource_name`
+- Create new sitelinks, callouts, structured snippets, call assets, and price assets
+- Link an existing asset at the account, campaign, or ad group level
+- Reuse the same asset across supported levels
+- Unlink an asset association without deleting the underlying reusable asset
+- Pull extension asset performance from the reporting tool
+
+### Supported asset types
+
+- `SITELINK`
+- `CALLOUT`
+- `STRUCTURED_SNIPPET`
+- `CALL`
+- `PRICE`
+
+<Info>
+  Create and link are separate operations. If you ask HireOtto to add a new sitelink or callout to a campaign, your AI assistant may first create the asset and then link it to the campaign.\
+  \
+  Unlinking removes the association only. The underlying asset remains available by `asset_resource_name`, though Google Ads may show the removed association under removed asset filters in the UI.
+</Info>
+
+### Example prompts
+
+```text
+List all extension assets in account [CUSTOMER_ID]. Include sitelinks, callouts, structured snippets, call assets, and price assets.
+```
+
+```text
+Create a sitelink asset in account [CUSTOMER_ID]:
+Name: Pricing Sitelink
+Link text: View Pricing
+Description 1: Compare plans
+Description 2: Choose your fit
+Final URL: https://example.com/pricing
+```
+
+```text
+Link this sitelink asset to campaign [CAMPAIGN_ID]:
+customers/[CUSTOMER_ID]/assets/[ASSET_ID]
+```
+
+```text
+Reuse this same sitelink asset and link it to ad group [ADGROUP_ID]:
+customers/[CUSTOMER_ID]/assets/[ASSET_ID]
+```
+
+```text
+Create these callouts in account [CUSTOMER_ID]:
+Free setup
+No long-term contract
+24/7 support
+Then link them at the account level.
+```
+
+```text
+Unlink this campaign-level sitelink association:
+customers/[CUSTOMER_ID]/campaignAssets/[CAMPAIGN_ID]~[ASSET_ID]~SITELINK
+```
+
+---
+
+## Campaign settings
+
+Update settings on existing Search campaigns.
+
+**What you can change**
+
+- Campaign status (enable / pause)
+- Daily budget
+- Bidding strategy
+- Location and language targeting
+- Network settings (Search Partners, Display Network)
+- Ad serving optimization
+- Campaign start and end dates
+- Device and location bid modifiers
+- EU political advertising declaration
+
+**Example prompts**
+
+```text
+Pause campaign [CAMPAIGN_ID].
+```
+
+```text
+Change the budget for campaign [CAMPAIGN_ID] to $[AMOUNT]/day.
+```
+
+```text
+Switch campaign [CAMPAIGN_ID] to Maximise Conversions with a $[TARGET_CPA] target CPA.
+```
+
+```text
+Turn off Search Partners for campaign [CAMPAIGN_ID].
+```
+
+```text
+Increase mobile bid modifier by 20% for campaign [CAMPAIGN_ID].
+```
+
+---
+
+## Campaign budgets, bidding strategies, and conversion actions
+
+Manage advanced optimization settings for existing Google Ads campaigns.
+
+These tools are useful when you want to split campaigns out of shared budgets, move campaigns between portfolio and standard bidding, clean up unused portfolio strategies, or update conversion action values for value-based bidding.
+
+### Campaign budgets
+
+What you can do
+
+- List campaign budgets and see which campaigns use each budget
+- Create standalone/non-shared budgets
+- Create shared budgets
+- Move a campaign to an existing budget
+- Create a new dedicated budget and attach it to an existing campaign
+- Update budget amount and shareability where Google Ads allows it
+- Remove unused budgets safely
+
+Important notes
+
+- Campaigns cannot have no budget.
+- “Detaching” a budget means replacing it with another budget.
+- Replacing a campaign’s budget can affect spend/overdelivery behavior. If the goal is only to change spend, update the current budget amount instead.
+- Otto does not remove old or unused budgets automatically.
+
+**Example prompts**
+
+```text
+List all campaign budgets in account [CUSTOMER_ID] and show which campaigns use each one.
+```
+
+```text
+Create a new standalone daily budget of $25 called "[BUDGET_NAME]" in account [CUSTOMER_ID].
+```
+
+```text
+Move campaign [CAMPAIGN_ID] to budget [BUDGET_ID].
+```
+
+```text
+Create a new dedicated $50/day budget and attach it to campaign [CAMPAIGN_ID].
+```
+
+```text
+Remove unused budget [BUDGET_ID].
+```
+
+### Bidding strategies
+
+What you can do
+
+- List portfolio bidding strategies
+- Create portfolio bidding strategies
+- Attach a campaign to an existing portfolio bidding strategy
+- Move a campaign back to standard campaign-level bidding
+- Remove unused portfolio bidding strategies safely
+- Link an existing portfolio bidding strategy to an existing shared budget
+- Attach a campaign to an aligned shared budget \+ portfolio strategy in one update
+- Move a campaign out of an aligned shared-budget \+ portfolio setup into a new dedicated budget and standard bidding
+
+Supported examples
+
+- Standard bidding: Manual CPC, Target Spend, Maximize Conversions, Maximize Conversion Value, Target Impression Share
+- Portfolio bidding: Target Spend, Target CPA, Target ROAS, Maximize Conversions, Maximize Conversion Value, Target Impression Share
+
+Important notes
+
+- Standard bidding belongs to one campaign and is set directly on the campaign.
+- Portfolio bidding is an account-level bidding strategy that can be shared across campaigns.
+- Shared budgets and portfolio strategies can be explicitly aligned in Google Ads.
+- When alignment exists, budget and bidding changes often need to happen together.
+- Otto includes atomic workflows for these aligned shared-budget \+ portfolio cases.
+- Otto does not remove unused portfolio strategies automatically.
+
+**Example prompts**
+
+```text
+List all portfolio bidding strategies in account [CUSTOMER_ID] and show which campaigns use each one.
+```
+
+```text
+Create a portfolio Maximize Conversions strategy called "[STRATEGY_NAME]".
+```
+
+```text
+Attach campaign [CAMPAIGN_ID] to portfolio bidding strategy [BIDDING_STRATEGY_ID].
+```
+
+```text
+Move campaign [CAMPAIGN_ID] to standard Maximize Conversions bidding.
+```
+
+```text
+Create a new dedicated $40/day budget for campaign [CAMPAIGN_ID] and move it from portfolio bidding to standard Maximize Conversions in one update.
+```
+
+```text
+Link shared budget [BUDGET_ID] to portfolio bidding strategy [BIDDING_STRATEGY_ID].
+```
+
+```text
+Attach campaign [CAMPAIGN_ID] to shared budget [BUDGET_ID] and portfolio strategy [BIDDING_STRATEGY_ID] together.
+```
+
+```text
+Remove unused portfolio bidding strategy [BIDDING_STRATEGY_ID].
+```
+
+### Conversion actions
+
+What you can do
+
+- Update existing conversion action default values
+- Set whether Google Ads should always use the default value
+- Update primary-for-goal status
+- Update counting type
+- Update status, category, and attribution model where Google Ads allows it
+
+Important notes
+
+- This is currently a basic conversion-action update primitive and will evolve based on user feedback.
+- It updates existing conversion actions only.
+- It does not create conversion actions, upload offline conversions, configure enhanced conversions, create GA4 imports, or set up tags.
+- Some fields may not be editable depending on conversion action type, origin, ownership, or Google Ads eligibility rules.
+- Changing conversion action settings can affect bidding and reporting.
+
+**Example prompts**
+
+```text
+Update conversion action [CONVERSION_ACTION_ID] to use a default value of 75 and always use the default value.
+```
+
+```text
+Set conversion action [CONVERSION_ACTION_ID] as primary for goal optimization.
+```
+
+```text
+Change conversion action [CONVERSION_ACTION_ID] counting type to ONE_PER_CLICK.
+```
+
+```text
+Update conversion action [CONVERSION_ACTION_ID] attribution model to GOOGLE_SEARCH_ATTRIBUTION_DATA_DRIVEN.
+```
+
+---
+
+## Performance Max
+
+Full management for PMax campaigns — create, update assets, manage signals.
+
+→ See the [Performance Max guide](/guides/manage-performance-max-campaigns) for the full end-to-end walkthrough.
+
+### Create a PMax campaign
+
+One step: creates the budget, campaign, asset group, and uploads your initial assets.
+
+**Required assets**
+
+- Headlines (3–15, max 30 chars each)
+- Long headline (1, max 90 chars)
+- Descriptions (2–5, max 90 chars each)
+- Business name
+- At least 1 landscape marketing image
+- At least 1 square marketing image
+- At least 1 logo
+
+**Optional**
+
+- Audience signals and search themes
+- Location and language targeting
+- Target CPA / target ROAS
+- Brand guidelines (locks business name and logos at campaign level, shared across all asset groups)
+- EU political advertising declaration
+
+**Example prompt**
+
+```text
+Create a PMax campaign called "[CAMPAIGN_NAME]" with a [BUDGET]/day budget, targeting [LOCATION].
+Asset group: [ASSET_GROUP_NAME]
+Headlines: [H1], [H2], [H3]
+Long headline: [LH1]
+Descriptions: [D1], [D2]
+Business name: [BUSINESS_NAME]
+Landscape image: [IMAGE_URL]
+Square image: [SQUARE_IMAGE_URL]
+Logo: [LOGO_URL]
+```
+
+### Add a new asset group
+
+Add a second asset group to an existing PMax campaign.
+
+```text
+Add a new asset group called "[ASSET_GROUP_NAME]" to PMax campaign [CAMPAIGN_ID].
+```
+
+For brand-guidelines-enabled campaigns, omit business name and logo — they're inherited from the campaign level.
+
+### Update asset group status
+
+Pause, enable, or remove an asset group without touching the campaign.
+
+```text
+Pause asset group [ASSET_GROUP_ID].
+```
+
+```text
+Enable asset group [ASSET_GROUP_ID].
+```
+
+### Update assets
+
+**Add new assets** (upload new creative by URL):
+
+```text
+Add these headlines to asset group [ASSET_GROUP_ID]: [H1], [H2].
+```
+
+```text
+Add a new landscape image to asset group [ASSET_GROUP_ID]: [IMAGE_URL].
+```
+
+**Attach existing assets** (reuse already-uploaded assets from your library without creating duplicates):
+
+```text
+Attach existing assets to asset group [ASSET_GROUP_ID]:
+Landscape image: customers/[CUSTOMER_ID]/assets/[ASSET_ID]
+Square image: customers/[CUSTOMER_ID]/assets/[ASSET_ID]
+```
+
+**Remove assets** (requires exact asset resource names — list assets first):
+
+```text
+List assets for asset group [ASSET_GROUP_ID].
+```
+
+```text
+Remove the landscape image customers/[CUSTOMER_ID]/assets/[ASSET_ID] from asset group [ASSET_GROUP_ID].
+```
+
+### List brand assets (brand-guidelines campaigns)
+
+Returns business name, logo, and landscape logo assets attached at the campaign level.
+
+```text
+List brand assets for PMax campaign [CAMPAIGN_ID].
+```
+
+### Manage audience signals and search themes
+
+```text
+Add audience [AUDIENCE_ID] as a signal to asset group [ASSET_GROUP_ID].
+```
+
+```text
+Add these search themes to asset group [ASSET_GROUP_ID]: [THEME_1], [THEME_2].
+```
+
+```text
+List current signals for asset group [ASSET_GROUP_ID].
+```
+
+---
+
+## Change history
+
+See what changed in an account, when it changed, and who changed it.
+
+**Two levels of detail**
+
+- **Quick scan** — which campaigns and ad groups were touched in a given period
+- **Detailed timeline** — field-level change log with timestamps and editor info (last 30 days)
+
+**Options**
+
+- Date range (required)
+- Filter by campaign or ad group
+- Output mode: `summary`, `summary_and_csv`, `csv_only`
+
+**Example prompts**
+
+```text
+What changed in account [CUSTOMER_ID] in the last 7 days?
+```
+
+```text
+Show me the detailed change history for campaign [CAMPAIGN_ID] over the last 14 days, exported to CSV.
+```
+
+```text
+Did anyone make changes to this account last week?
+```
+
+---
+
+## Daily ops audit
+
+A combined pacing \+ waste check designed to run every morning, especially useful across multiple accounts.
+
+**What it checks**
+
+1. **Budget pacing** — flags campaigns that overspent or underspent yesterday relative to their daily budget
+2. **Wasteful search terms** — search terms with zero conversions, sorted by cost (highest waste first)
+
+**Options**
+
+- Date range (defaults to yesterday)
+- Overspend threshold (default: 150% of daily budget)
+- Underspend threshold (default: 50% of daily budget)
+- Number of wasteful search terms to show inline
+- Suggested match type for adding flagged terms as negatives (default: Exact)
+
+**Example prompts**
+
+```text
+Run the daily ops audit for account [CUSTOMER_ID].
+```
+
+```text
+Run yesterday's ops audit for [CUSTOMER_ID] — flag anything over 130% spend or under 60%.
+```
+
+```text
+Daily audit for [CUSTOMER_ID], export wasteful search terms to CSV.
+```
+
+---
+
+## Google Search Console
+
+Analyze organic search data and URL indexing from Google Search Console.
+
+Before using Search Console tools, connect Search Console:
+
+```text
+Connect my Google Search Console account.
+```
+
+### What you can do
+
+- List Search Console properties available to your connected Google account
+- Pull organic query reports
+- Review page performance
+- Break down results by country, device, date, hour, or search appearance
+- Export Search Console data to CSV
+- Check whether a URL is indexed in Google
+- List submitted sitemaps
+
+### Example prompts
+
+```text
+Show me the Search Console sites I have access to.
+```
+
+```text
+Show me the top organic search queries for the last 28 days. Include a CSV export.
+```
+
+```text
+Show me page performance for the last 28 days split by country and device. Give me the top pages inline and export the full data.
+```
+
+```text
+Show me organic queries in the US for the last 28 days. I want clicks, impressions, CTR and average position.
+```
+
+```text
+Check if https://www.example.com/pricing is indexed in Google.
+```
+
+For setup and workflow details, see [Google Search Console MCP reporting](/guides/google-search-console).
+
+---
+
+## Billing
+
+Check your current HireOtto plan, credit balance, and billing period.
+
+```text
+What's my current HireOtto plan and credit balance?
+```
+
+→ See [Credits & billing](/credits-and-billing) for the full reference.

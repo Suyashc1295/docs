@@ -1,0 +1,214 @@
+---
+title: "Google Ads Account Audit with AI"
+description: "When you take on a new Google Ads account — or review an existing one — there's a standard set of checks every PPC manager runs. This guide walks through each one using HireOtto, following the same structure as a full account audit."
+sidebarTitle: "Account Audit"
+---
+
+HireOtto surfaces the data for each check. The judgment calls (is this naming convention sensible? is this ad copy good?) are still yours.
+
+Run these in sequence in a single conversation, passing the same `[CUSTOMER_ID]` throughout.
+
+---
+
+## 1. Account settings
+
+**What to check:** Auto-tagging, auto-apply recommendations, disapproved ads.
+
+```text
+Run an account review for [CUSTOMER_ID]. Check auto-tagging, auto-apply recommendations, and disapproved ads.
+```
+
+What to look for:
+
+- Auto-tagging should be on. If it's off, HireOtto can turn it on — ask it to.
+- Auto-apply recommendations should mostly be off. Google's defaults are aggressive. Review anything that's enabled and disable what you don't want applied automatically.
+- Any disapproved ads need immediate attention — check the disapproval reasons and fix or replace.
+
+---
+
+## 2. Campaign settings
+
+**What to check:** Network targeting, location targeting, language settings, ad schedule, ad rotation, device targeting.
+
+```text
+Show me campaign settings for all active campaigns in account [CUSTOMER_ID].
+```
+
+HireOtto returns each campaign's bidding strategy, networks, geo targets, language, ad schedule, and device settings. Work through these questions for each campaign:
+
+- Is Search Partners enabled? (Should be off)
+- Is Display Network enabled? (Should be off for pure Search campaigns)
+- Is location targeting set correctly — and is the location _option_ set to "Presence" rather than "Presence or interest"?
+- Is one language targeted per campaign?
+- Is the ad schedule still relevant to the business?
+- Are device bid modifiers set intentionally, or left at default?
+
+**Note:** Naming convention and logical campaign structure are judgment calls — HireOtto can list all campaign names, but whether they follow a sensible convention is for you to assess.
+
+---
+
+## 3. Ad group & keyword review
+
+**What to check:** Keyword count per ad group, negative keywords at ad group and campaign level, negative keyword lists, keyword match types, underperforming keywords.
+
+Run these in order:
+
+```text
+List all active keywords in account [CUSTOMER_ID]. CSV only.
+```
+
+Check: does any ad group have more than 15 keywords? Tightly themed ad groups perform better — flag any that are bloated for restructuring.
+
+```text
+Review negative keywords for account [CUSTOMER_ID].
+```
+
+Check: are negatives present at the ad group level where needed? Are there obvious gaps (branded terms being blocked, or clear irrelevant queries not blocked)?
+
+```text
+List all negative keyword lists in account [CUSTOMER_ID] and include the keywords in each list.
+```
+
+Check: is there a meaningful shared negative list in place, and is it assigned to the right campaigns?
+
+```text
+Get keyword performance for account [CUSTOMER_ID] for the last 30 days, sorted by cost.
+```
+
+This single pull covers several audit questions:
+
+- **Match type spread** — are you over-reliant on broad match? Is exact match capturing your highest-intent terms?
+- **Underperforming keywords** — high spend, zero or low conversions. Candidates to pause or add as negatives.
+- **Quality Score** — aim for 70%\+ of keywords at QS 7 or above. Flag anything below 5 for ad copy and landing page review.
+- **QS improvement areas** — HireOtto surfaces expected CTR, ad relevance, and landing page experience breakdowns where available.
+
+For the follow-up workflow, see [Manage Negative Keywords in Google Ads with AI](/guides/manage-negative-keywords-in-google-ads-with-ai).
+
+---
+
+## 4. Ads review
+
+**What to check:** RSA presence, ad copy quality, use of pinning, character utilisation.
+
+```text
+List all ads in account [CUSTOMER_ID].
+```
+
+HireOtto returns all RSAs with their headlines, descriptions, display paths, status, and ad strength. Review for:
+
+- At least 2–3 RSAs per ad group (Google needs variety to test)
+- Keywords appearing in headlines
+- Title case used consistently
+- All character limits used (30 chars for headlines, 90 for descriptions, 15 for paths)
+- Pinning used sparingly and intentionally — over-pinning kills ad strength
+- Each ad communicating a clear benefit and CTA
+
+Ad copy quality is a judgment call — HireOtto surfaces the content, you assess it.
+
+---
+
+## 5. Budget & performance review
+
+**What to check:** Performance spread by region, device, day of week, and match type.
+
+These four pulls give you the full picture. Run them for the same date range (last 30 days is standard for a new account audit):
+
+```text
+Get geo performance for account [CUSTOMER_ID] for the last 30 days, sorted by cost.
+```
+
+→ Are you spending in the right regions? Are any locations burning budget with no conversions?
+
+```text
+Get device performance for account [CUSTOMER_ID] for the last 30 days.
+```
+
+→ Where is performance strongest? Are device bid modifiers set to reflect this?
+
+```text
+Get campaign performance for account [CUSTOMER_ID] for the last 30 days, segmented by day.
+```
+
+→ Are there day-of-week patterns? Is the ad schedule aligned with when conversions actually happen?
+
+The keyword performance pull from step 3 also covers **match type performance** — look at how spend and conversions break down across broad, phrase, and exact.
+
+For the full reporting workflow, see [Analyze Google Ads performance reports with AI](/guides/reporting).
+
+---
+
+## 6. Visibility review
+
+**What to check:** Impression share at account level — are you visible enough?
+
+```text
+Get impression share data for account [CUSTOMER_ID] for the last 30 days.
+```
+
+What to look for:
+
+- **Search Impression Share** — what % of eligible impressions you're winning. Below 50% on your core campaigns is worth investigating.
+- **Lost IS (Budget)** — if you're losing share due to budget, that's a scaling signal.
+- **Lost IS (Rank)** — if you're losing share due to rank, look at Quality Scores and bids.
+
+---
+
+## Change history (optional but useful on takeovers)
+
+If you're auditing an account you're taking over, pulling recent change history tells you what the previous manager was doing — and helps you understand why things look the way they do.
+
+```text
+Show me the detailed change history for account [CUSTOMER_ID] over the last 30 days.
+```
+
+Look for: bid strategy changes, budget cuts, paused keywords, ad edits. This context often explains anomalies you'd otherwise spend time investigating.
+
+---
+
+## Full audit prompt sequence (copy-paste)
+
+Run these in a single conversation, replacing `[CUSTOMER_ID]` and `[DATE_RANGE]` throughout:
+
+```text
+Run an account review for [CUSTOMER_ID]. Check auto-tagging, auto-apply recommendations, and disapproved ads.
+```
+
+```text
+Show me campaign settings for all campaigns in account [CUSTOMER_ID].
+```
+
+```text
+List all active keywords in account [CUSTOMER_ID]. CSV only.
+```
+
+```text
+Review negative keywords for account [CUSTOMER_ID].
+```
+
+```text
+List all negative keyword lists in account [CUSTOMER_ID] and include the keywords in each list.
+```
+
+```text
+Get keyword performance for account [CUSTOMER_ID] for the last 30 days, sorted by cost.
+```
+
+```text
+List all ads in account [CUSTOMER_ID].
+```
+
+```text
+Get geo performance for account [CUSTOMER_ID] for the last 30 days, sorted by cost.
+```
+
+```text
+Get device performance for account [CUSTOMER_ID] for the last 30 days.
+```
+
+```text
+Get campaign performance for account [CUSTOMER_ID] for the last 30 days, segmented by day.
+```
+
+```text
+Get impression share data for account [CUSTOMER_ID] for the last 30 days.
+```

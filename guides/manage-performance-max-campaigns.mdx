@@ -1,0 +1,501 @@
+---
+title: "Manage Performance Max Campaigns with AI"
+description: "Create and manage Google Performance Max campaigns with AI. Handle asset groups, assets, audience signals, search themes, and PMax reporting."
+sidebarTitle: "Performance Max"
+---
+
+---
+
+This guide covers everything HireOtto can do with PMax: creating campaigns, managing asset groups, updating assets, managing signals, and reporting.
+
+## Concepts worth understanding first
+
+**Asset group** — the core unit of a PMax campaign. Each asset group contains a set of creative assets (headlines, images, logos) and optional signals. Google mixes and matches these assets to create ads. One campaign can have multiple asset groups, typically organised by product line, audience, or landing page.
+
+**Signals** — hints you give Google about who to target. Two types:
+
+- **Audience signals** — reusable audience lists from your account (remarketing lists, customer match, similar audiences)
+- **Search themes** — keyword-like text strings that tell Google what searches are relevant for this asset group. Not keywords — Google can serve beyond them, but they bias the algorithm.
+
+**Brand guidelines** — an optional campaign-level setting that locks your business name and logos at the campaign level rather than the asset group level. When enabled, brand assets are shared across all asset groups in the campaign automatically. This affects what you need to provide when adding a new asset group (you won't need to re-supply logos and business name — they're inherited).
+
+## What HireOtto can do for Performance Max
+
+Use HireOtto to:
+
+- Create Performance Max campaigns
+- Add and update asset groups
+- Upload and reuse image, logo, headline, and description assets
+- Manage audience signals
+- Add or remove search themes
+- Review asset group strength
+- Pull PMax search terms, placements, feed type, and asset reports
+
+---
+
+## Creating a PMax campaign
+
+One step creates everything: the budget, the campaign, the first asset group, and optional signals.
+
+**Required assets:**
+
+- 3–15 headlines (≤ 30 characters each)
+- 1 long headline (≤ 90 characters)
+- 2–5 descriptions (≤ 90 characters each)
+- Business name
+- At least 1 landscape marketing image (URL)
+- At least 1 square marketing image (URL)
+- At least 1 logo (URL)
+- Final URL (landing page)
+
+**Minimum viable prompt:**
+
+```text
+Create a Performance Max campaign called "[CAMPAIGN_NAME]" with a [BUDGET]/day budget.
+Asset group: "[ASSET_GROUP_NAME]"
+Final URL: [YOUR_URL]
+Business name: [BUSINESS_NAME]
+Headlines: [H1], [H2], [H3]
+Long headline: [LH1]
+Descriptions: [D1], [D2]
+Landscape image: [IMAGE_URL]
+Square image: [SQUARE_IMAGE_URL]
+Logo: [LOGO_URL]
+```
+
+**With bidding and location targeting:**
+
+```text
+Create a Performance Max campaign called "[CAMPAIGN_NAME]", [BUDGET]/day, targeting [LOCATION], Maximise Conversions with a target CPA of [TARGET_CPA].
+Asset group: "[ASSET_GROUP_NAME]"
+Final URL: [YOUR_URL]
+Business name: [BUSINESS_NAME]
+Headlines: [H1], [H2], [H3], [H4], [H5]
+Long headline: [LH1]
+Descriptions: [D1], [D2], [D3]
+Landscape image: [IMAGE_URL]
+Square image: [SQUARE_IMAGE_URL]
+Logo: [LOGO_URL]
+```
+
+Bidding options: `Maximise Conversions` (with optional target CPA) or `Maximise Conversion Value` (with optional target ROAS). No other bidding strategies are available for PMax.
+
+**With audience signals and search themes (recommended):**
+
+```text
+Create a Performance Max campaign called "[CAMPAIGN_NAME]", [BUDGET]/day, targeting [LOCATION].
+Asset group: "[ASSET_GROUP_NAME]"
+Final URL: [YOUR_URL]
+Business name: [BUSINESS_NAME]
+Headlines: [H1], [H2], [H3], [H4], [H5]
+Long headline: [LH1]
+Descriptions: [D1], [D2]
+Landscape image: [IMAGE_URL]
+Square image: [SQUARE_IMAGE_URL]
+Logo: [LOGO_URL]
+Audience signals: [AUDIENCE_ID_1], [AUDIENCE_ID_2]
+Search themes: [THEME_1], [THEME_2], [THEME_3]
+```
+
+To find available audience IDs before creating:
+
+```text
+List audiences in account [CUSTOMER_ID].
+```
+
+**With brand guidelines enabled:**
+
+Brand guidelines lock your business name and logos at the campaign level. When enabled, all asset groups in the campaign inherit these brand assets automatically — you won't need to supply them again when adding more asset groups later.
+
+```text
+Create a Performance Max campaign called "[CAMPAIGN_NAME]", [BUDGET]/day, brand guidelines enabled.
+Asset group: "[ASSET_GROUP_NAME]"
+Final URL: [YOUR_URL]
+Business name: [BUSINESS_NAME]
+Headlines: [H1], [H2], [H3]
+Long headline: [LH1]
+Descriptions: [D1], [D2]
+Landscape image: [IMAGE_URL]
+Square image: [SQUARE_IMAGE_URL]
+Logo: [LOGO_URL]
+Landscape logo: [LANDSCAPE_LOGO_URL]
+```
+
+Note: landscape logo is optional for standard campaigns but worth providing when enabling brand guidelines — it becomes a campaign-level brand asset used across all placements.
+
+---
+
+## Adding a second asset group
+
+Add asset groups to an existing PMax campaign to segment by product, audience, or landing page.
+
+**Standard campaign (no brand guidelines):**
+
+```text
+Add a new asset group called "[ASSET_GROUP_NAME]" to PMax campaign [CAMPAIGN_ID].
+Final URL: [YOUR_URL]
+Business name: [BUSINESS_NAME]
+Headlines: [H1], [H2], [H3]
+Long headline: [LH1]
+Descriptions: [D1], [D2]
+Landscape image: [IMAGE_URL]
+Square image: [SQUARE_IMAGE_URL]
+Logo: [LOGO_URL]
+```
+
+**Brand-guidelines-enabled campaign:**
+
+Business name and logos are already attached at the campaign level — don't re-supply them. HireOtto handles this automatically.
+
+```text
+Add a new asset group called "[ASSET_GROUP_NAME]" to PMax campaign [CAMPAIGN_ID].
+Final URL: [YOUR_URL]
+Headlines: [H1], [H2], [H3]
+Long headline: [LH1]
+Descriptions: [D1], [D2]
+Landscape image: [IMAGE_URL]
+Square image: [SQUARE_IMAGE_URL]
+```
+
+---
+
+## Reviewing existing campaigns and asset groups
+
+**List all PMax campaigns:**
+
+```text
+List all campaigns in account [CUSTOMER_ID].
+```
+
+**List asset groups in a campaign:**
+
+```text
+List asset groups for PMax campaign [CAMPAIGN_ID].
+```
+
+**List all assets attached to an asset group:**
+
+```text
+List assets for asset group [ASSET_GROUP_ID].
+```
+
+This returns asset resource names — you'll need these for remove operations or when reusing assets across groups.
+
+**List signals on an asset group:**
+
+```text
+List signals for asset group [ASSET_GROUP_ID].
+```
+
+Returns current audience signals and search themes, with their signal resource names — needed for removal.
+
+**List campaign-level brand assets (brand-guidelines campaigns only):**
+
+```text
+List brand assets for PMax campaign [CAMPAIGN_ID].
+```
+
+Returns business name, logo, and landscape logo assets linked at the campaign level, including asset resource names and image dimensions.
+
+---
+
+## Updating asset group status
+
+Pause, enable, or remove an asset group without touching the campaign:
+
+```text
+Pause asset group [ASSET_GROUP_ID] in account [CUSTOMER_ID].
+```
+
+```text
+Enable asset group [ASSET_GROUP_ID] in account [CUSTOMER_ID].
+```
+
+```text
+Remove asset group [ASSET_GROUP_ID] in account [CUSTOMER_ID].
+```
+
+---
+
+## Adding new assets to an existing asset group
+
+Use this when you want to upload and attach new creative — new image URLs, new headlines, etc.
+
+```text
+Add these headlines to asset group [ASSET_GROUP_ID]: [H1], [H2].
+```
+
+```text
+Add a new landscape image to asset group [ASSET_GROUP_ID]: [IMAGE_URL].
+```
+
+```text
+Add a new square image and logo to asset group [ASSET_GROUP_ID]:
+Square image: [SQUARE_IMAGE_URL]
+Logo: [LOGO_URL]
+```
+
+You can add multiple asset types in one prompt.
+
+---
+
+## Reusing existing assets across asset groups
+
+If the same image or text asset already exists in your account (uploaded to another asset group), you can attach it to a new asset group without re-uploading — this avoids creating duplicate assets in your library.
+
+You'll need the asset resource names first:
+
+```text
+List assets for asset group [ASSET_GROUP_ID].
+```
+
+Then attach them to another group:
+
+```text
+Attach these existing assets to asset group [ASSET_GROUP_ID]:
+Landscape image: customers/[CUSTOMER_ID]/assets/[ASSET_ID]
+Square image: customers/[CUSTOMER_ID]/assets/[ASSET_ID]
+```
+
+HireOtto skips any assets that are already linked to the target asset group — no duplicates created.
+
+**When to use this vs. adding new assets:**
+
+- New URL or new creative → use `add` (creates and uploads)
+- Same asset already in your library → use `attach` (links existing, no duplicate)
+
+---
+
+## Removing assets from an asset group
+
+You need the exact asset resource names to remove assets. Get them first:
+
+```text
+List assets for asset group [ASSET_GROUP_ID].
+```
+
+Then remove:
+
+```text
+Remove the landscape image customers/[CUSTOMER_ID]/assets/[ASSET_ID] from asset group [ASSET_GROUP_ID].
+```
+
+HireOtto validates that the removal won't leave the asset group below Google's minimum asset requirements before proceeding.
+
+---
+
+## Managing audience signals
+
+**Add an audience signal:**
+
+```text
+Add audience [AUDIENCE_ID] as a signal to asset group [ASSET_GROUP_ID].
+```
+
+To find available audiences first:
+
+```text
+List audiences in account [CUSTOMER_ID].
+```
+
+**Remove an audience signal:**
+
+You need the signal resource name, not the audience ID. Get it first:
+
+```text
+List signals for asset group [ASSET_GROUP_ID].
+```
+
+Then remove:
+
+```text
+Remove signal [SIGNAL_RESOURCE_NAME] from asset group [ASSET_GROUP_ID].
+```
+
+---
+
+## Managing search themes
+
+**Add search themes:**
+
+```text
+Add these search themes to asset group [ASSET_GROUP_ID]: [THEME_1], [THEME_2], [THEME_3].
+```
+
+Search themes are plain text — write them like keyword phrases, not as match-type keywords. They're signals, not targeting constraints.
+
+**Remove a search theme:**
+
+Get the signal resource name first:
+
+```text
+List signals for asset group [ASSET_GROUP_ID].
+```
+
+Then remove:
+
+```text
+Remove search theme [SIGNAL_RESOURCE_NAME] from asset group [ASSET_GROUP_ID].
+```
+
+---
+
+## Reporting
+
+PMax has eight dedicated reports. Because Google doesn't expose keyword-level data for PMax, these reports are your primary diagnostic tools.
+
+### Campaign performance
+
+Overall metrics: impressions, clicks, conversions, cost, ROAS.
+
+```text
+Get PMax campaign performance for account [CUSTOMER_ID] for the last 30 days.
+```
+
+### Asset group performance
+
+Breaks down metrics per asset group — useful for comparing performance across segments.
+
+```text
+Get PMax asset group performance for campaign [CAMPAIGN_ID] for the last 30 days.
+```
+
+### Asset group strength
+
+Ad strength score and action items per asset group. No date range needed — this reflects current state.
+
+```text
+Get asset group strength for campaign [CAMPAIGN_ID].
+```
+
+What to look for: any asset group rated "Poor" or "Good" (not "Excellent") will have specific action items. Addressing them — adding more headlines, improving image variety — directly improves Performance.
+
+### Asset-level performance
+
+Metrics per individual asset (each headline, image, description). Shows which creative is performing and which isn't.
+
+```text
+Get PMax asset performance for asset group [ASSET_GROUP_ID] for the last 30 days.
+```
+
+For large asset libraries, export to CSV:
+
+```text
+Get PMax asset performance for campaign [CAMPAIGN_ID] for the last 30 days, export to CSV.
+```
+
+### Top asset combinations
+
+Shows the actual asset combinations Google is serving most — which headlines are appearing with which images and descriptions.
+
+```text
+Get top asset combinations for campaign [CAMPAIGN_ID].
+```
+
+No date range needed. Use this to understand what Google is favouring and whether it aligns with your messaging.
+
+### Search terms report
+
+Queries that triggered your PMax ads. One of the most valuable reports — helps identify wasted spend and negative keyword candidates.
+
+```text
+Get PMax search terms report for campaign [CAMPAIGN_ID] for the last 30 days, sorted by cost, output mode summary_and_csv.
+```
+
+Terms with spend and zero conversions are candidates for negatives. Add them at the campaign level:
+
+```text
+Add "[WASTED_TERM]" as an exact match negative to campaign [CAMPAIGN_ID].
+```
+
+### Campaign placements
+
+Where your PMax ads are showing — websites, apps, YouTube channels.
+
+```text
+Get PMax campaign placements for campaign [CAMPAIGN_ID] for the last 30 days, sorted by cost.
+```
+
+Use this to identify low-quality placement categories or specific sites/apps burning budget.
+
+### Campaign feed types
+
+Breaks down performance by feed type (product feeds, store feeds, etc.). Relevant if your PMax campaign uses a Google Merchant Center feed.
+
+```text
+Get PMax campaign feed types for campaign [CAMPAIGN_ID] for the last 30 days.
+```
+
+For non-PMax campaign reporting, see [Analyze Google Ads performance reports with AI](/guides/reporting).
+
+---
+
+## Typical PMax audit sequence
+
+For an existing PMax campaign, this sequence gives you a full picture:
+
+```text
+Get asset group strength for campaign [CAMPAIGN_ID].
+```
+
+```text
+Get PMax asset group performance for campaign [CAMPAIGN_ID] for the last 30 days, sorted by cost.
+```
+
+```text
+Get PMax search terms report for campaign [CAMPAIGN_ID] for the last 30 days, sorted by cost, output mode summary_and_csv.
+```
+
+```text
+Get top asset combinations for campaign [CAMPAIGN_ID].
+```
+
+```text
+Get PMax asset performance for campaign [CAMPAIGN_ID] for the last 30 days, export to CSV.
+```
+
+```text
+Get PMax campaign placements for campaign [CAMPAIGN_ID] for the last 30 days, sorted by cost.
+```
+
+Start with asset strength — it tells you where to focus. Then search terms for waste. Then asset performance and combinations to understand what creative is working.
+
+---
+
+## Full creation sequence (copy-paste)
+
+Replace all placeholders before running:
+
+```text
+List audiences in account [CUSTOMER_ID].
+```
+
+```text
+Create a Performance Max campaign called "[CAMPAIGN_NAME]", [BUDGET]/day, targeting [LOCATION], Maximise Conversions.
+Asset group: "[ASSET_GROUP_NAME]"
+Final URL: [YOUR_URL]
+Business name: [BUSINESS_NAME]
+Headlines: [H1], [H2], [H3], [H4], [H5]
+Long headline: [LH1]
+Descriptions: [D1], [D2], [D3]
+Landscape image: [IMAGE_URL]
+Square image: [SQUARE_IMAGE_URL]
+Logo: [LOGO_URL]
+Audience signals: [AUDIENCE_ID]
+Search themes: [THEME_1], [THEME_2], [THEME_3]
+```
+
+```text
+Get asset group strength for campaign [CAMPAIGN_ID].
+```
+
+```text
+Enable campaign [CAMPAIGN_ID].
+```
+
+## Related workflows
+
+- [Google Ads Account Audit with AI](/guides/google-ads-account-audit-with-ai)
+- [Analyze Google Ads performance reports with AI](/guides/reporting)
+- [Manage Negative Keywords in Google Ads with AI](/guides/manage-negative-keywords-in-google-ads-with-ai)
+- [Google Ads MCP Tools Reference](/google-ads-mcp-tools)

@@ -1,0 +1,41 @@
+---
+title: "HireOtto Changelog: Google Ads MCP Updates"
+sidebarTitle: "Changelog"
+description: "See the latest HireOtto updates for Google Ads reporting, Performance Max, campaign creation, audits, CSV exports, and MCP improvements."
+---
+
+- **\[19-07-2026\] Negative Keyword Lists**: Added support for removing individual keywords from shared negative keyword lists. Keywords can be selected using their exact resource names or identified by keyword text and match type.
+- **\[14-07-2026\] Conversion Actions and GA4 Imports**: Added support for reviewing conversion tracking setup, creating native Google Ads conversion actions, importing eligible GA4 key events, and updating conversion-window settings.
+- **\[11-07-2026\] Google Tag Manager MCP**: Added read-only support for listing GTM accounts, containers, workspaces, tags, triggers, variables, built-in variables, and folders, plus tag-to-trigger wiring inspection and CSV export.
+- **\[26-06-2026\] Google Search Console MCP support**: Added beta support for organic query reports, page performance, country/device breakdowns, CSV exports, sitemaps, and URL indexing checks.
+- **\[05-06-2026\] Demand Gen Campaigns**: Added support for non-product-feed Demand Gen campaigns. 
+  - Create campaign shells with goals (Conversions, Clicks, Conversion Value, YouTube Engagements) and optional bid targets. 
+  - Add ad groups with channel controls — select individual channels (YouTube in-stream, in-feed, Shorts, Discover, Gmail, Display, Maps) or use a preset `ALL_CHANNELS`, `ALL_OWNED_AND_OPERATED_CHANNELS`). 
+  - Create reusable assets (image, video, text, CTA) and ads (single image, multi-asset, carousel, video/video responsive). 
+  - Inspect Demand Gen structure with three new listing actions: campaign settings, ad group channel controls, and ad creatives. Update campaigns and ad groups, and replace ad creative safely via the update tool.
+- **\[18-05-2026\] Campaign Budgets**: Added tools to create standalone/shared budgets, inspect budget usage, move campaigns between budgets, create-and-attach dedicated budgets, and safely remove unused budgets.
+- **\[17-05-2026\] Bidding Strategies**: Added portfolio bidding strategy management including create/list/attach/remove, moving campaigns back to standard campaign-level bidding, shared-budget alignment support, and atomic workflows for aligned shared-budget \+ portfolio setups.
+- **\[16-05-2026\] Conversion Actions**: Added a basic conversion action update tool for existing conversion actions, including default value, always-use-default-value, counting type, primary-for-goal status, status, category, and attribution model updates.
+- **\[06-05-2026\] Extension Assets**: Added support for managing Google Ads extensions including sitelinks, callouts, structured snippets, call assets, and price assets. You can list existing assets, create new reusable assets, link them at the account/campaign/ad group level, reuse the same asset across supported levels, unlink asset associations, and pull extension asset performance reports.
+- **\[18-04-2026\] Performance Max**: Added support for creating standard PMax campaigns, adding asset groups, managing asset group assets, managing audience signals and search themes, and listing current asset group signals and available audiences.
+- **\[15-04-2026\] Change History**: Added Google Ads change history support with change status and detailed change events, including CSV export for larger timelines.
+- **\[14-04-2026\] Custom GAQL**: Added `run_gaql` for Agency users for flexible read-only custom reporting.
+- **\[14-04-2026\] Performance Max Reporting**: Added reports for campaign performance, placements, feed types, asset groups, asset strength, asset performance, top asset combinations, and PMax search terms.
+- **\[12-04-2026\] Reporting**: Added demographic performance reports for age and gender.
+- **\[11-04-2026\] App Campaigns**: Added App campaign creation support (campaigns, ad groups, ads) plus App-compatible campaign/ad group updates.
+- **\[24-03-2026\] Daily Ops Audit**: A simple tool that flags under/over pacing campaigns and wasteful search terms (conversions \< 1, sorted by cost).
+- **\[12-03-2026\] Reporting**: Daily segment support added to the reporting tool for day-by-day analysis.
+- **\[22-02-2026\] CSV support**: Extended CSV support: export modes (summary / summary\+csv / csv\_only) to other relevant tools.
+- **\[30-12-2025\] Reporting**: Added CSV export modes (summary / summary\+csv / csv\_only) to prevent context-window overload on large reports.
+- **\[29-12-2025\] Keyword Planner:** CSV export support for `keyword_planner` - keep context lengths short and allow LLMs to analyze data programmatically.
+- **\[25-12-2025\] Keyword Planner:** Added `keyword_planner` tool for keyword ideas \+ historical metrics (with location\_mode, sorting, filtering).
+- **\[21-11-2025\] Server Updates** to work more smoothly with Claude web
+- **\[03-10-2025\] Google Ads API Updates**: Updated tools to work with the latest ads API.
+- **\[09-08-2025\] Preview** - Remote MCP, Google Ads auth, core reporting, Search build/edit tools, helpful defaults.
+
+**Roadmap (as of 06-06-2026):**
+
+- More extension asset types and deeper field coverage based on user feedback
+- One shot account audit tools
+- Support for campaign types beyond Search (Display, YouTube) — phased
+- _Shaped by your feedback - tell me what you need most._

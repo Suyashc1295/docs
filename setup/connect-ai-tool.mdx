@@ -1,0 +1,218 @@
+---
+title: "How to Connect HireOtto to Claude, ChatGPT, and Make"
+description: "Step-by-step setup instructions for adding HireOtto’s Google Ads MCP server to Claude, ChatGPT, Make.com, and other remote MCP clients."
+sidebarTitle: "Connect HireOtto to Claude, ChatGPT, and Make"
+---
+
+HireOtto is a remote MCP server, so connecting it to your AI tool is a matter of adding a small JSON configuration block — there is nothing to install locally. Pick your tool below, paste the config, restart the application, and you are ready to manage Google Ads in plain language.
+
+<Tabs>
+  <Tab title="Claude Web">
+    Claude Web makes it super easy to add a custom connector.
+
+    <iframe src="https://www.youtube.com/embed/38FS_3VVDi0" title="YouTube video player" frameborder="0" className="w-full aspect-video rounded-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
+
+    <Steps>
+      <Step title="Open the connectors page">
+        Head over to:
+
+        ```text
+        https://claude.ai/customize/connectors
+        ```
+
+        You'll see a '\+' icon → Add custom connector.
+
+        <Note>
+          Free plan allows only one custom connector.
+        </Note>
+      </Step>
+      <Step title="Add the HireOtto server url">
+        Paste the following url. Give it a friendly name like **HireOtto – Google Ads MCP** and click **Add**.
+
+        ```text
+        https://googleads.hireotto.com/mcp
+        ```
+      </Step>
+      <Step title="Click connect">
+        A Google sign‑in window opens. This is a quick handshake so the server can recognize your workspace. Approve the prompt.
+
+        You’ll see “Successfully connected” in Claude (blue banner). That confirms HireOtto is reachable as a remote MCP server.
+      </Step>
+      <Step title="Ask Claude to connect Google Ads (one time action)">
+        Try a plain-English prompt like **“Connect Google Ads”** or **“Authenticate Google Ads.”**
+
+        Claude will return a link - **open it** and grant access. During this step you’ll also be asked to **select which Google Ads accounts** HireOtto can access.
+
+        When the auth page says you’re done, close that window and return to Claude.
+
+        HireOtto is now fully set up.
+      </Step>
+      <Step title="Sanity check (optional)">
+        Open a new conversation in Claude and type:
+
+        ```text
+        List my accessible accounts
+        ```
+
+        or
+
+        ```text
+        List campaigns for <account id>.
+        ```
+
+        Claude should respond with a list of your accounts or campaigns.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="ChatGPT">
+    ChatGPT supports MCP servers through 'apps'.
+
+    - Settings → Apps → Advanced settings → Enable Developer Mode (this is to allow adding custom servers) Once enabled, you'll see a 'Create app' button. Use that, paste the server URL, select `OAuth` as the Authentication and Create.
+
+    <Steps>
+      <Step title="Open settings">
+        Head over to Settings → Apps → Advanced settings → Enable Developer Mode.
+
+        <Note>
+          This is to allow adding custom servers.
+        </Note>
+      </Step>
+      <Step title="Create app">
+        Once dev mode is enabled, you'll see a 'Create app' button.
+
+        - Click on 'create app'
+        - paste the server URL
+        - add a name
+        - select `OAuth` as the Authentication
+        - and create.
+      </Step>
+      <Step title="Click create">
+        A Google sign‑in window opens. This is a quick handshake so the server can recognize your workspace. Approve the prompt.
+
+        Once completed successfully, you’ll see the server listed under Enabled apps. That confirms HireOtto is reachable as a remote MCP server.
+      </Step>
+      <Step title="Ask ChatGPT to connect Google Ads (one time action)">
+        Try a plain-English prompt like **“Connect Google Ads”** or **“Authenticate Google Ads.”**
+
+        ChatGPT will return a link - **open it** and grant access. During this step you’ll also be asked to **select which Google Ads accounts** HireOtto can access.
+
+        When the auth page says you’re done, close that window and return to Claude.
+
+        HireOtto is now fully set up.
+
+        <Note>
+          You need to stay in Developer Mode to use a custom server in ChatGPT.
+        </Note>
+      </Step>
+      <Step title="Verify the connection">
+        Open a new conversation in ChatGPT and type:
+
+        ```text
+        List my accessible accounts
+        ```
+
+        or
+
+        ```text
+        List campaigns for <account id>.
+        ```
+
+        ChatGPT should respond with a list of your accounts or campaigns.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Make.com">
+    Make enables MCP server via 'Make AI Agents' or Scenarios.\
+    With agents, you'll see an option to add a MCP server right below the system prompt. With Scenarios, you'll need to add a MCP node.
+
+    <Check>
+      [Make.com](http://Make.com) already has the HireOtto server added in their supported servers list. So you don't even need the server url to get started.
+    </Check>
+
+    <iframe src="https://www.youtube.com/embed/D-hKIy5td9w" title="YouTube video player" frameborder="0" className="w-full aspect-video rounded-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
+
+    <Steps>
+      <Step title="Add the server">
+        In the MCP modal, add a name and then 'select a server'.
+
+        Search for `GoogleAds` in the dropdown. The server there is pre-configured HireOtto server. All you need to do is click Add.
+      </Step>
+      <Step title="Click Add">
+        A Google sign‑in window opens. This is a quick handshake so the server can recognize your workspace. Approve the prompt.
+
+        You’ll see a successfully connected message in Make. That confirms HireOtto is reachable as a remote MCP server.
+      </Step>
+      <Step title="Ask Make to connect Google Ads (one time action)">
+        Try a plain-English prompt like **“Connect Google Ads”** or **“Authenticate Google Ads.”**
+
+        The server will return a link - **open it** and grant access. During this step you’ll also be asked to **select which Google Ads accounts** HireOtto can access.
+
+        When the auth page says you’re done, close that window and return to Make.
+
+        HireOtto is now fully set up.
+      </Step>
+      <Step title="Verify the connection">
+        Open a new conversation in Claude and type:
+
+        ```text
+        List my accessible accounts
+        ```
+
+        or
+
+        ```text
+        List campaigns for <account id>.
+        ```
+
+        Claude should respond with a list of your accounts or campaigns.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Other MCP clients">
+    Any MCP-compatible client that supports the HTTP transport can connect to HireOtto. Use the following details when configuring your client.
+
+    **Transport:** HTTP
+
+    **Endpoint URL:**
+
+    ```text
+    https://googleads.hireotto.com/mcp
+    ```
+
+    Simply add the server and complete the handshake.\
+    Once that is done, input a simple prompt like "authenticate google ads". This will return a link. Follow that to authenticate Google ads & select accounts that you'd like to access via the server.
+
+    Run a simple sanity check such as "list my campaigns for \<account id\>"
+  </Tab>
+</Tabs>
+
+## Optional: Connect Google Search Console
+
+If you want to analyze organic search data, connect Google Search Console separately. In your AI assistant, ask:
+
+```text
+Connect my Google Search Console account.
+```
+
+HireOtto will return an authentication link. Open it, choose the Google account that has access to your Search Console properties, and approve access.
+
+Then verify the connection:
+
+```text
+Show me the Search Console sites I have access to.
+```
+
+For examples and reporting workflows, see [Google Search Console MCP reporting](/guides/google-search-console).
+
+## Next steps
+
+Once your AI tool shows a list of accounts or campaigns after the verification prompt, your connection is working.
+
+And once HireOtto is connected, you can use these guides to run real Google Ads workflows:
+
+- [Analyze Google Ads performance reports with AI](/guides/reporting)
+- [Google Ads Account Audit with AI](/guides/google-ads-account-audit-with-ai)
+- [Google Ads Keyword Research with AI](/guides/keyword-research-ai)
+- [Manage Performance Max Campaigns with AI](/guides/manage-performance-max-campaigns)
+
+If setup fails, go to [Troubleshooting](/troubleshooting).

@@ -1,0 +1,233 @@
+---
+title: "Create a Google Ads Campaign with AI"
+description: "Build a Google Search campaign with AI: campaign settings, budgets, ad groups, keywords, negative keywords, and responsive search ads."
+sidebarTitle: "Campaign Creation"
+---
+
+---
+
+HireOtto creates campaigns paused by default — so you can review everything before it goes live. This guide walks through creating a Search campaign end-to-end: campaign setup, ad groups, keywords, and ads.
+
+## Step 1: Create the campaign
+
+At minimum you need a campaign name, daily budget, location, and bidding strategy. Everything else uses sensible defaults (Google Search only, presence-based geo targeting, start date tomorrow).
+
+**Maximise Clicks (simplest to start):**
+
+```text
+Create a Search campaign called "[CAMPAIGN_NAME]" with a [BUDGET]/day budget, targeting [LOCATION].
+```
+
+**Maximise Conversions:**
+
+```text
+Create a Search campaign called "[CAMPAIGN_NAME]", [BUDGET]/day, targeting [LOCATION], Maximise Conversions bidding.
+```
+
+**Maximise Conversions with a target CPA:**
+
+```text
+Create a Search campaign called "[CAMPAIGN_NAME]", [BUDGET]/day, targeting [LOCATION], Maximise Conversions with a target CPA of [TARGET_CPA].
+```
+
+**Maximise Conversion Value:**
+
+```text
+Create a Search campaign called "[CAMPAIGN_NAME]", [BUDGET]/day, targeting [LOCATION], Maximise Conversion Value.
+```
+
+**Maximise Conversion Value with a target ROAS:**
+
+```text
+Create a Search campaign called "[CAMPAIGN_NAME]", [BUDGET]/day, targeting [LOCATION], Maximise Conversion Value with a target ROAS of [TARGET_ROAS].
+```
+
+**Target Impression Share:**
+
+```text
+Create a Search campaign called "[CAMPAIGN_NAME]", [BUDGET]/day, targeting [LOCATION], Target Impression Share — top of page, 70% impression share target, max CPC [MAX_CPC].
+```
+
+**Manual CPC:**
+
+```text
+Create a Search campaign called "[CAMPAIGN_NAME]", [BUDGET]/day, targeting [LOCATION], Manual CPC.
+```
+
+HireOtto will return the new campaign ID — making it handy for the AI for next steps.
+
+---
+
+## Step 2: Verify campaign settings (optional but recommended)
+
+Before adding ad groups, confirm the campaign was set up as expected:
+
+```text
+Show me the campaign settings for campaign [CAMPAIGN_ID].
+```
+
+Check: location targeting, network settings (Display Network should be off by default), bidding strategy, and ad serving.
+
+If anything needs adjusting:
+
+```text
+Turn off Search Partners for campaign [CAMPAIGN_ID].
+```
+
+```text
+Change the budget for campaign [CAMPAIGN_ID] to [NEW_BUDGET]/day.
+```
+
+---
+
+## Step 3: Create ad groups
+
+Add one or more tightly themed ad groups. Keep each ad group focused on a single keyword theme — this improves ad relevance and Quality Score.
+
+```text
+Create an ad group called "[ADGROUP_NAME]" in campaign [CAMPAIGN_ID].
+```
+
+For multiple ad groups, create them one at a time in the same conversation:
+
+```text
+Create an ad group called "[ADGROUP_NAME_1]" in campaign [CAMPAIGN_ID].
+```
+
+```text
+Create an ad group called "[ADGROUP_NAME_2]" in campaign [CAMPAIGN_ID].
+```
+
+HireOtto will return the ad group ID for each — you'll need these for the next steps.
+
+---
+
+## Step 4: Add keywords
+
+Add your targeted (positive) keywords to each ad group. You can mix match types in a single prompt.
+
+**All the same match type:**
+
+```text
+Add these keywords to ad group [ADGROUP_ID] as exact match: [KW1], [KW2], [KW3].
+```
+
+**Mixed match types:**
+
+```text
+Add these keywords to ad group [ADGROUP_ID]: "[KW1]" as phrase match, [KW2] as broad match, [KW3] as exact match.
+```
+
+**Tip:** If you ran keyword research first, you can reference the results from earlier in the conversation — HireOtto will use them directly. See the [Keyword research guide](/guides/keyword-research-ai).
+
+---
+
+## Step 5: Add negative keywords
+
+Add negatives at the campaign level to block irrelevant queries across all ad groups.
+
+```text
+Add "[NEGATIVE_KW1]", "[NEGATIVE_KW2]" as exact match negatives to campaign [CAMPAIGN_ID].
+```
+
+For broader exclusions (e.g. job-related terms for a B2B product), consider creating a shared negative keyword list and assigning it to the campaign — especially useful if you'll reuse the same exclusions across multiple campaigns. See the [Negative keywords guide](/guides/manage-negative-keywords-in-google-ads-with-ai).
+
+---
+
+## Step 6: Create responsive search ads
+
+Add at least one RSA per ad group. Google needs 3\+ headlines and 2\+ descriptions to start serving.
+
+**Character limits:** headlines ≤ 30 characters, descriptions ≤ 90 characters, display URL paths ≤ 15 characters each.
+
+```text
+Create a responsive search ad in ad group [ADGROUP_ID]:
+Headlines: [H1], [H2], [H3], [H4], [H5]
+Descriptions: [D1], [D2]
+Final URL: [YOUR_URL]
+Display path: [PATH1] / [PATH2]
+```
+
+**With headline pinning** (e.g. to lock a brand name to position 1):
+
+```text
+Create a responsive search ad in ad group [ADGROUP_ID]:
+Headlines: pin "[BRAND_NAME]" to position 1, [H2], [H3], [H4], [H5]
+Descriptions: [D1], [D2]
+Final URL: [YOUR_URL]
+```
+
+**Tips for strong RSAs:**
+
+- Include your main keyword in at least one headline
+- Use all 15 headline slots if possible — Google needs variety to test
+- Avoid over-pinning (it kills ad strength)
+- Use the full 90 characters in descriptions
+- Each description should stand alone (Google may show any combination)
+
+Check ad strength after creation:
+
+```text
+List all ads in campaign [CAMPAIGN_ID].
+```
+
+---
+
+## Step 7: Enable the campaign
+
+Once you've reviewed everything, enable the campaign:
+
+```text
+Enable campaign [CAMPAIGN_ID].
+```
+
+---
+
+## Full setup prompt sequence (copy-paste)
+
+Replace all placeholders before running:
+
+```text
+Create a Search campaign called "[CAMPAIGN_NAME]", [BUDGET]/day, targeting [LOCATION], Maximise Conversions with a target CPA of [TARGET_CPA].
+```
+
+```text
+Show me the campaign settings for campaign [CAMPAIGN_ID].
+```
+
+```text
+Create an ad group called "[ADGROUP_NAME]" in campaign [CAMPAIGN_ID].
+```
+
+```text
+Add these keywords to ad group [ADGROUP_ID] as exact match: [KW1], [KW2], [KW3].
+```
+
+```text
+Add "[NEGATIVE_KW1]", "[NEGATIVE_KW2]" as exact match negatives to campaign [CAMPAIGN_ID].
+```
+
+```text
+Create a responsive search ad in ad group [ADGROUP_ID]:
+Headlines: [H1], [H2], [H3], [H4], [H5]
+Descriptions: [D1], [D2]
+Final URL: [YOUR_URL]
+Display path: [PATH1] / [PATH2]
+```
+
+```text
+Enable campaign [CAMPAIGN_ID].
+```
+
+## Before enabling the campaign
+
+Before you turn the campaign on, review:
+
+- Campaign name, budget, and location targeting
+- Bidding strategy
+- Ad group structure
+- Keyword match types
+- Negative keywords
+- Responsive search ad headlines and descriptions
+
+After launch, use [Analyze Google Ads performance reports with AI](/guides/reporting) and [Daily Optimization](/guides/google-ads-daily-optimization-with-ai) to monitor performance.

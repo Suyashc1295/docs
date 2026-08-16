@@ -1,0 +1,363 @@
+---
+title: "Google Search Console MCP reporting with HireOtto"
+description: "Use HireOtto’s Google Search Console MCP support to pull organic search reports, analyze queries and pages, export Search Console data to CSV, and check URL indexing from your AI assistant."
+sidebarTitle: "Google Search Console"
+---
+
+This guide covers how to connect Search Console, what you can ask, how output modes work, and how to structure prompts for useful organic search analysis.
+
+---
+
+## What you can do
+
+HireOtto can help you work with Google Search Console data from your AI workflow.
+
+Common use cases:
+
+- Analyze top organic search queries
+- Review page performance
+- Break down organic traffic by country or device
+- Compare search performance across dates
+- Export Search Console data to CSV
+- Find high-impression, low-CTR opportunities
+- Review organic queries that may be worth testing in Google Ads
+- Check whether a URL is indexed in Google
+- List Search Console properties and submitted sitemaps
+
+---
+
+## Before you start: connect Google Search Console
+
+Google Search Console uses a separate Google permission flow.
+
+Even if you have already connected Google Ads, you still need to connect Search Console before asking for organic search data.
+
+Ask your AI assistant:
+
+```text
+Connect my Google Search Console account.
+```
+
+HireOtto will return an authentication link. Open the link, choose the Google account that has access to your Search Console properties, and approve access.
+
+After authentication is complete, you can ask:
+
+```text
+Show me the Search Console sites I have access to.
+```
+
+Use the returned `site_url` when you want to specify a property directly.
+
+Examples of Search Console property values:
+
+```text
+sc-domain:example.com
+```
+
+```text
+https://www.example.com/
+```
+
+Domain properties and URL-prefix properties are both supported.
+
+---
+
+## Output modes
+
+Search Console reports can return a lot of rows. Choose the right [output mode](/output-modes) upfront.
+
+```text
+summary
+```
+
+Returns inline rows in chat. Good for quick checks.
+
+```text
+summary_and_csv
+```
+
+Returns top rows inline plus a CSV export. Best for most reporting workflows.
+
+```text
+csv_only
+```
+
+Returns a CSV export with minimal inline data. Best for large pulls or spreadsheet work.
+
+CSV download links expire, so download the file soon after it is generated.
+
+Example:
+
+```text
+Show me the top organic search queries for the last 28 days. Include a CSV export.
+```
+
+---
+
+## Top organic queries
+
+Use this when you want to see what people are searching before they reach your site.
+
+```text
+Show me the top organic search queries for the last 28 days.
+```
+
+For a fuller export:
+
+```text
+Show me the top organic search queries for the last 28 days. Include a CSV export.
+```
+
+Useful follow-up questions:
+
+```text
+Which of these queries have high impressions but low CTR?
+```
+
+```text
+Which of these queries look commercial enough to test in Google Ads?
+```
+
+```text
+Group these into branded, competitor, problem-aware, and informational themes.
+```
+
+---
+
+## Page performance
+
+Use page performance when you want to see which URLs are getting organic search visibility.
+
+```text
+Show me page performance for the last 28 days.
+```
+
+For country and device breakdowns:
+
+```text
+Show me page performance for the last 28 days split by country and device. Give me the top pages inline and export the full data.
+```
+
+This is useful for questions like:
+
+- Which landing pages perform best in the US?
+- Are mobile rankings weaker than desktop?
+- Which pages get impressions but poor CTR?
+- Which pages should be considered for paid search testing?
+
+---
+
+## Country-specific query reporting
+
+Use country filters when performance differs by market.
+
+Example:
+
+```text
+Show me organic queries in the US for the last 28 days. I want clicks, impressions, CTR and average position.
+```
+
+You can also ask for other countries:
+
+```text
+Show me organic queries in India for the last 28 days.
+```
+
+```text
+Show me page performance in the UK for the last 3 months.
+```
+
+Country filters use Search Console country data. If you know the exact country code, you can include it directly.
+
+Examples:
+
+```text
+USA
+IND
+GBR
+FRA
+DEU
+```
+
+---
+
+## Query filters
+
+Use query filters when you want to focus on a topic, product, competitor, or keyword family.
+
+```text
+Show me US search queries containing "google ads" for the last 3 months. Export the full data and summarize the biggest opportunities.
+```
+
+Other examples:
+
+```text
+Show me queries containing "pricing" for the last 90 days.
+```
+
+```text
+Show me non-brand queries containing "automation" for the last 3 months.
+```
+
+```text
+Show me queries matching this pattern: "google ads|ppc|paid search".
+```
+
+Use filtered query reports when you want to move from raw SEO data to action.
+
+---
+
+## Search Console \+ Google Ads workflows
+
+Search Console is especially useful when paired with Google Ads.
+
+Example workflow:
+
+```text
+Show me high-impression organic queries from Search Console where CTR is low. Then identify which ones may be worth testing as Google Ads keywords.
+```
+
+Then:
+
+```text
+Group the strongest paid search candidates by intent and suggest ad group themes.
+```
+
+Another workflow:
+
+```text
+Show me organic page performance by country and device. Identify landing pages where paid search traffic may need a different page by region or device.
+```
+
+Use this when SEO data can help improve Google Ads targeting, landing page selection, and keyword discovery.
+
+---
+
+## URL indexing checks
+
+Use URL indexing checks when you want to know whether an important page is indexed by Google.
+
+Example:
+
+```text
+Check if https://www.example.com/pricing is indexed in Google.
+```
+
+This is useful for:
+
+- Pricing pages
+- Product pages
+- Landing pages
+- New blog posts
+- Important SEO pages
+- Pages you are sending paid traffic to
+
+If the URL does not belong to the selected Search Console property, use the correct `site_url` from your list of Search Console sites.
+
+---
+
+## Sitemaps
+
+You can ask HireOtto to list submitted sitemaps for a Search Console property.
+
+```text
+Show me submitted sitemaps for my Search Console property.
+```
+
+Use this when checking whether important XML sitemaps are present in Search Console.
+
+---
+
+## Search appearance reports
+
+Search appearance values can vary by property and over time.
+
+To discover available values, ask:
+
+```text
+Show me Search Console performance grouped by search appearance for the last 28 days.
+```
+
+Use this before filtering by a specific search appearance.
+
+---
+
+## Fresh and hourly data
+
+For most reporting workflows, use finalized data and end the date range at yesterday or earlier.
+
+Use fresh or hourly data only when you need very recent Search Console data.
+
+Example:
+
+```text
+Show me Search Console performance by date for the last 7 days, including fresh data if available.
+```
+
+For hourly reporting:
+
+```text
+Show me hourly Search Console performance for yesterday.
+```
+
+Hourly data may be incomplete and should be treated as directional.
+
+---
+
+## Recommended prompts
+
+```text
+Connect my Google Search Console account.
+```
+
+```text
+Show me the Search Console sites I have access to.
+```
+
+```text
+Show me the top organic search queries for the last 28 days. Include a CSV export.
+```
+
+```text
+Show me page performance for the last 28 days split by country and device. Give me the top pages inline and export the full data.
+```
+
+```text
+Show me organic queries in the US for the last 28 days. I want clicks, impressions, CTR and average position.
+```
+
+```text
+Show me US search queries containing "google ads" for the last 3 months. Export the full data and summarize the biggest opportunities.
+```
+
+```text
+Check if https://www.example.com/pricing is indexed in Google.
+```
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="I connected Google Ads. Why do I need to connect Search Console separately?">
+    Google Ads and Google Search Console are different Google products with different permissions. Connect Search Console separately before asking for organic search reports.
+  </Accordion>
+
+  <Accordion title="I authenticated but do not see any sites.">
+    Make sure you selected the Google account that has access to the Search Console properties you want to analyze.
+  </Accordion>
+
+  <Accordion title="My CSV link expired.">
+    Run the report again and download the CSV soon after it is generated.
+  </Accordion>
+
+  <Accordion title="URL inspection says the URL is not part of the property.">
+    Use the correct Search Console property. First list your available sites, then retry the indexing check with the matching `site_url`.
+  </Accordion>
+
+  <Accordion title="Should I use summary or CSV?">
+    Use `summary` for quick checks. Use `summary_and_csv` for most reporting workflows. Use `csv_only` for large exports.
+  </Accordion>
+</AccordionGroup>
+
+---

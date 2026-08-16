@@ -1,0 +1,271 @@
+---
+title: "Analyze Google Ads performance reports with AI"
+description: "Pull campaign, ad group, keyword, search terms, geo, device, impression share, and PMax reports from Google Ads using AI prompts."
+sidebarTitle: "Reporting"
+---
+
+---
+
+HireOtto gives you every performance report available in Google Ads — campaign, ad group, keyword, search terms, geo, device, impression share, demographics, and more — through a single conversation. This guide covers when to use each report, how to pull it efficiently, and how to get the output format that suits your workflow.
+
+## Before you start: choosing the right output mode
+
+Most reports support three [output modes](/output-modes). Pick the right one upfront to avoid pulling twice:
+
+- **`summary`** (default) — results inline in chat, up to 50 rows. Good for quick checks on small accounts or when you want to read and act immediately.
+- **`summary_and_csv`** — inline preview plus a CSV download. Best for weekly reviews where you want to scan in chat and keep the full export.
+- **`csv_only`** — CSV link only, nothing printed inline. Best for large accounts, bulk pulls, or when you're taking the data elsewhere.
+
+CSV download links expire after 30 minutes by default. Download before the link expires.
+
+---
+
+## Filtering saves you money
+
+Every performance report accepts optional `campaign_id` and (where relevant) `adgroup_id` filters. If you only need data for one campaign, pass the ID — it limits what gets fetched and keeps responses fast. List your campaigns first if you need the IDs:
+
+```text
+List all campaigns in account [CUSTOMER_ID].
+```
+
+---
+
+## Campaign performance
+
+Your top-level view: spend, impressions, clicks, conversions, CTR, avg CPC, cost per conversion — one row per campaign.
+
+```text
+Get campaign performance for account [CUSTOMER_ID] for the last 30 days, sorted by cost.
+```
+
+To segment by day (useful for spotting day-of-week patterns or the impact of a change):
+
+```text
+Get campaign performance for account [CUSTOMER_ID] for last month, segmented by day, export to CSV.
+```
+
+---
+
+## Ad group performance
+
+Drill into how individual ad groups are performing within a campaign. Pass `campaign_id` to limit the pull to one campaign.
+
+```text
+Get ad group performance for campaign [CAMPAIGN_ID] in account [CUSTOMER_ID] for the last 30 days.
+```
+
+For a large account where you want the full export:
+
+```text
+Get ad group performance for account [CUSTOMER_ID] for the last 30 days, csv_only.
+```
+
+---
+
+## Keyword performance
+
+One of the most useful reports — covers metrics, match types, and Quality Score signals. A single pull answers several questions: which keywords are spending without converting, how match type is distributed, and where QS needs work.
+
+Always filter by campaign or ad group when you can — keyword reports across large accounts can be very long.
+
+```text
+Get keyword performance for campaign [CAMPAIGN_ID] for the last 30 days, sorted by cost.
+```
+
+For a full export to analyse match type distribution or pause decisions:
+
+```text
+Get keyword performance for account [CUSTOMER_ID] for the last 30 days, output mode summary_and_csv, sorted by cost.
+```
+
+---
+
+## Search terms report
+
+Shows the actual queries that triggered your ads — the raw input your match types are working with. Essential for finding wasted spend and negative keyword candidates.
+
+```text
+Get the search terms report for account [CUSTOMER_ID] for the last 30 days, sorted by cost, output mode summary_and_csv.
+```
+
+For a specific campaign:
+
+```text
+Get the search terms report for campaign [CAMPAIGN_ID] for the last 14 days, sorted by cost.
+```
+
+From the output: terms with spend and zero conversions are your first negative keyword candidates. You can add them directly from the same conversation — see the [Negative keywords guide](/guides/manage-negative-keywords-in-google-ads-with-ai).
+
+---
+
+## Ad performance
+
+Ad-level metrics: impressions, clicks, CTR, conversions, cost. Useful for comparing RSA performance within an ad group.
+
+```text
+Get ad performance for campaign [CAMPAIGN_ID] for the last 30 days.
+```
+
+---
+
+## Geographic performance
+
+Spend and conversions broken down by location. Useful for identifying regions to exclude, adjust bids for, or expand into.
+
+```text
+Get geo performance for account [CUSTOMER_ID] for the last 30 days, sorted by cost.
+```
+
+---
+
+## Device performance
+
+Splits performance across desktop, mobile, and tablet. Use this alongside campaign settings — if mobile is converting at half the rate of desktop, that should be reflected in your device bid modifiers.
+
+```text
+Get device performance for account [CUSTOMER_ID] for the last 30 days.
+```
+
+---
+
+## Impression share
+
+Competitive visibility metrics: Search Impression Share, Lost IS (Budget), Lost IS (Rank), and Click Share. Tells you how much of the available auction you're winning and why you're losing the rest.
+
+```text
+Get impression share data for account [CUSTOMER_ID] for the last 30 days.
+```
+
+For a specific campaign:
+
+```text
+Get impression share for campaign [CAMPAIGN_ID] for last month.
+```
+
+---
+
+## Conversion actions
+
+Lists all conversion actions in the account with their aggregated performance. Useful for auditing which conversion types are firing and which aren't.
+
+```text
+Get conversion actions for account [CUSTOMER_ID] for the last 30 days.
+```
+
+---
+
+## Demographics (age & gender)
+
+Breaks down performance by age range or gender. Only meaningful if your campaigns target the Display Network or YouTube, or if you have demographic bid modifiers set.
+
+```text
+Get age performance for account [CUSTOMER_ID] for the last 30 days.
+```
+
+```text
+Get gender performance for account [CUSTOMER_ID] for the last 30 days.
+```
+
+---
+
+## Extension asset performance
+
+Use extension asset performance when you want to understand how sitelinks, callouts, structured snippets, call assets, and price assets are performing.
+
+This is useful when you want to answer questions like:
+
+- Which sitelinks are getting impressions?
+- Are call assets getting clicks?
+- Which account-level assets are active but not delivering?
+- Which campaign or ad group has attached assets with no recent activity?
+
+### Supported levels
+
+HireOtto can pull extension asset performance at three levels:
+
+- `customer` — account-level assets
+- `campaign` — campaign-level assets
+- `ad_group` — ad group-level assets
+
+### Supported asset types
+
+- `SITELINK`
+- `CALLOUT`
+- `STRUCTURED_SNIPPET`
+- `CALL`
+- `PRICE`
+
+### Example prompts
+
+```text
+Show extension asset performance for account [CUSTOMER_ID] over the last 30 days.
+```
+
+```text
+Show customer-level callout performance for account [CUSTOMER_ID] this month.
+```
+
+```text
+Show campaign-level sitelink performance for campaign [CAMPAIGN_ID] over the last 30 days.
+```
+
+```text
+Show ad group-level structured snippet performance for ad group [ADGROUP_ID] over the last 30 days.
+```
+
+```text
+Export extension asset performance for account [CUSTOMER_ID] for LAST_30_DAYS as CSV.
+```
+
+<Note>
+  Newly created or newly linked assets may show zero metrics until they start serving.
+
+  Some Google Ads asset reports may return zero rows for fresh campaign-level or ad group-level associations with no delivery yet. If you want to check whether an asset is attached, use the extension asset listing action instead of the performance report.
+</Note>
+
+---
+
+## Running multiple reports in sequence
+
+You can pull several reports in one conversation — HireOtto keeps context across turns. A typical weekly review sequence:
+
+```text
+Get campaign performance for account [CUSTOMER_ID] for the last 7 days, sorted by cost.
+```
+
+```text
+Get search terms report for account [CUSTOMER_ID] for the last 7 days, sorted by cost, output mode summary_and_csv.
+```
+
+```text
+Get keyword performance for account [CUSTOMER_ID] for the last 7 days, sorted by cost.
+```
+
+If you want everything in one go and plan to work in spreadsheets:
+
+```text
+Get campaign performance, ad group performance, and keyword performance for account [CUSTOMER_ID] for last month — all as CSV exports.
+```
+
+---
+
+## Performance Max reports
+
+PMax has its own dedicated report set. See the [Performance Max guide](/guides/manage-performance-max-campaigns#reporting) for the full breakdown.
+
+---
+
+## Custom reports (Agency plan)
+
+If none of the above cover your specific report cut, you can write a custom GAQL query:
+
+```text
+Run a custom GAQL query for account [CUSTOMER_ID]: SELECT campaign.name, campaign.status, metrics.impressions FROM campaign WHERE segments.date DURING LAST_30_DAYS ORDER BY metrics.impressions DESC LIMIT 100
+```
+
+## Related workflows
+
+- Use [Negative Keywords](/guides/manage-negative-keywords-in-google-ads-with-ai) after reviewing search terms with wasted spend.
+- Use [Daily Optimization](/guides/google-ads-daily-optimization-with-ai) for a repeatable morning reporting routine.
+- Use [Account Audit](/guides/google-ads-account-audit-with-ai) for a deeper review of settings, tracking, keywords, and hygiene.
+- Use [Performance Max](/guides/manage-performance-max-campaigns) for PMax-specific reporting.

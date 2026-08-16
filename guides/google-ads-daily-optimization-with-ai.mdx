@@ -1,0 +1,140 @@
+---
+title: "Daily Google Ads Optimization with AI"
+description: "Run a daily Google Ads audit to catch budget pacing issues and wasted search term spend, then adjust budgets or add negatives from the same chat."
+sidebarTitle: "Daily Optimization"
+---
+
+---
+
+A good daily Google Ads routine catches two things: budget pacing issues (campaigns over- or underspending) and wasted search term spend (queries converting at zero). HireOtto combines both into a single audit you can run every morning, then act on directly in the same conversation.
+
+## The daily ops audit
+
+Run this every morning, ideally against yesterday's data:
+
+```text
+Run the daily ops audit for account [CUSTOMER_ID].
+```
+
+This returns two things:
+
+1. **Pacing flags** — campaigns that overspent or underspent yesterday relative to their daily budget. Defaults: flagged if over 150% or under 50% of daily budget.
+2. **Wasteful search terms** — queries with zero conversions, sorted by cost. The top 25 are shown inline; the full list exports to CSV.
+
+---
+
+## Adjusting the pacing thresholds
+
+The defaults (150% overspend, 50% underspend) work for most accounts. If you want tighter or looser flagging:
+
+```text
+Run the daily ops audit for account [CUSTOMER_ID] — flag campaigns over 130% spend or under 60%.
+```
+
+---
+
+## Exporting the wasteful search terms
+
+The inline view shows the top 25 wasted terms. For the full list (useful for large accounts or when you want to review everything in a spreadsheet):
+
+```text
+Run the daily ops audit for account [CUSTOMER_ID] and export the full wasteful search terms list to CSV.
+```
+
+---
+
+## Acting on the audit output
+
+The audit flags issues — it doesn't fix them automatically. But you can act on everything in the same conversation.
+
+**Budget pacing:**
+
+If a campaign overspent significantly:
+
+```text
+Reduce the budget for campaign [CAMPAIGN_ID] to [NEW_BUDGET]/day.
+```
+
+If a campaign underspent consistently and it matters:
+
+```text
+Increase the budget for campaign [CAMPAIGN_ID] to [NEW_BUDGET]/day.
+```
+
+**Wasteful search terms:**
+
+Add the wasted terms as negatives directly from the audit output:
+
+```text
+Add these as exact match negatives to campaign [CAMPAIGN_ID]: "[WASTED_TERM_1]", "[WASTED_TERM_2]", "[WASTED_TERM_3]".
+```
+
+For terms that should be excluded across all campaigns, add them to your shared negative list:
+
+```text
+Add "[WASTED_TERM]" to negative keyword list [LIST_ID] — exact match.
+```
+
+---
+
+## Running across multiple accounts
+
+If you manage several accounts, run the audit for each in sequence in the same conversation:
+
+```text
+Run the daily ops audit for account [CUSTOMER_ID_1].
+```
+
+```text
+Run the daily ops audit for account [CUSTOMER_ID_2].
+```
+
+```text
+Run the daily ops audit for account [CUSTOMER_ID_3].
+```
+
+For large-scale agency use where you want everything exported without inline output:
+
+```text
+Run the daily ops audit for account [CUSTOMER_ID] — csv_only, full search terms export.
+```
+
+---
+
+## Custom date ranges
+
+The audit defaults to yesterday. To run it over a longer window (e.g. catching a weekend):
+
+```text
+Run the daily ops audit for account [CUSTOMER_ID] for the last 3 days.
+```
+
+```text
+Run the daily ops audit for account [CUSTOMER_ID] for this week.
+```
+
+---
+
+## Full daily routine sequence (copy-paste)
+
+```text
+Run the daily ops audit for account [CUSTOMER_ID].
+```
+
+Review pacing flags → adjust any budgets that need it:
+
+```text
+Change the budget for campaign [CAMPAIGN_ID] to [NEW_BUDGET]/day.
+```
+
+Review wasteful search terms → add negatives:
+
+```text
+Add these as exact match negatives to campaign [CAMPAIGN_ID]: "[TERM_1]", "[TERM_2]".
+```
+
+Done. The whole routine — audit, budget fix, negatives — typically takes under 5 minutes in a single conversation.
+
+## Weekly follow-up
+
+At the end of the week, pull a fuller performance report using [Analyze Google Ads performance reports with AI](/guides/reporting). If you manage PMax campaigns, also review [Performance Max reporting](/guides/manage-performance-max-campaigns).

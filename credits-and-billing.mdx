@@ -1,0 +1,120 @@
+---
+title: "HireOtto Credits and Billing Explained"
+description: "Understand HireOtto subscription plans, credits, feature access, and how to upgrade."
+sidebarTitle: "Credits and Billing"
+---
+
+---
+
+## Plans at a glance
+
+|  | Free | Pro | Agency |
+| :-- | :-- | :-- | :-- |
+| **Price** | \$0 | \$49 / month | \$99 / month |
+| **Duration** | 14 days | Monthly | Monthly |
+| **Credits** | 200 (one-time) | 5,000 / month | Unlimited |
+| **Google Ads build & edits** | ✓ | ✓ | ✓ |
+| **Keyword Planner** | ✓ | ✓ | ✓ |
+| **Reporting \+ CSV exports** | ✓ | ✓ | ✓ |
+| **Audit tools** | — | — | ✓ |
+| **Multi-profile support** | — | — | ✓ |
+| **Async support** | — | ✓ | ✓ (priority) |
+| **Seats** | 1 | 1 | 2 (\+ \$25 / seat) |
+| **Annual plan** | — | ✓ (~2 months off) | ✓ (~2 months off) |
+
+Credits reset at the start of each billing cycle and do not roll over.
+
+---
+
+## How credits work
+
+Think of credits like tokens — each action you run costs a fixed amount. Your balance resets monthly on your billing date. When credits run out, actions that cost credits stop working until the next reset.
+
+---
+
+## What costs what
+
+Actions are grouped by type. As a general rule: the more data an action pulls or the more complex the write operation, the more it costs.
+
+| Action type | Examples | Cost |
+| :-- | :-- | :-- |
+| Auth & utility | Connect account, check billing, list accounts | Free |
+| Discovery & listing | List campaigns, ad groups, keywords, ads | 1 credit |
+| Account hygiene | Auto-tagging review, disapproved ads check, negative keyword review | 3 credits each |
+| Create / update entities | Create ad group, update keywords, add negatives | 2 credits each |
+| Campaign creation | Create a Search/App campaign | 5 credits |
+| Change history | Get change status, get change events | 5 credits each |
+| Performance reports | Campaign, ad group, keyword, search terms, geo, device, PMax reports | 5 credits each |
+| Keyword planner | Keyword ideas, historical metrics | 10 credits each |
+| Performance Max (create) | Create PMax campaign or asset group | 10 credits |
+| Performance Max (assets/signals) | Add/remove assets, audience signals, search themes | 2–5 credits |
+| Daily ops audit | Pacing flags \+ wasteful search terms combined | 15 credits |
+| Custom GAQL query | `run_gaql` — Agency plan only | 10 credits |
+| Managing Extensions | Listing, Creating, Linking, Unlinking extensions | 3 credits |
+
+---
+
+## How to check your balance
+
+Ask your AI client at any time:
+
+```text
+What's my HireOtto credit balance?
+```
+
+This returns your current plan, credits used, credits remaining, and when your period resets.
+
+---
+
+## How to upgrade
+
+### If you already have a HireOtto account
+
+When you hit your free trial limit, your AI client will return the subscription links directly in the response. You can also find them below.
+
+1. Click your plan's PayPal link and complete the subscription.
+2. Email [suyash@hireotto.com](mailto:suyash@hireotto.com) with your registered email address and the plan you subscribed to.
+3. Your account will be upgraded, usually within a few hours.
+
+**Pro — \$49/month:** [Subscribe via PayPal](https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-2W3255723W731972ENG6OZKY)
+
+**Agency — \$99/month:** [Subscribe via PayPal](https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0M944887A09099433NIIT6JA)
+
+### If you subscribed before signing up
+
+If you subscribed before creating a HireOtto account:
+
+1. Connect your AI client following the [quickstart guide](/quickstart).
+2. Email [suyash@hireotto.com](mailto:suyash@hireotto.com) with your registered email and PayPal confirmation — your account will be upgraded manually.
+
+---
+
+## Plan features explained
+
+**Audit tools (Agency only)** Structured account hygiene checks — auto-tagging status, auto-apply review, disapproved ads, and negative keyword coverage. Designed for practitioners doing formal account reviews or onboarding a new client account.
+
+**Multi-profile support (Agency only)** Connect and switch between multiple Google logins inside the same AI client session. Essential for agencies managing accounts across different Google accounts. See the [authentication guide](/authentication-1) for how multi-profile OAuth works.
+
+**Async support** Email-based support from the HireOtto team. Pro users get standard async support; Agency users get priority response.
+
+**Seats (Agency)** The Agency plan includes 2 seats — meaning two separate HireOtto accounts on the same billing. Additional seats are \$25/month each. Useful for agencies where multiple team members each connect their own AI client. Email [suyash@hireotto.com](mailto:suyash@hireotto.com) to add seats.
+
+---
+
+## Tips for getting more out of your credits
+
+**Use** `summary `**mode for quick checks,** `csv_only `**for bulk exports.** Performance reports let you choose how results come back. `summary` is the default and works well for scanning a handful of campaigns. If you're pulling data across 50\+ campaigns for a spreadsheet, use `csv_only` — same credit cost, cleaner output.
+
+**Filter before you pull.** Most report actions accept a `campaign_id` or `adgroup_id` filter. If you only need one campaign's keyword data, pass the campaign ID — it limits what gets fetched and keeps responses manageable.
+
+**Listing is cheap; reporting isn't.** `list_campaigns` costs 1 credit. `get_campaign_performance` costs 5. If you just need to see which campaigns exist (not their metrics), use the listing action.
+
+---
+
+## Cancellations and refunds
+
+Subscriptions are managed through PayPal and can be cancelled anytime through your PayPal account. See the [Refund Policy](https://www.hireotto.com/refund-policy) for details. For any billing questions, email [suyash@hireotto.com](mailto:suyash@hireotto.com).
+
+---
+
+For tool availability by plan, see the [Google Ads MCP Tools Reference](/google-ads-mcp-tools). For full pricing details including annual plans, see [hireotto.com/pricing](https://www.hireotto.com/pricing).

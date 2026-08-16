@@ -1,0 +1,250 @@
+---
+title: "Manage Google Ads Extension Assets with HireOtto MCP"
+sidebarTitle: "Extension Assets"
+description: "Create, list, link, reuse, unlink, and report on Google Ads sitelinks, callouts, structured snippets, call assets, and price assets using HireOtto’s Google Ads MCP server."
+---
+
+These assets are reusable. You can create an asset once, link it at the account, campaign, or ad group level where supported, and reuse the same asset elsewhere without creating duplicates.
+
+## What HireOtto supports
+
+HireOtto currently supports:
+
+- `SITELINK`
+- `CALLOUT`
+- `STRUCTURED_SNIPPET`
+- `CALL`
+- `PRICE`
+
+You can:
+
+- List existing extension assets
+- Create new extension assets
+- Link existing assets at the account, campaign, or ad group level
+- Reuse the same asset across supported levels
+- Unlink an asset association without deleting the underlying asset
+- Pull extension asset performance reports
+
+## 1. List existing extension assets
+
+Start here if you want to reuse existing assets or find the right resource names.
+
+```text
+List all extension assets in account [CUSTOMER_ID]. Include sitelinks, callouts, structured snippets, call assets, and price assets. Include active links.
+```
+
+HireOtto returns:
+
+- asset ID
+- asset resource name
+- asset type
+- asset details
+- active links, if any
+- campaign or ad group IDs when the asset is already linked
+
+You will need the asset\_resource\_name when linking an existing asset.
+
+## 2. Create a sitelink asset
+
+```text
+Create a sitelink asset in account [CUSTOMER_ID]:
+
+Name: Pricing Sitelink
+Link text: View Pricing
+Description 1: Compare plans
+Description 2: Choose your fit
+Final URL: https://example.com/pricing
+Mobile URL: https://m.example.com/pricing
+```
+
+Optional sitelink settings include:
+
+- tracking template
+- final URL suffix
+- custom parameters
+- start date
+- end date
+- ad schedule
+
+Example:
+
+```text
+Create a sitelink asset in account [CUSTOMER_ID]:
+
+Name: Pricing Sitelink
+Link text: View Pricing
+Description 1: Compare plans
+Description 2: Choose your fit
+Final URL: https://example.com/pricing
+Tracking template: {lpurl}?utm_source=google&utm_medium=cpc
+Final URL suffix: utm_content=sitelink
+Start date: 2026-05-07
+End date: 2026-05-20
+Schedule: Monday and Tuesday, 9am to 5pm
+```
+
+## 3. Create callouts
+
+```text
+Create these callout assets in account [CUSTOMER_ID]:
+
+Free setup
+No long-term contract
+24/7 support
+```
+
+You can also include start/end dates and schedules:
+
+```text
+Create a callout asset called "Free Setup Callout" in account [CUSTOMER_ID].
+
+Text: Free setup
+Start date: 2026-05-07
+End date: 2026-05-20
+Schedule: Monday to Friday, 9am to 5pm.
+```
+
+## 4. Create a structured snippet
+
+```text
+Create a structured snippet asset in account [CUSTOMER_ID]:
+
+Name: Services Snippet
+Header: Services
+Values: Audits, Reporting, Automation
+```
+
+## 5. Create a call asset
+
+```text
+Create a call asset in account [CUSTOMER_ID]:
+
+Name: Main Sales Phone
+Country: US
+Phone number: (800) 555-0100
+Schedule: Monday to Friday, 9am to 5pm.
+```
+
+## 6. Create a price asset
+
+```text
+Create a price asset in account [CUSTOMER_ID]:
+
+Name: Services Price Asset
+Type: Services
+Qualifier: From
+Language: English
+Currency: USD
+
+Offerings:
+1. Audit — Account review — $49/month — https://example.com/audit
+2. Reporting — Performance reports — $99/month — https://example.com/reporting
+3. Automation — Workflow support — $149/month — https://example.com/automation
+```
+
+## 7. Link an existing asset
+
+After creating or listing assets, link the asset to the right level.
+
+### Link at campaign level
+
+```text
+Link this sitelink asset to campaign [CAMPAIGN_ID]:
+
+customers/[CUSTOMER_ID]/assets/[ASSET_ID]
+```
+
+### Link at ad group level
+
+```text
+Link this structured snippet asset to ad group [ADGROUP_ID]:
+
+customers/[CUSTOMER_ID]/assets/[ASSET_ID]
+```
+
+### Link at account level
+
+```text
+Link this callout asset at the account level:
+
+customers/[CUSTOMER_ID]/assets/[ASSET_ID]
+```
+
+## 8. Reuse the same asset
+
+Reusable <u>assets </u>are useful when you want consistent messaging across campaigns or ad groups.
+
+```text
+Reuse this same sitelink asset and link it to ad group [ADGROUP_ID]:
+
+customers/[CUSTOMER_ID]/assets/[ASSET_ID]
+```
+
+HireOtto will create another association using the same underlying asset.
+
+## 9. Unlink an asset association
+
+Use unlink when you no longer want an asset attached at a specific level.
+
+```text
+Unlink this campaign-level sitelink association:
+
+customers/[CUSTOMER_ID]/campaignAssets/[CAMPAIGN_ID]~[ASSET_ID]~SITELINK
+```
+
+<Info>
+  Important: unlinking removes the association only. It does not delete the underlying reusable asset. Google Ads may show removed associations under removed asset filters in the UI.
+</Info>
+
+## 10. Check extension asset performance
+
+Use the reporting tool to review performance.
+
+```text
+Show extension asset performance for account [CUSTOMER_ID] over the last 30 days.
+```
+
+```text
+Show campaign-level sitelink performance for campaign [CAMPAIGN_ID] over the last 30 days.
+```
+
+```text
+Show customer-level call asset performance for account [CUSTOMER_ID] this month.
+```
+
+Newly created or newly linked assets may show zero metrics until they start serving.
+
+## Common workflow
+
+A typical workflow looks like this:
+
+```text
+List existing sitelinks in account [CUSTOMER_ID].
+```
+
+Then:
+
+```text
+Create a new sitelink for the pricing page, but do not link it yet.
+```
+
+Then:
+
+```text
+Link that sitelink to campaign [CAMPAIGN_ID].
+```
+
+Then:
+
+```text
+Reuse the same sitelink for ad group [ADGROUP_ID].
+```
+
+This keeps asset creation and asset linking separate, which is how Google Ads treats reusable assets behind the scenes.
+
+## Notes and limitations
+
+- Create and link are separate operations. If you ask HireOtto to add a new sitelink or callout to a campaign, your AI assistant may first create the asset and then link it.
+- Unlinking removes only the association. The underlying asset remains reusable by asset\_resource\_name.
+- Supported extension asset types in this version are SITELINK, CALLOUT, STRUCTURED\_SNIPPET, CALL, and PRICE.
+- New assets may not show performance immediately. Use the listing action to confirm whether the asset is attached, and use reporting once the asset has had time to serve.

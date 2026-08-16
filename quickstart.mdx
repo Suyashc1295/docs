@@ -1,0 +1,96 @@
+---
+title: "Connect Google Ads to Claude, ChatGPT, and AI Tools"
+description: "Set up HireOtto’s Google Ads MCP server in under 5 minutes. Connect your AI assistant, authorize Google Ads, and run your first campaign query."
+sidebarTitle: "Connect Google Ads MCP"
+---
+
+HireOtto is a remote MCP server, so there is nothing to download or install. You add the HireOtto endpoint URL to your AI tool's configuration, authorize your Google Ads account once via OAuth, and then start managing campaigns in plain language. The steps below walk you through the full setup.
+
+For client-specific screenshots and setup details, use the dedicated guide: [Connect HireOtto to Claude, ChatGPT, and Make](/setup/connect-ai-tool).
+
+<Steps>
+  <Step title="Get your HireOtto endpoint URL">
+    Your endpoint URL looks like this:
+
+    ```text
+    https://googleads.hireotto.com/mcp
+    ```
+
+    Keep this URL handy — you'll paste it into your AI tool's config in the next step.
+  </Step>
+  <Step title="Add HireOtto to your AI tool">
+    Choose your AI tool below and follow the configuration steps.
+
+    After saving the config file, restart your AI tool so it picks up the new server.
+
+    - **Claude Web** — Settings → Connectors → Add Custom Connector.
+    - **ChatGPT** — Settings → Apps → Advanced settings → Enable Developer Mode (this is to allow adding custom servers) Once enabled, you'll see a 'Create app' button. Use that, paste the server URL, select `OAuth` as the Authentication and Create.
+    - [**Make.com**](http://Make.com)  — open an AI agent → click '\+' icon next to MCP → Add→ select by searching `googleads` . You don't need the server URL here as HireOtto is already integrated with Make - neat right!
+
+    <Info>
+      Once the server is added, you'll see a Google sign‑in window. This is a quick handshake so HireOtto can recognize your workspace. Simply complete the flow.
+    </Info>
+  </Step>
+  <Step title="Authorize your Google Ads account">
+    HireOtto needs read/write access to your Google Ads account. Initiate a new chat in your AI tool and say something like `Connect Google Ads` or `Authenticate Google Ads.`
+
+    Follow the link your assistant provides, sign in with the Google account that has access to your Google Ads account, and grant the requested permissions on the Google consent screen. Select and save the accounts you want to access via HireOtto.
+  </Step>
+  <Step title="Test your connection">
+    Open a new conversation in your AI tool and send this message:
+
+    ```text
+    List my Google Ads campaigns
+    ```
+
+    Your assistant should respond with a table or list showing your campaigns, their statuses, and their daily budgets — something like:
+
+    ```text
+    Here are your Google Ads campaigns:
+    
+    | Campaign               | Status  | Daily budget | Impressions (7d) |
+    |------------------------|---------|--------------|-----------------|
+    | Brand - Search         | Enabled | $50.00       | 14,320          |
+    | Competitor - Search    | Enabled | $30.00       | 8,910           |
+    | Retargeting - Display  | Paused  | $20.00       | 0               |
+    ```
+
+    If you see your campaigns, HireOtto is connected and working. If you see an error, check that you saved the config file correctly and restarted your AI tool.
+  </Step>
+</Steps>
+
+<Tip>
+  Once connected, try these prompts to explore what HireOtto can do:
+
+  - "What was my total ad spend last week?"
+  - "Pause all campaigns with a CTR below 1% in the last 30 days"
+  - "Increase the budget for my Brand campaign by 20%"
+  - "Add the keyword “best running shoes” as phrase match to my Search campaign with a max CPC of \$1.50"
+</Tip>
+
+## Optional: Connect Google Search Console
+
+If you want to analyze organic search data, connect Google Search Console separately. In your AI assistant, ask:
+
+```text
+Connect my Google Search Console account.
+```
+
+HireOtto will return an authentication link. Open it, choose the Google account that has access to your Search Console properties, and approve access.
+
+Then verify the connection:
+
+```text
+Show me the Search Console sites I have access to.
+```
+
+For examples and reporting workflows, see [Google Search Console MCP reporting](/guides/google-search-console).
+
+## What to try next
+
+Once your connection works, try one of these workflows:
+
+- [Pull Google Ads performance reports](/guides/reporting)
+- [Run a Google Ads account audit](/guides/google-ads-account-audit-with-ai)
+- [Create a Google Search campaign with AI](/guides/create-a-google-ads-campaign-with-ai)
+- [Manage negative keywords](/guides/manage-negative-keywords-in-google-ads-with-ai)
