@@ -1,91 +1,107 @@
 ---
-title: "HireOtto Credits and Billing Explained"
-description: "Understand HireOtto subscription plans, credits, feature access, and how to upgrade."
-sidebarTitle: "Credits and Billing"
+title: "HireOtto credits, billing, and plans"
+description: "Choose the right plan, understand how credits work, and manage billing across HireOtto’s Google Ads, Tag Manager, Search Console, and Google Analytics servers."
+sidebarTitle: "Credits, billing, and plans"
 ---
 
 ---
 
-## Plans at a glance
+A single HireOtto plan covers the currently supported product stack. Free, Starter, and Pro use credits. Agency includes unlimited credits and unlocks audits, multiple connected Google profiles, team billing, and two seats.
 
-|  | Free | Pro | Agency |
-| :-- | :-- | :-- | :-- |
-| **Price** | \$0 | \$49 / month | \$99 / month |
-| **Duration** | 14 days | Monthly | Monthly |
-| **Credits** | 200 (one-time) | 5,000 / month | Unlimited |
-| **Google Ads build & edits** | ✓ | ✓ | ✓ |
-| **Keyword Planner** | ✓ | ✓ | ✓ |
-| **Reporting \+ CSV exports** | ✓ | ✓ | ✓ |
-| **Audit tools** | — | — | ✓ |
-| **Multi-profile support** | — | — | ✓ |
-| **Async support** | — | ✓ | ✓ (priority) |
-| **Seats** | 1 | 1 | 2 (\+ \$25 / seat) |
-| **Annual plan** | — | ✓ (~2 months off) | ✓ (~2 months off) |
+- Free: \$0. Use up to 200 credits or 14 days, whichever comes first.
+- Starter: \$25 per month with 2,000 credits.
+- Pro: \$49 per month with 5,000 credits.
+- Agency: \$99 per month with unlimited credits and two seats. Additional seats are \$25 per month each.
 
-Credits reset at the start of each billing cycle and do not roll over.
+All prices are in USD. Taxes may be added by Paddle based on your location. Paid subscriptions renew automatically until you cancel.
 
 ---
 
-## How credits work
+# Choose a plan
 
-Think of credits like tokens — each action you run costs a fixed amount. Your balance resets monthly on your billing date. When credits run out, actions that cost credits stop working until the next reset.
+## Free
+
+Use the free trial to connect your accounts and test supported core workflows before paying. The trial ends when you use 200 credits or reach 14 days, whichever happens first.
+
+## Starter
+
+Choose Starter for lighter individual or in-house usage. It includes 2,000 credits per month and access to supported core tools across Google Ads, Tag Manager, Search Console, and the Google Analytics beta.
+
+## Pro
+
+Choose Pro when you need the same core access with more room for reporting, planning, exports, and account work. It includes 5,000 credits per month.
+
+## Agency
+
+Choose Agency when you need formal audits, multiple connected Google profiles, team billing, or more than one user. Agency includes unlimited credits, two seats, and priority async support. Additional seats cost \$25 per month each.
+
+Monthly and yearly billing are available on the pricing page. Yearly billing is priced at the equivalent of two months free.
+
+---
+
+# What your plan covers
+
+Core access is available on the free trial, Starter, Pro, and Agency. The scope differs by server:
+
+- Google Ads: read performance data, export reports, and use supported account actions. HireOtto acts only when your connected AI client calls a tool; review important or bulk changes before applying them.
+- Google Tag Manager: inspect accounts, containers, workspaces, tags, triggers, variables, folders, and tag wiring. The current server is read-only and does not publish container changes.
+- Google Search Console: analyze query and page performance, inspect properties, sitemaps, and URL indexing, and export supported reports. Connect a Google account that can access the property you need.
+- Google Analytics: run property discovery, standard reports, date comparisons, and basic realtime reporting. Google Analytics access is currently in beta and requires the relevant Google permission.
+
+Audit workflows and multiple connected Google profiles require Agency. Starter and Pro do not include audits. LinkedIn Ads is not included in the current plans and remains on the roadmap.
 
 ---
 
-## What costs what
+# How credits work
 
-Actions are grouped by type. As a general rule: the more data an action pulls or the more complex the write operation, the more it costs.
+Credits measure usage across HireOtto tools. Simple discovery and listing work uses fewer credits; deeper reports, planning, exports, and complex account actions use more.
 
-| Action type | Examples | Cost |
-| :-- | :-- | :-- |
-| Auth & utility | Connect account, check billing, list accounts | Free |
-| Discovery & listing | List campaigns, ad groups, keywords, ads | 1 credit |
-| Account hygiene | Auto-tagging review, disapproved ads check, negative keyword review | 3 credits each |
-| Create / update entities | Create ad group, update keywords, add negatives | 2 credits each |
-| Campaign creation | Create a Search/App campaign | 5 credits |
-| Change history | Get change status, get change events | 5 credits each |
-| Performance reports | Campaign, ad group, keyword, search terms, geo, device, PMax reports | 5 credits each |
-| Keyword planner | Keyword ideas, historical metrics | 10 credits each |
-| Performance Max (create) | Create PMax campaign or asset group | 10 credits |
-| Performance Max (assets/signals) | Add/remove assets, audience signals, search themes | 2–5 credits |
-| Daily ops audit | Pacing flags \+ wasteful search terms combined | 15 credits |
-| Custom GAQL query | `run_gaql` — Agency plan only | 10 credits |
-| Managing Extensions | Listing, Creating, Linking, Unlinking extensions | 3 credits |
+- Free starts with 200 one-time trial credits.
+- Starter includes 2,000 credits per monthly billing period.
+- Pro includes 5,000 credits per monthly billing period.
+- Agency has unlimited credits.
+- Starter and Pro balances reset at the start of each billing period. Unused credits do not roll over.
 
----
+When a limited plan reaches its credit allowance, credit-consuming actions stop until the next billing period or until you upgrade. Free utility actions, such as checking billing status, remain available so you can see the reason and next step.
 
 ## How to check your balance
 
-Ask your AI client at any time:
+Ask your AI client:
 
 ```text
 What's my HireOtto credit balance?
 ```
 
-This returns your current plan, credits used, credits remaining, and when your period resets.
+The response shows your current plan, billing or trial status, credits used and remaining, the current period dates, and the features available to your workspace.
 
 ---
 
-## How to upgrade
+# Upgrade or change your plan
 
-### If you already have a HireOtto account
+### Start a paid subscription
 
-When you hit your free trial limit, your AI client will return the subscription links directly in the response. You can also find them below.
+If you are on Free or do not yet have a paid subscription, use checkout to start one.
 
-1. Click your plan's PayPal link and complete the subscription.
-2. Email [suyash@hireotto.com](mailto:suyash@hireotto.com) with your registered email address and the plan you subscribed to.
-3. Your account will be upgraded, usually within a few hours.
+- Open a plan link returned by a HireOtto server when a subscription is required, or go to the [HireOtto pricing page](https://hireotto.com/pricing) and choose monthly or yearly billing.
+- Select Starter, Pro, or Agency. For Agency, choose the number of seats you need.
+- Complete checkout.
 
-**Pro — \$49/month:** [Subscribe via PayPal](https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-2W3255723W731972ENG6OZKY)
+Your account will be upgraded, usually within a few hours. Return to your AI client and check your HireOtto billing status before resuming work.
 
-**Agency — \$99/month:** [Subscribe via PayPal](https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0M944887A09099433NIIT6JA)
+## Upgrade an existing paid subscription
 
-### If you subscribed before signing up
+Subscribing and upgrading are different. If you already have an active Starter or Pro subscription, do not use another checkout link; that can create a second subscription.
 
-If you subscribed before creating a HireOtto account:
+- Email [suyash@hireotto.com](mailto:suyash@hireotto.com) and include the email registered with HireOtto.
+- State your current plan, the plan you want, and the number of Agency seats if relevant.
 
-1. Connect your AI client following the [quickstart guide](/quickstart).
-2. Email [suyash@hireotto.com](mailto:suyash@hireotto.com) with your registered email and PayPal confirmation — your account will be upgraded manually.
+HireOtto will update your existing subscription and confirm once the new plan access is active.
+
+## Other plan changes
+
+For downgrades, changes between monthly and yearly billing, or Agency seat changes, email [suyash@hireotto.com](mailto:suyash@hireotto.com). HireOtto will confirm when the change will take effect and any billing adjustment before applying it.
+
+If the new plan does not appear, refresh or reconnect your HireOtto server and check again. If it is still incorrect, contact HireOtto with the email used at checkout and the Paddle receipt or subscription details.
 
 ---
 
@@ -111,10 +127,46 @@ If you subscribed before creating a HireOtto account:
 
 ---
 
-## Cancellations and refunds
+# Billing, taxes, cancellation, and refunds
 
-Subscriptions are managed through PayPal and can be cancelled anytime through your PayPal account. See the [Refund Policy](https://www.hireotto.com/refund-policy) for details. For any billing questions, email [suyash@hireotto.com](mailto:suyash@hireotto.com).
+- Merchant of record: Paddle may handle payment processing, taxes, invoices, cancellations, and refunds.
+- Currency and tax: prices are listed in USD. Paddle may add tax based on your location.
+- Renewal: subscriptions renew automatically until cancelled.
+- Cancellation: cancel before the next renewal to stop future charges. Use the management or support link in your Paddle receipt, or contact HireOtto for help.
+- Refunds: Use the refund or support link in your Paddle receipt, or email [suyash@hireotto.com](mailto:suyash@hireotto.com).
 
 ---
 
-For tool availability by plan, see the [Google Ads MCP Tools Reference](/google-ads-mcp-tools). For full pricing details including annual plans, see [hireotto.com/pricing](https://www.hireotto.com/pricing).
+# Common billing and access errors
+
+## The free trial has ended
+
+The trial stops when you reach 200 credits or 14 days. Choose a paid plan from the pricing page, then check billing status again.
+
+## You have used all credits for the period
+
+Wait for the next monthly reset or upgrade to a plan with a larger allowance. Agency removes the credit limit.
+
+## This workflow requires Agency
+
+Audits, multiple connected Google profiles, and team billing are Agency features. Upgrade to Agency, or use the available core tools individually on Starter or Pro.
+
+## Billing is inactive or the billing period cannot be verified
+
+Check that the subscription is active in Paddle, then refresh or reconnect HireOtto and retry the billing check. If the status remains wrong, contact HireOtto with the checkout email and receipt.
+
+## The right plan is active, but a Google account or property is missing
+
+Billing access and platform permissions are separate. Reconnect the relevant Google service and confirm that the signed-in Google account can access the ad account, Tag Manager container, Search Console property, or Analytics property you need.
+
+---
+
+# Related pages
+
+Pricing: [<u>https://hireotto.com/pricing</u>](https://hireotto.com/pricing)
+
+Refund policy: [<u>https://hireotto.com/refund-policy</u>](https://hireotto.com/refund-policy)
+
+Connect a HireOtto server: [<u>https://docs.hireotto.com/setup/connect-ai-tool</u>](https://docs.hireotto.com/setup/connect-ai-tool)
+
+<br />
