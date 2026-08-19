@@ -1,168 +1,198 @@
 ---
-title: "HireOtto FAQs: Google Ads MCP, Privacy, Billing"
-description: "Answers to common questions about HireOtto, including supported AI tools, Google Ads permissions, data privacy, billing, and campaign actions."
+title: "HireOtto FAQ"
+description: "Answers about supported servers, setup, permissions, plans, privacy, limits, and troubleshooting."
 sidebarTitle: "FAQs"
 keywords: ["hireotto faq", "hireotto faqs"]
 ---
 
-HireOtto works as a remote MCP server — which means many questions about setup, permissions, and capabilities come up frequently. This page answers the most common ones. If you don't find what you're looking for, email [suyash@hireotto.com](mailto:suyash@hireotto.com)
+HireOtto connects supported AI clients to four Google marketing products through remote MCP servers. Google Ads supports reporting and user-directed account changes. Google Tag Manager and Google Search Console are read-only. Google Analytics 4 is a read-only beta. HireOtto does not make changes on its own.
 
-## General
+## About HireOtto
 
 <AccordionGroup>
-  <Accordion title="What is HireOtto and how does it work?">
-    HireOtto is a remote Model Context Protocol (MCP) server that gives your AI assistant direct access to your Google Ads account(s). When you ask your AI tool (Claude, ChatGPT, Make, Cursor, Windsurf, etc.) to "list my campaigns" or "create a new Search campaign," it calls HireOtto's MCP tools behind the scenes, which communicate with the Google Ads API on your behalf.
-
-    There is no code to write and no local service to run — HireOtto is a hosted service you connect to via a single URL.
+  <Accordion title="What is HireOtto?">
+    HireOtto is a suite of remote MCP servers for marketers. It lets an AI client work with your live Google Ads, Tag Manager, Search Console, and GA4 data after you connect the relevant server and authorize the Google account that has access to the resource.
   </Accordion>
 
-  <Accordion title="Which AI tools does HireOtto support?">
-    HireOtto works with any AI tool that supports the remote Model Context Protocol (MCP). Currently tested and supported:
-
-    - **Claude Web, Code, Desktop** (Anthropic)
-    - **ChatGPT**
-    - **Make.com**
-    - Any other MCP-compatible client that supports remote servers
-
-    See [Connect your AI tool](/setup/connect-ai-tool) for setup instructions for each tool.
+  <Accordion title="Which HireOtto servers are available?">
+    Google Ads, Google Tag Manager, GA4 and Google Search Console are available now. LinkedIn Ads is available in beta. Reddit and Microsoft Ads are on the roadmap and are not included in current plans.
   </Accordion>
 
-  <Accordion title="Is there a local installation required?">
-    No. HireOtto is a fully remote MCP server. You only need to add the server URL to your AI tool — no packages to install, no servers to run.
+  <Accordion title="Which AI clients can I use?">
+    HireOtto works with MCP-compatible clients including ChatGPT, Claude, Cursor, VS Code, and Make. Setup differs by client, but the Google authorization and account permissions are the same.
   </Accordion>
 
-  <Accordion title="What Google Ads features does HireOtto support?">
-    HireOtto currently supports:
-
-    - Listing, creating, updating, and pausing campaigns
-    - Managing ad groups and keywords (add, view, pause)
-    - Setting keyword match types (broad, phrase, exact)
-    - Adding negative keywords
-    - Viewing performance reports (clicks, impressions, cost, conversions, ROAS)
-    - Account-level and campaign-level summaries
-    - Adjusting daily budgets and bidding strategies
-
-    Support for Display campaigns, ad creative management, and audience targeting is on the roadmap.
+  <Accordion title="Do I need to install anything locally?">
+    No. HireOtto is hosted remotely. Add the server URL to your AI client, sign in to HireOtto, accept the terms, and authorize the relevant Google product when prompted.
   </Accordion>
 
-  <Accordion title="Does HireOtto replace the Google Ads UI?">
-    No — HireOtto complements the Google Ads interface. It's best for making quick changes, pulling reports, and bulk-updating settings via conversation. For tasks like uploading image creatives, building complex audience segments, or reviewing ad previews, you'll still use the Google Ads UI directly.
+  <Accordion title="Can I connect more than one HireOtto server?">
+    Yes. Each server is connected separately, so you can use only the products you need or combine several in one client. Each Google product also has its own authorization step.
   </Accordion>
 </AccordionGroup>
 
-## Privacy & Security
+## Setup and permissions
 
 <AccordionGroup>
-  <Accordion title="What Google Ads data can HireOtto access?">
-    HireOtto requests the `https://www.googleapis.com/auth/adwords` OAuth scope, which grants read and write access to your Google Ads account. This allows HireOtto to read campaign data and make changes on your behalf — such as creating campaigns or adjusting budgets.
-
-    HireOtto only accesses data when you or your AI assistant explicitly requests an action.
+  <Accordion title="Does HireOtto need my Google password?">
+    No. Google handles sign-in and consent. HireOtto receives OAuth tokens for the permissions you approve; it never receives your Google password.
   </Accordion>
 
-  <Accordion title="Does HireOtto store my Google Ads data?">
-    HireOtto does not persistently store your campaign data. Query results are returned in real time from the Google Ads API and passed directly to your AI assistant. HireOtto stores OAuth tokens (encrypted) so you don't need to re-authorize on every session.
+  <Accordion title="What access does each server request?">
+    Google Ads requests access that can support both reporting and the user-directed changes available in HireOtto. Tag Manager uses read-only access. Search Console uses read-only access. GA4 uses read-only access. A read-only server cannot create, edit, delete, or publish resources in that product.
   </Accordion>
 
-  <Accordion title="Is my Google account password ever shared with HireOtto?">
-    No. Authentication uses Google's OAuth2 flow. You sign in directly on Google's servers — HireOtto never sees your password. HireOtto only receives a scoped access token after you grant permission.
+  <Accordion title="Why do I have to authorize each product separately?">
+    Google Ads, Tag Manager, Search Console, and GA4 are separate Google services with separate permissions. Connecting one does not automatically grant access to the others.
   </Accordion>
 
-  <Accordion title="Can I revoke HireOtto's access to my Google Ads account?">
+  <Accordion title="Can I revoke access?">
     Yes. You can revoke access at any time:
 
     1. Go to [myaccount.google.com/permissions](https://myaccount.google.com/permissions)
     2. Find HireOtto in the list of connected apps
     3. Click **Remove access**
 
-    After revocation, HireOtto can no longer access your Google Ads account until you re-authorize.
+    Revoking one Google product may require you to reauthorize that server before it can run again.
+  </Accordion>
+
+  <Accordion title="Why can HireOtto not see an account, container, site, or property?">
+    The connected Google login must already have access to that resource. Confirm you used the right Google account, check the permission in the relevant Google product, and reconnect the server if the permission was added after authorization. For Search Console, use the exact property returned by the site list; domain and URL-prefix properties are different resources.
   </Accordion>
 </AccordionGroup>
 
-## Google Ads accounts
+## Google Ads
 
 <AccordionGroup>
-  <Accordion title="Can I use HireOtto with a Google Ads Manager (MCC) account?">
-    Yes. If you have a Manager account (MCC), you can select that and child accounts while authenticating Google Ads. Once done, you'll able to access all accounts within that MCC through HireOtto. Looking for MCC within MCC? - Let's chat: [suyash@hireotto.com](mailto:suyash@hireotto.com)
+  <Accordion title="What can the Google Ads server do?">
+    It can report on campaigns and performance, run GAQL queries, export data, research keywords, inspect change history, and work with supported campaign settings, budgets, bidding, targeting, negatives, conversions, assets, ads, and account structure. It also supports workflows for Search, App, Performance Max, and Demand Gen campaigns. Exact actions depend on campaign type and your Google Ads permissions.
   </Accordion>
 
-  <Accordion title="Can I connect multiple Google Ads accounts?">
-    Yes. HireOtto is designed to work with multiple accounts. Select the accounts you want to access via HireOtto during the authentication or just prompt "Authenticate Google ads". To see your current accounts use "List my accessible accounts". When you add new accounts, you can simply ask the AI tool to refresh your accounts. No auth required again.
+  <Accordion title="Does HireOtto change campaigns automatically?">
+    No. HireOtto acts only when you or your AI workflow requests an action. Review proposed changes, account IDs, budgets, dates, and targeting before approval, especially for bulk or high-impact operations.
   </Accordion>
 
-  <Accordion title="What user role do I need to use HireOtto?">
-    - **Read-only operations** (listing campaigns, pulling reports): any role works, including Read-only
-    - **Write operations** (creating campaigns, updating budgets, adding keywords): you need **Standard** or **Admin** access to the Google Ads account
-
-    If you attempt a write operation with a Read-only account, HireOtto will return a permission error.
+  <Accordion title="Which Google Ads role do I need?">
+    Read-only access is generally enough for reporting. Creating or changing campaigns normally requires Standard or Admin access in Google Ads. Google can still reject an operation when the account, campaign type, policy state, or selected setting does not permit it.
   </Accordion>
 
-  <Accordion title="Does HireOtto support Google Ads for small businesses (Smart campaigns)?">
-    HireOtto is primarily designed for standard Google Ads (Search, App, Pmax) campaigns. Smart campaigns are on the roadmap. Check with the HireOtto team for the current status.
+  <Accordion title="Can I use a manager account (MCC)?">
+    Yes. Connect a Google login with access to the manager account, then select from the accounts HireOtto can discover for that login. If a client account is only available through a deeper manager hierarchy and does not appear, connect a Google login with more direct access to the relevant manager or account. Multiple connected Google logins are an Agency-plan feature.
+  </Accordion>
+
+  <Accordion title="Does HireOtto support every campaign type and setting?">
+    No. Coverage varies by campaign type and by what the Google Ads API exposes. Search, App, Performance Max, and Demand Gen have supported creation or management workflows. HireOtto does not currently provide dedicated Smart, Display, or Video campaign creation. Existing campaigns may still be available for reporting when Google exposes the data.
+  </Accordion>
+
+  <Accordion title="Can HireOtto reverse a Google Ads change?">
+    Some changes can be corrected with a new operation, but not every action is directly reversible. Use Google Ads change history to confirm what changed. For destructive or financially significant actions, review the request before it runs and verify the result in Google Ads afterward.
+  </Accordion>
+
+  <Accordion title="What are Google Ads audits?">
+    Audits are guided review workflows that analyze supported account areas and return findings and recommendations. They are available on the Agency plan. An audit does not apply campaign changes automatically.
   </Accordion>
 </AccordionGroup>
 
 ## Google Search Console
 
 <AccordionGroup>
-  <Accordion title="Does HireOtto support Google Search Console?">
-    Yes. Google Search Console support is available in beta. You can use HireOtto to analyze organic queries, page performance, country/device breakdowns, CSV exports, sitemaps, and URL indexing checks from your AI assistant. To get started, ask:
-
-    ```text
-    Connect my Google Search Console account.
-    ```
+  <Accordion title="Is Search Console still in beta?">
+    No. The Search Console server is available now and is read-only.
   </Accordion>
 
-  <Accordion title="I connected Google Ads. Do I also need to connect Search Console?">
-    Yes. Google Ads and Google Search Console are separate Google products with separate permissions.
-
-    Connecting Google Ads lets HireOtto work with your Google Ads accounts. Connecting Search Console lets HireOtto access Search Console properties and organic search data.
+  <Accordion title="What can the Search Console server do?">
+    It can list accessible properties and sitemaps, inspect a URL's index status, and query organic search performance by dimensions such as query, page, country, device, date, hour, and search appearance. Performance results can be returned inline and, when requested, exported to CSV.
   </Accordion>
 
-  <Accordion title="Does Search Console cost extra?">
-    No. Google Search Console support is included in current HireOtto plans at no additional cost.
-  </Accordion>
-
-  <Accordion title="What can I ask HireOtto to do with Search Console?">
-    You can ask for organic query reports, page performance, country/device breakdowns, CSV exports, Search Console sites, submitted sitemaps, and URL indexing checks.
-
-    Example:
-
-    ```text
-    Show me page performance for the last 28 days split by country and device. Give me the top pages inline and export the full data.
-    ```
-  </Accordion>
-
-  <Accordion title="Why do I not see any Search Console sites after connecting?">
-    You may have selected a Google account that does not have access to any Search Console properties. Reconnect Search Console with the Google account that has property access.
+  <Accordion title="Are Search Console results complete?">
+    Not always. Google may return top rows rather than every possible row, and recent data can be incomplete. Finalized reporting is the default. For stable analysis, end the date range at yesterday or earlier unless you explicitly need fresher data.
   </Accordion>
 </AccordionGroup>
 
-## Capabilities & limits
+## Google Tag Manager
 
 <AccordionGroup>
-  <Accordion title="Can HireOtto create Display or Video campaigns?">
-    HireOtto currently focuses on Search, App and PMax campaigns. Display and Video campaign creation is on the roadmap. You can still view performance data for existing Display and Video campaigns.
+  <Accordion title="Is the Tag Manager server read-only?">
+    Yes. It can inspect configuration but cannot create, edit, delete, or publish containers, workspaces, tags, triggers, variables, or versions.
   </Accordion>
 
-  <Accordion title="Can HireOtto upload ad creatives or images?">
-    Yes for PMax.
+  <Accordion title="What can it inspect?">
+    It can list accessible accounts, containers, and workspaces; inspect tags, triggers, variables, folders, and versions; summarize an inventory; trace tag wiring; and export supported findings. It can also scan a public website for common tracking signals and compare those signals with the container configuration.
   </Accordion>
 
-  <Accordion title="Are there rate limits on how many changes I can make?">
-    HireOtto respects the Google Ads API rate limits. For most accounts, this means thousands of operations per day. If you hit a rate limit, HireOtto will return an error message and you can retry after a short wait.
+  <Accordion title="What are the website scan limits?">
+    A website scan checks public, server-rendered HTML. The default is up to 6 pages and the maximum is 10 pages per run, with a 10-second timeout per page. It may miss tags injected only after browser interaction, consent, login, or client-side execution. Treat the scan as evidence for review, not proof that a tag fired correctly.
+  </Accordion>
+</AccordionGroup>
+
+## Google Analytics 4
+
+<AccordionGroup>
+  <Accordion title="What does GA4 beta support?">
+    The GA4 server can list accessible accounts and properties, inspect property configuration and metadata, check report compatibility, run standard reports, and run realtime reports. Access is read-only, so it cannot create or modify GA4 properties, events, audiences, or settings.
+  </Accordion>
+
+  <Accordion title="How current is GA4 realtime data?">
+    Realtime reports cover the most recent 30 minutes by default. Google Analytics 360 properties can support a 60-minute realtime window.
+  </Accordion>
+
+  <Accordion title="Why is GA4 unavailable or missing a property?">
+    The connected Google login must have permission to the property. Reconnect GA4 after permissions change, then list properties again before running a report.
+  </Accordion>
+</AccordionGroup>
+
+## Plans, billing, and credits
+
+<AccordionGroup>
+  <Accordion title="Which plans include the four servers?">
+    The Free trial, Starter, Pro, and Agency plans include the core Google Ads, Tag Manager, Search Console, and GA4 tools. GA4 remains beta. Agency adds audits, multiple connected Google profiles, team billing, two included seats, and unlimited credits.
+  </Accordion>
+
+  <Accordion title="How many credits are included?">
+    The Free trial includes 200 credits or 14 days, whichever comes first. Starter includes 2,000 credits per month. Pro includes 5,000 credits per month. Agency includes unlimited credits under the fair-use terms shown on the pricing page.
+  </Accordion>
+
+  <Accordion title="What happens when I run out of credits?">
+    Credit-metered tools are blocked until credits reset or you upgrade. Billing and account-status tools remain available so you can check the current plan and usage. A failed or blocked request should not be treated as a completed marketing action.
   </Accordion>
 
   <Accordion title="What happens if my AI assistant makes an unintended change?">
     HireOtto executes exactly what the MCP tool call specifies. Before making bulk changes, your AI assistant should confirm the action with you. If an unintended change is made (e.g., a campaign is paused accidentally), you can ask the AI to reverse it immediately — for example: "Re-enable the 'Summer Sale' campaign."
-
-    <Warning>
-      Some changes — like deleting a campaign — cannot be undone through HireOtto or the Google Ads API. Always confirm destructive operations before proceeding.
-    </Warning>
   </Accordion>
 
-  <Accordion title="Can HireOtto manage sitelinks, callouts, and other Google Ads extensions?">
-    Yes. HireOtto can list, create, link, reuse, and unlink extension-style assets including sitelinks, callouts, structured snippets, call assets, and price assets.\
-    \
-    It can also report on extension asset performance at the account, campaign, or ad group level.
+  <Accordion title="Can I cancel or request a refund?">
+    Plans renew automatically through Paddle. Cancel before the next renewal to prevent a new charge. HireOtto offers a 14-day refund period for eligible purchases; see the billing guide and terms for the current details.
+  </Accordion>
+</AccordionGroup>
+
+## Privacy and security
+
+<AccordionGroup>
+  <Accordion title="What data does HireOtto store?">
+    HireOtto stores the OAuth tokens and minimal identifiers needed to maintain your connections. Reporting and configuration data is processed to answer your request and is not intended to become a permanent copy of your Google account. Temporary exports expire.
+  </Accordion>
+
+  <Accordion title="Does HireOtto sell Google user data or use it for advertising?">
+    No. HireOtto does not sell Google user data or use it for advertising or retargeting.
+  </Accordion>
+
+  <Accordion title="How do I request deletion?">
+    Email [suyash@hireotto.com](mailto:suyash@hireotto.com) from the address associated with your account. HireOtto states that deletion requests are completed within 30 days unless limited retention is required for legal or billing-dispute reasons.
+  </Accordion>
+</AccordionGroup>
+
+## Limits and troubleshooting
+
+<AccordionGroup>
+  <Accordion title="What should I do when a tool fails?">
+    Read the returned error first. Check the selected resource ID, date range, required parameters, connected Google login, product permission, plan entitlement, and remaining credits. If authorization expired, reconnect the relevant server. If Google rejects a write, correct the specific field or permission rather than repeating the same request unchanged.
+  </Accordion>
+
+  <Accordion title="How should I handle large or high-impact requests?">
+    Start with a read or preview, narrow the scope, and split large changes into reviewable batches. Confirm customer IDs, campaign IDs, budgets, dates, and targeting before a write. API quotas and product-specific limits can vary, so a smaller batch is easier to review and retry safely.
+  </Accordion>
+
+  <Accordion title="Where can I get help?">
+    Email [suyash@hireotto.com](mailto:suyash@hireotto.com) with the server name, AI client, approximate time of the issue, and the non-sensitive portion of the error. Do not send OAuth tokens, passwords, or other secrets.
   </Accordion>
 </AccordionGroup>
