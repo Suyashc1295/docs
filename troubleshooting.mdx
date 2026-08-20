@@ -1,135 +1,148 @@
 ---
 title: "Fix HireOtto MCP Connection Issues"
-description: "Troubleshoot HireOtto MCP setup, Claude connector errors, missing Google Ads accounts, OAuth problems, permission issues, and failed tool calls."
+description: "Troubleshoot server connections, Google and LinkedIn authorization, missing resources, permission errors, empty reports, and partial campaign creation."
 sidebarTitle: "Troubleshooting"
 ---
 
----
+# Start here
 
-<AccordionGroup>
-  <Accordion title="Error during tool execution">
-    **Symptom:** Everything was working fine, then multiple tools start returning "Error occurred during tool execution" — or all tool calls fail uniformly. No single tool is broken; they all are.
+First identify which layer failed:
 
-    This is almost never a server-side issue. It's a known quirk with how Claude manages MCP connector sessions. The connection occasionally enters a stale state on Claude's side, and requests stop reaching HireOtto's server entirely.
+- The AI client cannot connect to the HireOtto MCP server.
+- The server is connected, but the marketing platform is not authorized.
+- Authorization succeeded, but the expected account or property is missing.
+- The resource is visible, but the connected role cannot perform the requested action.
+- The platform accepted the request but returned no data or rejected a field, lifecycle transition, or creative.
 
-    **Fix: disconnect and reconnect the Otto connector**
+Read the returned error before retrying. Repeating the same request unchanged rarely fixes a permission, identifier, or platform-validation problem.
 
-    1. Go to [claude.ai/customize/connectors](https://claude.ai/customize/connectors)
-    2. Disconnect the HireOtto connector
-    3. Reconnect it
-    4. Try any tool call again
+# Error during tool execution
 
-    This resolves the issue in almost every case. If tools are still failing after reconnecting, copy the exact error text from the tool output and email it to [suyash@hireotto.com](mailto:suyash@hireotto.com).
+## Symptom
 
-    **How to tell this apart from a real outage:** if the failure is session-related, all tools fail uniformly with a generic execution error. A real server-side issue tends to be more tool-specific.
-  </Accordion>
+Several unrelated tools begin returning a generic execution error at the same time.
 
-  <Accordion title="No accounts showing up after authentication">
-    **Symptom:** You completed the Google OAuth flow, but `list_accessible_accounts` returns empty, or HireOtto says no accounts are found.
+## Fix
 
-    **The most likely cause:** you completed OAuth but didn't select and save accounts on the account selection screen. The OAuth consent and the account save are two separate steps — completing one doesn't complete the other.
+- Disconnect and reconnect the HireOtto connector or app in the AI client.
+- Enable the connector again in the current chat or agent.
+- Retry one small read request.
 
-    **Fix:**
+If only one action fails while other tools still work, treat it as a tool- or platform-specific error instead of a stale client session.
 
-    ```text
-    Re-authenticate my Google Ads account.
-    ```
+# MCP server not connecting
 
-    When you reach the account selection screen after Google sign-in, select the accounts you want to work with (you can select all or pick specific ones) and confirm the save before returning to your client.
+Confirm that you added the correct remote HTTP endpoint and that it ends with /mcp:
 
-    **Other causes:**
+- Google Ads and Search Console — [https://googleads.hireotto.com/mcp](https://googleads.hireotto.com/mcp)
+- Google Tag Manager — [https://tagmanager.hireotto.com/mcp](https://tagmanager.hireotto.com/mcp)
+- Google Analytics 4 — [https://ga4.hireotto.com/mcp](https://ga4.hireotto.com/mcp)
+- LinkedIn Ads — [https://linkedinads.hireotto.com/mcp](https://linkedinads.hireotto.com/mcp)
 
-    - You authenticated with a Google login that doesn't have access to any Google Ads accounts. Sign in to [ads.google.com](http://ads.google.com) with the same account to confirm.
-    - Your campaigns are under a Manager account (MCC) that's nested two levels deep. HireOtto resolves one level down automatically — for deeper hierarchies, you'll need to connect a separate Google login with direct access to the inner MCC. See the [Authentication guide](https://docs.hireotto.com/authentication-1).
-  </Accordion>
+Common problems include a hostname typo, a missing s in https, a trailing slash, configuring HireOtto as a local or stdio server, or not enabling the connector in the current conversation.
 
-  <Accordion title="MCP server not connecting">
-    **Symptom:** Your AI client reports it can't find the MCP server, or shows "Could not connect to MCP server."
+## The server is connected, but no tools appear
 
-    **Check the endpoint URL**
+- Complete the client-level OAuth prompt.
+- Rescan or refresh the server tools.
+- Enable the connector or app in the current chat or agent.
+- Restart or reconnect the client if its MCP tool list is cached.
 
-    The URL must be exactly:
+# Authentication errors
 
-    ```text
-    https://googleads.hireotto.com/mcp
-    ```
+## Symptom
 
-    Common mistakes: trailing slash, missing `s` in `https`, typo in the hostname.
-  </Accordion>
+The response says authorization is required, not authenticated, or returns a new authorization link.
 
-  <Accordion title="Authentication errors">
-    **Symptom:** "Authorization required", "Not authenticated", or HireOtto returns an auth URL you haven't clicked yet.
+## Fix
 
-    Complete the one-time OAuth flow:
+- Ask to connect the relevant Google or LinkedIn product.
+- Open the newest authorization link in the same browser session.
+- Sign in with an identity that can already access the required resource.
+- Complete consent and return to the original AI client.
+- Run a small account or property list before starting a longer workflow.
 
-    1. Your AI client should show an authorization URL. If it doesn't, trigger it:
-       ```text
-       Connect my Google Ads account.
-       ```
-    2. Open the URL, sign in with the Google account that has access to your Google Ads, and complete the consent screen.
-    3. On the account selection screen, select and save your accounts.
-    4. Return to your client and retry.
+If access was revoked or the platform login or security policy changed, reconnect the service.
 
-    If you previously authorized but are seeing this again, your token may have been revoked (this can happen if you changed your Google password or revoked third-party app access). Re-run the connect flow to get a fresh token.
-  </Accordion>
+# Google Ads accounts are missing
 
-  <Accordion title="Insufficient permissions or access denied">
-    **Symptom:** "Insufficient permissions", "Access denied", or "You don't have permission to perform this action."
+Completing Google OAuth and saving selected Google Ads accounts are separate steps. Re-authenticate, select the accounts HireOtto should save, and confirm the selection before returning to the AI client.
 
-    **Check the authorized account**
+Other checks:
 
-    Sign in to [ads.google.com](http://ads.google.com) with the same Google account used during OAuth. If you can't see the campaigns you're trying to manage, you authorized the wrong account. Re-authenticate with the correct one:
+- Confirm the same Google login can open the account in Google Ads.
+- Refresh accessible accounts after Google grants or changes access.
+- If a client account is available only through a deeper manager hierarchy, connect a Google login with direct access to the relevant inner MCC or account.
+- Use a distinct profile name only when connecting a different Google login; renaming the same login does not expand access.
 
-    ```text
-    Re-authenticate my Google Ads account.
-    ```
+# LinkedIn Ads accounts are missing
 
-    **Check your user role**
+Confirm that the same LinkedIn identity can open the ad account in Campaign Manager. Then reconnect LinkedIn Ads and ask:
 
-    Google Ads enforces role-based permissions:
+List the LinkedIn Ads accounts I can access, including my role and write capability.
 
-    | Role | Read | Write (create, update, pause) |
-    | :-- | :-- | :-- |
-    | Read-only | Yes | No |
-    | Standard | Yes | Yes |
-    | Admin | Yes | Yes |
+If the account still does not appear:
 
-    If you're Read-only, you can pull reports and list campaigns but cannot create campaigns, modify budgets, or add keywords. Contact the account owner to upgrade your role.
-  </Accordion>
+- Check that LinkedIn Ads access is enabled for the HireOtto account.
+- Reconnect with the LinkedIn identity that has direct access to the ad account.
+- Confirm the account is active and visible in Campaign Manager.
+- Ask for the account list again after a role or access change.
 
-  <Accordion title="Campaign creation fails">
-    **Symptom:** Campaign creation returns an error or the campaign doesn't appear in Google Ads.
+# Insufficient permissions or access denied
 
-    **Check account standing**
+## Google Ads
 
-    Google blocks campaign creation if there are billing issues, policy violations, or the account is suspended. Check at [ads.google.com](http://ads.google.com):
+Read-only access supports reporting. Creating or changing campaigns normally requires Standard or Admin access. Google can still reject an operation because of account standing, policy state, campaign type, or unsupported settings.
 
-    - Valid payment method on file
-    - No policy violation warnings
-    - Account not suspended
+## LinkedIn Ads
 
-    **Check your role**
+Viewer access supports read-only work. Creating or changing ads requires a sufficient ad-account role. Inspect the role and write capability returned for the selected account before retrying.
 
-    Campaign creation requires Standard or Admin access. Read-only users cannot create campaigns.
+## I can read LinkedIn Ads but cannot create a creative
 
-    **Partial creation**
+Direct Sponsored Content and other sponsored-content workflows may also require access to the associated LinkedIn Page. Confirm Page permission, ad-account role, image eligibility, destination, call to action, and supported format in Campaign Manager.
 
-    If a campaign was partially created before the error (campaign exists but ad groups weren't created), review and clean up in the Google Ads UI before retrying.
-  </Accordion>
-</AccordionGroup>
+# Reports are empty
 
-If you have not added HireOtto to your AI client yet, start with [Connect Google Ads MCP](/quickstart).
+A valid empty response does not always indicate a broken connection. Check:
 
-If your AI client is connected but Google Ads is not authorized, use [Google Ads OAuth Authentication in HireOtto](/authentication-1).
+- The account, campaign-group, ad-set, or creative IDs.
+- The date window and whether the selected objects delivered during that period.
+- Whether the connected role can access the requested data.
+- Whether the chosen metrics are compatible with the requested reporting pivot.
 
-If you are using Claude, ChatGPT, or Make, check the client-specific setup guide: [Connect HireOtto to Claude, ChatGPT, and Make](/setup/connect-ai-tool).
+For LinkedIn professional demographics, allow for reporting delay and privacy suppression. Small groups may not appear, and the returned rows are directional rather than exhaustive.
 
----
+# Campaign or draft creation fails
 
-## Still stuck?
+## Google Ads
+
+Check billing, policy warnings, suspension state, the connected role, required fields, and supported campaign settings. If a campaign exists but a child object failed, inspect and clean up or resume from the failed step instead of recreating everything blindly.
+
+## LinkedIn Ads
+
+Validate the objective, account currency, budget, dates, targeting, audience size, format, Page identity, image, destination, copy, call to action, alt text, and approval state. Create new objects as DRAFT.
+
+LinkedIn campaign creation is multi-step. A campaign group or ad set can remain after a later creative step fails. Inspect the returned IDs, confirm what exists in Campaign Manager, and resume from the failed step. Do not rerun the entire workflow blindly and create duplicates.
+
+## A LinkedIn status change or update is blocked
+
+LinkedIn lifecycle rules can block edits even when OAuth is valid. Retrieve the current object and status, make sure the transition is supported, and apply only the intended field change. For company exclusions, use an additive exclusion workflow so existing targeting is not accidentally replaced.
+
+# Related setup pages
+
+[Connect HireOtto to an AI client](https://docs.hireotto.com/setup/connect-ai-tool)
+
+[LinkedIn Ads quickstart](https://docs.hireotto.com/linkedin-ads/quickstart)
+
+# Still stuck?
 
 Email [suyash@hireotto.com](mailto:suyash@hireotto.com) with:
 
-- Your Google Ads Email address
-- The exact error text from the tool output
-- What you were trying to do when the error occurred
+- The HireOtto server name.
+- The AI client you are using.
+- The approximate time of the issue.
+- The non-sensitive portion of the exact error.
+- What you were trying to do and the relevant account or property ID.
+
+Do not send OAuth tokens, passwords, or other secrets.

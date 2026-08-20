@@ -6,11 +6,11 @@ sidebarTitle: "Connect HireOtto to Claude, ChatGPT, and Make"
 
 # What you need
 
-HireOtto is a hosted remote MCP service. You do not need a Google Cloud project, API keys, JSON credentials, a terminal, or a local process.
+HireOtto is a hosted remote MCP service. You do not need a Google Cloud project, LinkedIn developer app, API keys, JSON credentials, a terminal, or a local process.
 
 - An AI client or agent that supports remote MCP servers over HTTP and OAuth.
 - A HireOtto trial or paid plan.
-- A Google login with access to the Google Ads accounts, Tag Manager containers, Search Console properties, or GA4 properties you want to use.
+- A Google login with access to the Google Ads accounts, Tag Manager containers, Search Console properties, or GA4 properties you want to use – and a LinkedIn identity with access to the required LinkedIn Ads accounts when connecting that server.
 
 Add only the servers you need. Each server is a separate MCP connection, while Search Console is currently available through the Google Ads connection.
 
@@ -46,6 +46,20 @@ https://ga4.hireotto.com/mcp
 ```
 
 GA4 access is read-only and currently in beta. HireOtto cannot edit GA4 properties or configuration.
+
+## LinkedIn Ads – beta
+
+Use this connection to inspect LinkedIn Ads accounts and hierarchy, run performance and professional-demographic reports, resolve targeting entities, estimate audience size, work with supported images, and prepare supported campaign objects as drafts.
+
+```text
+https://linkedinads.hireotto.com/mcp
+```
+
+LinkedIn Ads is available where access is enabled. Read and write capability depends on the connected ad-account role and, for some sponsored-content workflows, LinkedIn Page permissions.
+
+<Info>
+  [LinkedIn Ads quickstart](https://docs.hireotto.com/linkedin-ads/quickstart)
+</Info>
 
 # Connect HireOtto to your AI client
 
@@ -87,7 +101,7 @@ HireOtto is hosted remotely, so do not configure it as a local command or stdio 
 
 # Complete the platform connection
 
-Connecting the MCP server and connecting the marketing platform are two separate steps. First your AI client connects to HireOtto. Then a HireOtto authentication tool connects the specific Google service and saves the access granted by that Google login.
+Connecting the MCP server and connecting the marketing platform are two separate steps. First your AI client connects to HireOtto. Then a HireOtto authentication tool connects the specific Google or LinkedIn service and saves the access granted by that identity.
 
 ## Google Ads
 
@@ -116,6 +130,14 @@ Connecting Google Ads does not automatically grant Search Console access. Google
 2. Open the authorization link and choose a Google login with access to the required GA4 properties.
 3. Grant read-only Analytics access, then ask: “List my GA4 accounts and properties.”
 
+## LinkedIn Ads
+
+- Ask: “Connect my LinkedIn Ads account.”
+- Open the authorization link and sign in with the LinkedIn identity that can access the required ad account.
+- Grant the requested permissions, then ask: “List the LinkedIn Ads accounts I can access, including my role and write capability.”
+
+Viewer access supports read-only work. Creating or changing ads requires a sufficient ad-account role, and some sponsored-content workflows also require access to the associated LinkedIn Page.
+
 # Verify the connection
 
 Use a small read request before starting a longer workflow. A successful response confirms both the MCP connection and the platform authorization.
@@ -124,18 +146,19 @@ Use a small read request before starting a longer workflow. A successful respons
 - Search Console: “Show the Search Console properties I can access.”
 - Tag Manager: “List my Tag Manager accounts and web containers.”
 - GA4: “List my GA4 accounts and properties.”
+- LinkedIn Ads: “List the LinkedIn Ads accounts I can access, including my role and write capability.”
 
 For Google Ads, ask for an account-specific read next, such as “List the enabled campaigns in account 1234567890.” Review the returned account name and ID before requesting any change.
 
 # Plans, profiles, and access
 
-- The free trial, Starter, Pro, and Agency plans include supported core access across Google Ads, Tag Manager, Search Console, and GA4 beta.
+- The free trial, Starter, Pro, and Agency plans include supported core access across Google Ads, Tag Manager, Search Console, GA4 and LinkedIn Ads beta.
 - The trial ends after 14 days or 200 credits, whichever comes first.
 - Starter includes 2,000 credits per month; Pro includes 5,000 credits per month; Agency includes unlimited credits.
 - Agency is required for audits, multiple connected Google profiles, team billing, and additional seats.
 - Connecting another profile means authorizing a different Google login. Giving the same login another nickname does not expand its account access.
 
-HireOtto can access only the accounts, containers, and properties available to the Google login you authorize. It does not bypass Google’s roles or permissions.
+HireOtto can access only the accounts, containers, and properties available to the Google login or LinkedIn identity you authorize. It does not bypass platform roles or permissions.
 
 # Common setup problems
 
@@ -149,15 +172,16 @@ HireOtto can access only the accounts, containers, and properties available to t
 ## The tool asks you to authenticate again
 
 - Run the relevant connect prompt and open the newest authorization link.
-- Finish the Google consent flow in the same browser session and return to the original AI client.
+- Finish the Google or LinkedIn consent flow in the same browser session and return to the original AI client.
 - If the connection was revoked or the Google password or security policy changed, reconnect the service.
 
 ## No accounts, containers, or properties appear
 
-- Confirm that the selected Google login can open the required resource directly in Google’s interface.
+- Confirm that the connected Google or LinkedIn login can open the required resource directly in Google’s interface.
 - For Google Ads, refresh accessible accounts after Google grants or changes access.
 - For nested Google Ads manager structures, connect a Google login with direct access to the relevant inner MCC when the account is not discoverable from the existing profile.
 - On Agency, use a distinct profile name when connecting another Google login.
+- For LinkedIn Ads, confirm that the same LinkedIn identity can open the ad account in Campaign Manager and inspect the returned role and write capability.
 
 ## A client menu does not match this guide
 
@@ -165,11 +189,12 @@ MCP client interfaces change frequently. Look for Apps, Connectors, Tools, Integ
 
 # Security and control
 
-- HireOtto uses OAuth; you do not paste Google passwords, API keys, or refresh tokens into the conversation.
+- HireOtto uses OAuth; you do not paste Google or LinkedIn passwords, API keys, or refresh tokens into the conversation.
 - Google Ads supports both read workflows and supported account actions. Review important or bulk changes before they are applied.
 - Tag Manager and GA4 are read-only in their current releases.
 - Search Console uses its own Google permission and is limited to the resources available to that Google login.
-- Disconnect the app in your AI client or revoke the relevant Google authorization when access is no longer needed.
+- LinkedIn Ads supports read workflows and selected draft-first actions where access is enabled. Write capability depends on the connected ad-account role and LinkedIn Page permissions.
+- Disconnect the app in your AI client or revoke the relevant Google or LinkedIn authorization when access is no longer needed.
 
 # Next steps
 

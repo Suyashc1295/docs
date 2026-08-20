@@ -5,59 +5,53 @@ sidebarTitle: "FAQs"
 keywords: ["hireotto faq", "hireotto faqs"]
 ---
 
-HireOtto connects supported AI clients to four Google marketing products through remote MCP servers. Google Ads supports reporting and user-directed account changes. Google Tag Manager and Google Search Console are read-only. Google Analytics 4 is a read-only beta. HireOtto does not make changes on its own.
+HireOtto connects supported AI clients to Google Ads, Google Tag Manager, Google Search Console, Google Analytics 4, and LinkedIn Ads through remote MCP servers. Google Ads supports reporting and user-directed account changes. Tag Manager and Search Console are read-only. GA4 is a read-only beta. LinkedIn Ads beta supports selected read and draft-first write workflows where access is enabled. HireOtto does not make changes on its own.
 
 ## About HireOtto
 
 <AccordionGroup>
   <Accordion title="What is HireOtto?">
-    HireOtto is a suite of remote MCP servers for marketers. It lets an AI client work with your live Google Ads, Tag Manager, Search Console, and GA4 data after you connect the relevant server and authorize the Google account that has access to the resource.
+    HireOtto is a suite of remote MCP servers for marketers. It lets an AI client work with live Google Ads, Tag Manager, Search Console, GA4, and LinkedIn Ads data after you connect the relevant server and authorize an identity that already has access to the resource.
   </Accordion>
 
   <Accordion title="Which HireOtto servers are available?">
-    Google Ads, Google Tag Manager, GA4 and Google Search Console are available now. LinkedIn Ads is available in beta. Reddit and Microsoft Ads are on the roadmap and are not included in current plans.
+    Google Ads, Google Tag Manager, and Google Search Console are available now. Google Analytics 4 and LinkedIn Ads are available in beta. LinkedIn Ads must be enabled for the HireOtto account before that server can be used. Reddit and Microsoft Ads remain on the roadmap.
   </Accordion>
 
   <Accordion title="Which AI clients can I use?">
-    HireOtto works with MCP-compatible clients including ChatGPT, Claude, Cursor, VS Code, and Make. Setup differs by client, but the Google authorization and account permissions are the same.
+    HireOtto works with MCP-compatible clients including ChatGPT, Claude, Cursor, VS Code, and Make. Setup differs by client. Google and LinkedIn use separate authorization flows, and each platform continues to enforce its own account permissions.
   </Accordion>
 
   <Accordion title="Do I need to install anything locally?">
-    No. HireOtto is hosted remotely. Add the server URL to your AI client, sign in to HireOtto, accept the terms, and authorize the relevant Google product when prompted.
+    No. HireOtto is hosted remotely. Add the server URL to your AI client, sign in to HireOtto, accept the terms, and authorize the relevant Google or LinkedIn product when prompted.
   </Accordion>
 
   <Accordion title="Can I connect more than one HireOtto server?">
-    Yes. Each server is connected separately, so you can use only the products you need or combine several in one client. Each Google product also has its own authorization step.
+    Yes. Each server is connected separately, so you can use only the products you need or combine several in one client. Each Google or LinkedIn product also has its own authorization step.
   </Accordion>
 </AccordionGroup>
 
 ## Setup and permissions
 
 <AccordionGroup>
-  <Accordion title="Does HireOtto need my Google password?">
-    No. Google handles sign-in and consent. HireOtto receives OAuth tokens for the permissions you approve; it never receives your Google password.
+  <Accordion title="Does HireOtto need my Google or LinkedIn password?">
+    No. Google or LinkedIn handles sign-in and consent. HireOtto receives OAuth tokens for the permissions you approve; it never receives your Google password.
   </Accordion>
 
   <Accordion title="What access does each server request?">
-    Google Ads requests access that can support both reporting and the user-directed changes available in HireOtto. Tag Manager uses read-only access. Search Console uses read-only access. GA4 uses read-only access. A read-only server cannot create, edit, delete, or publish resources in that product.
+    Google Ads requests access that can support both reporting and the user-directed changes available in HireOtto. Tag Manager, Search Console, and GA4 use read-only access. LinkedIn Ads supports reporting and selected draft-first actions where access is enabled, subject to the connected ad-account role and LinkedIn Page permissions. A read-only server or role cannot create, edit, delete, or publish resources.
   </Accordion>
 
   <Accordion title="Why do I have to authorize each product separately?">
-    Google Ads, Tag Manager, Search Console, and GA4 are separate Google services with separate permissions. Connecting one does not automatically grant access to the others.
+    Google Ads, Tag Manager, Search Console, GA4, and LinkedIn Ads are separate services with separate permissions. Connecting one does not automatically grant access to the others.
   </Accordion>
 
   <Accordion title="Can I revoke access?">
-    Yes. You can revoke access at any time:
-
-    1. Go to [myaccount.google.com/permissions](https://myaccount.google.com/permissions)
-    2. Find HireOtto in the list of connected apps
-    3. Click **Remove access**
-
-    Revoking one Google product may require you to reauthorize that server before it can run again.
+    Yes. Remove HireOtto from the third-party access section of the connected Google or LinkedIn account. You can reconnect later if needed. Revoking one product may require you to reauthorize that server before it can run again.
   </Accordion>
 
   <Accordion title="Why can HireOtto not see an account, container, site, or property?">
-    The connected Google login must already have access to that resource. Confirm you used the right Google account, check the permission in the relevant Google product, and reconnect the server if the permission was added after authorization. For Search Console, use the exact property returned by the site list; domain and URL-prefix properties are different resources.
+    The connected Google or LinkedIn identity must already have access to that resource. Confirm you used the right identity, check the permission in the relevant platform, and reconnect the server if access changed after authorization. For Search Console, use the exact property returned by the site list; domain and URL-prefix properties are different resources. For LinkedIn Ads, confirm the same identity can open the ad account in Campaign Manager.
   </Accordion>
 </AccordionGroup>
 
@@ -141,11 +135,31 @@ HireOtto connects supported AI clients to four Google marketing products through
   </Accordion>
 </AccordionGroup>
 
+## LinkedIn Ads
+
+<AccordionGroup>
+  <Accordion title="What can the LinkedIn Ads server do?">
+    Where access is enabled, it can verify the connected identity, list accessible ad accounts and roles, inspect campaign groups, ad sets and creatives, run performance and professional-demographic reports, resolve valid targeting entities, estimate audience size, work with supported image assets, create supported campaign objects as drafts, and apply selected updates after approval.
+  </Accordion>
+
+  <Accordion title="Which LinkedIn Ads role do I need?">
+    Viewer access supports read-only work. Creating or changing ads requires a sufficient ad-account role. Direct Sponsored Content and some creative workflows can also require permission for the associated LinkedIn Page.
+  </Accordion>
+
+  <Accordion title="Why does HireOtto create LinkedIn campaign objects as drafts?">
+    Draft-first creation keeps validation, account creation, targeting review, creative preview, tracking checks, and activation separate. Review the returned IDs and inspect the result in Campaign Manager before any explicit activation request.
+  </Accordion>
+
+  <Accordion title="What does LinkedIn Ads beta not currently replace?">
+    Campaign Manager remains the final place for preview, billing warnings, Page permissions, and activation review. HireOtto does not currently create Lead Gen Forms, and the current image workflow should not be assumed to cover video or document-ad uploads. Creating an ad does not install or validate the LinkedIn Insight Tag, Google Tag Manager, or destination-page tracking.
+  </Accordion>
+</AccordionGroup>
+
 ## Plans, billing, and credits
 
 <AccordionGroup>
   <Accordion title="Which plans include the four servers?">
-    The Free trial, Starter, Pro, and Agency plans include the core Google Ads, Tag Manager, Search Console, and GA4 tools. GA4 remains beta. Agency adds audits, multiple connected Google profiles, team billing, two included seats, and unlimited credits.
+    The Free trial, Starter, Pro, and Agency plans include the core Google Ads, Tag Manager, Search Console, and GA4 tools. GA4 remains beta. Agency adds audits, multiple connected Google profiles, team billing, two included seats, and unlimited credits. LinkedIn Ads beta is available separately where access is enabled; core-server access alone does not imply LinkedIn Ads access.
   </Accordion>
 
   <Accordion title="How many credits are included?">

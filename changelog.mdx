@@ -1,17 +1,81 @@
 ---
 title: "HireOtto Changelog: Google Ads MCP Updates"
 sidebarTitle: "Changelog"
-description: "See the latest HireOtto updates for Google Ads reporting, Performance Max, campaign creation, audits, CSV exports, and MCP improvements."
+description: "Follow the latest HireOtto updates for advertising, measurement, organic search, audits, reporting, exports, and MCP reliability."
+---
+
+# 20-08-2026
+
+## Google Analytics 4 reporting beta
+
+Added a read-only Google Analytics 4 MCP server for bringing acquisition and on-site outcomes into the same AI workflow as Google Ads, Tag Manager, and Search Console. The beta supports account and property discovery, property configuration, reporting metadata, dimension-and-metric compatibility checks, standard reports, comparisons, cohorts, and realtime reports.
+
+Standard reports return a concise inline result plus CSV by default. Realtime reports return an inline summary by default and cover the most recent 30 minutes, or 60 minutes for eligible Google Analytics 360 properties. The server cannot create or change GA4 properties, events, audiences, or settings. GA4 is included in the core product plans but remains beta.
+
+## Weekly Google Ads optimization audit
+
+Added a read-only weekly audit for mature optimization decisions. It compares enabled-campaign performance with the previous equal-length period, reviews Search visibility, and finds search-term, keyword, and responsive-search-ad candidates that deserve practitioner review.
+
+The default performance window is the last 7 days. Search terms use a 30-day lookback and exclude the most recent 3 days for conversion lag. The audit returns severity-ranked findings and CSV exports; export links expire after 30 minutes by default. It never adds negatives, changes bids, or edits ads. Audit access is limited to the Agency plan.
+
+## Google Ads account health audit
+
+Added a read-only account health audit for monthly or quarterly structural reviews. It checks tracking and campaign settings, current versus comparison-period performance, keyword and match-type distributions, Quality Score components, negative-keyword coverage, geographic and device performance, and Search impression share lost to budget or rank.
+
+The default window is the last 90 days compared with the preceding 90 days. Responsive-search-ad structure review and checklist output are optional and off by default. The audit returns prioritized findings, coverage notes, and CSV exports without changing the account. Audit access is limited to the Agency plan.
+
+## Expanded daily operations audit
+
+Reworked the daily audit around delivery and pacing exceptions. It now compares campaign delivery with a preceding baseline, evaluates shared-budget groups together, and flags stopped delivery, spend spikes or drops, and over- or underspending against current daily budgets.
+
+The default audit period is yesterday with a 14-day baseline. It reviews enabled campaigns by default, returns up to 25 findings inline, and provides fuller CSV exports with 30-minute links. Search-term and creative optimization remain in the weekly audit. The daily audit is read-only and available on the Agency plan.
+
+## Tag Manager inventory and website tracking scans
+
+Expanded the read-only Tag Manager server with a joined container inventory that connects tags to firing triggers, trigger conditions, and blocking triggers. Inventory can use the live workspace or a published version and can return an inline summary, CSV export, or both.
+
+Added a public website tracking scan that discovers likely high-value pages from a sitemap or homepage links and checks the available server-rendered HTML for common tracking signals. It scans up to 6 pages by default and 10 at most, with a 10-second timeout per page. It cannot prove that a tag fired and may miss tags loaded only after JavaScript, consent, login, or interaction. Tag Manager remains read-only.
+
+## Search Console is now available
+
+Moved Google Search Console out of beta. The read-only server can list properties and sitemaps, inspect URL indexing, and report organic performance by query, page, country, device, date, hour, and supported search-appearance dimensions. It can also include fresh or hourly data when requested and export larger result sets to CSV.
+
+Search Console uses a separate Google permission from Google Ads. Recent data may be incomplete, and Google may return top rows rather than every possible row. Use finalized data and end at yesterday or earlier when a stable comparison matters.
+
+## Google Ads reliability and date handling
+
+Improved recent change-history date handling and validation for future campaign start dates. Tool responses now carry clearer server, operation, and requested-resource context, making it easier to confirm that a result belongs to the intended account and workflow when several servers or chats are active.
+
+Google Ads remains the only current HireOtto server that can make platform changes. Actions run only when the connected client requests them. Review account IDs, budgets, dates, targeting, and bulk changes before approval, then verify significant changes in Google Ads.
+
+## Try the new workflows
+
+- Run the weekly optimization audit for the last 7 days, compare it with the preceding 7 days, and show every high- or medium-severity finding before suggesting any changes.
+- Run the account health audit for the last 90 days with responsive-search-ad review enabled. Separate configuration issues from performance interpretation and list every CSV export.
+- For this GA4 property, check which dimensions and metrics are compatible, then compare paid-search sessions and conversions with the previous 28 days.
+- Inspect this Tag Manager container's live workspace, export the tag wiring, and scan the public site for tracking signals that need manual verification.
+- In Search Console, find high-impression organic queries that are not covered by the current Google Ads keywords, then inspect the strongest landing pages for index status.
+
+## Access, limits, and failure cases
+
+- Agency audits are read-only. Their recommendations are review candidates, not automatic account changes.
+- If one audit section fails or reaches a row limit, treat the result as partial. Use the coverage notes and CSV exports before calling the audit complete.
+- GA4 beta requests can fail when a metric and dimension are incompatible. Check reporting metadata and compatibility before running a complex report.
+- Tag Manager and Search Console require separate Google permissions. A missing container, property, or site usually means the connected Google login does not have access.
+- Temporary CSV links expire. Download an export while the link is active or rerun the report to generate a new one.
+- API quotas, account permissions, product restrictions, and incomplete recent data can still limit a valid request. Read the returned error before retrying.
+
 ---
 
 - **\[19-07-2026\] Negative Keyword Lists**: Added support for removing individual keywords from shared negative keyword lists. Keywords can be selected using their exact resource names or identified by keyword text and match type.
+
 - **\[14-07-2026\] Conversion Actions and GA4 Imports**: Added support for reviewing conversion tracking setup, creating native Google Ads conversion actions, importing eligible GA4 key events, and updating conversion-window settings.
 - **\[11-07-2026\] Google Tag Manager MCP**: Added read-only support for listing GTM accounts, containers, workspaces, tags, triggers, variables, built-in variables, and folders, plus tag-to-trigger wiring inspection and CSV export.
 - **\[26-06-2026\] Google Search Console MCP support**: Added beta support for organic query reports, page performance, country/device breakdowns, CSV exports, sitemaps, and URL indexing checks.
-- **\[05-06-2026\] Demand Gen Campaigns**: Added support for non-product-feed Demand Gen campaigns. 
-  - Create campaign shells with goals (Conversions, Clicks, Conversion Value, YouTube Engagements) and optional bid targets. 
-  - Add ad groups with channel controls — select individual channels (YouTube in-stream, in-feed, Shorts, Discover, Gmail, Display, Maps) or use a preset `ALL_CHANNELS`, `ALL_OWNED_AND_OPERATED_CHANNELS`). 
-  - Create reusable assets (image, video, text, CTA) and ads (single image, multi-asset, carousel, video/video responsive). 
+- **\[05-06-2026\] Demand Gen Campaigns**: Added support for non-product-feed Demand Gen campaigns.
+  - Create campaign shells with goals (Conversions, Clicks, Conversion Value, YouTube Engagements) and optional bid targets.
+  - Add ad groups with channel controls — select individual channels (YouTube in-stream, in-feed, Shorts, Discover, Gmail, Display, Maps) or use a preset `ALL_CHANNELS`, `ALL_OWNED_AND_OPERATED_CHANNELS`).
+  - Create reusable assets (image, video, text, CTA) and ads (single image, multi-asset, carousel, video/video responsive).
   - Inspect Demand Gen structure with three new listing actions: campaign settings, ad group channel controls, and ad creatives. Update campaigns and ad groups, and replace ad creative safely via the update tool.
 - **\[18-05-2026\] Campaign Budgets**: Added tools to create standalone/shared budgets, inspect budget usage, move campaigns between budgets, create-and-attach dedicated budgets, and safely remove unused budgets.
 - **\[17-05-2026\] Bidding Strategies**: Added portfolio bidding strategy management including create/list/attach/remove, moving campaigns back to standard campaign-level bidding, shared-budget alignment support, and atomic workflows for aligned shared-budget \+ portfolio setups.
