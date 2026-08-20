@@ -33,7 +33,7 @@ Client menus and workspace permissions can change. If the labels differ, look fo
 
 # 2. Authorize LinkedIn Ads
 
-Connecting the MCP server and connecting LinkedIn Campaign Manager are two separate steps. After the HireOtto connection is active, start a new conversation and ask: 
+Connecting the MCP server and connecting LinkedIn Campaign Manager are two separate steps. After the HireOtto connection is active, start a new conversation and ask:
 
 <Prompt description="Connect my LinkedIn Ads account." actions={["copy"]}>
 </Prompt>
@@ -62,7 +62,7 @@ HireOtto uses “ad set” for the object LinkedIn’s API calls a campaign. Con
 
 # 5. Try a useful read-only workflow
 
-Choose one of these prompts: 
+Choose one of these prompts:
 
 <Prompt description="Report ad-set performance for \[account ID\] over the last 30 complete days. Include impressions, clicks, landing-page clicks, spend, conversions, and engagement. Summarize the main findings and return CSV. Read only." actions={["copy"]}>
 </Prompt>
@@ -80,7 +80,7 @@ Professional-demographic reporting is privacy-protected and can lag standard rep
 
 # 6. Prepare changes as drafts
 
-After the read-only checks succeed, keep campaign creation behind an explicit approval boundary: 
+After the read-only checks succeed, keep campaign creation behind an explicit approval boundary:
 
 <Prompt description="Validate a draft LinkedIn campaign for \[offer\]. Use the approved objective, budget, dates, targeting, landing page, image, copy, call to action, and alt text below. Create nothing active. Return every created ID and a review checklist." actions={["copy"]}>
 </Prompt>
