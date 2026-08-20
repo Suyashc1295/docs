@@ -70,6 +70,12 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "LinkedIn Ads",
+            "pages": [
+              "qiuckstart"
+            ]
           }
         ]
       }

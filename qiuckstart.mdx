@@ -1,0 +1,145 @@
+---
+title: "Connect LinkedIn Ads to Claude, ChatGPT, Make, Grok, or Perplexity"
+description: "Set up HireOtto’s LinkedIn Ads MCP server, authorize Campaign Manager access, and run your first account query."
+---
+
+# What you need
+
+- An AI client or agent that supports remote MCP servers over HTTP and OAuth.
+- HireOtto access that includes the LinkedIn Ads server.
+- A LinkedIn member account with access to the ad accounts you want to use.
+- For ad creation, sufficient ad-account permissions and access to the associated LinkedIn Page.
+
+HireOtto is hosted remotely. You do not need a LinkedIn developer app, API keys, JSON credentials, a terminal, or a local process.
+
+# 1. Add the LinkedIn Ads server
+
+Use this endpoint:
+
+```text
+https://linkedinads.hireotto.com/mcp
+```
+
+Add it as a remote HTTP MCP connection and choose OAuth when your client asks for an authentication method. Give the connection a clear name, such as HireOtto — LinkedIn Ads.
+
+## Common client paths
+
+- Claude: open Customize → Connectors → Add custom connector.
+- ChatGPT: open Plugins, then create a plugin with the endpoint.
+- Make AI Agents: open the agent module, select Add MCP, and create a connection with the endpoint.
+- Cursor, VS Code, or another client: open MCP or tools settings and add a remote HTTP server with OAuth.
+
+Client menus and workspace permissions can change. If the labels differ, look for Apps, Connectors, Tools, Integrations, or MCP settings. Do not configure HireOtto as a local command or stdio process.
+
+# 2. Authorize LinkedIn Ads
+
+Connecting the MCP server and connecting LinkedIn Campaign Manager are two separate steps. After the HireOtto connection is active, start a new conversation and ask: 
+
+<Prompt description="Connect my LinkedIn Ads account." actions={["copy"]}>
+</Prompt>
+
+Open the authorization link, sign in with the LinkedIn identity that can access the required ad account, and approve the requested permissions. Return to your AI client when the flow is complete.
+
+# 3. Verify the account, role, and write access
+
+Start with a small read request:
+
+<Prompt description="List the LinkedIn Ads accounts I can access. Include each account ID, my role, and whether the connection is read-only or write-capable." actions={["copy"]}>
+</Prompt>
+
+Select the account by its returned name and ID. A successful account list confirms both the MCP connection and LinkedIn authorization.
+
+Viewer access is read-only. Creating or changing ads requires a sufficient ad-account role. Some sponsored-content workflows also require access to the LinkedIn Page used by the ad.
+
+# 4. Run your first account read
+
+Before asking for recommendations or changes, map the account hierarchy:
+
+<Prompt description="For LinkedIn Ads account \[account ID\], list the campaign groups, ad sets, and creatives. Include IDs and statuses. Read only." actions={["copy"]}>
+</Prompt>
+
+HireOtto uses “ad set” for the object LinkedIn’s API calls a campaign. Confirm the returned names and IDs before requesting any update.
+
+# 5. Try a useful read-only workflow
+
+Choose one of these prompts: 
+
+<Prompt description="Report ad-set performance for \[account ID\] over the last 30 complete days. Include impressions, clicks, landing-page clicks, spend, conversions, and engagement. Summarize the main findings and return CSV. Read only." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="Compare creatives in \[ad set\] over the last 30 complete days. Separate delivery problems from weak response and propose a test queue. Do not pause or edit anything." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="Break down eligible performance by job seniority, then by industry. Use compatible metrics, explain suppressed or delayed data, and do not infer individual identities." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="Resolve valid LinkedIn targeting entities for \[geography\], \[companies or industries\], \[functions\], and \[seniorities\]. Estimate audience size. Do not create or update a campaign." actions={["copy"]}>
+</Prompt>
+
+Professional-demographic reporting is privacy-protected and can lag standard reporting. Small groups may be suppressed, so treat these breakdowns as directional rather than exhaustive.
+
+# 6. Prepare changes as drafts
+
+After the read-only checks succeed, keep campaign creation behind an explicit approval boundary: 
+
+<Prompt description="Validate a draft LinkedIn campaign for \[offer\]. Use the approved objective, budget, dates, targeting, landing page, image, copy, call to action, and alt text below. Create nothing active. Return every created ID and a review checklist." actions={["copy"]}>
+</Prompt>
+
+Use the sequence: validate → create in DRAFT → inspect each object → preview in Campaign Manager → verify tracking → activate only after named human approval. Campaign creation is multi-step. If a child object fails after a parent was created, inspect the returned IDs and resume from the failed step. Do not rerun the full workflow blindly.
+
+# Safety checklist
+
+- Confirm the ad account name and ID before every account-specific action.
+- Review the connected role and write capability.
+- Resolve LinkedIn targeting entities instead of inventing IDs.
+- Check audience size, inclusions, and exclusions before creation.
+- Create new campaign objects as drafts.
+- Review budget, dates, destination, copy, image crop, alt text, tracking, and Page identity.
+- Preview the final ad in Campaign Manager.
+- Keep activation as a separate, explicit decision.
+
+# Common setup problems
+
+<AccordionGroup>
+  <Accordion title="The server is connected, but no LinkedIn Ads tools appear">
+    - Confirm that the endpoint ends with /mcp.
+    - Complete the client-level OAuth prompt, then rescan or refresh the server tools.
+    - Enable the connector or app in the current chat or agent.
+    - Reconnect the client if its MCP tool list is cached.
+  </Accordion>
+
+  <Accordion title="No ad accounts appear">
+    - Confirm that the LinkedIn identity you authorized can open the ad account in Campaign Manager.
+    - Reconnect with the correct LinkedIn identity if you used a different login.
+    - Ask for the accessible account list again after permissions change.
+  </Accordion>
+
+  <Accordion title="I can read the account but cannot create or update">
+    - Check the role returned for the account. Viewer access is read-only.
+    - Confirm that your role allows the requested action.
+    - For sponsored content, confirm access to the associated LinkedIn Page.
+    - Check Campaign Manager for lifecycle, billing, or account warnings that can block a valid API request.
+  </Accordion>
+
+  <Accordion title="A report is empty">
+    - Confirm the account, object IDs, and date window.
+    - Check that the selected objects delivered during the period.
+    - For professional demographics, allow for reporting delay and privacy suppression.
+  </Accordion>
+</AccordionGroup>
+
+# What to try next
+
+- Inspect account, campaign-group, ad-set, and creative performance.
+- Analyze professional demographics one compatible pivot at a time.
+- Resolve and size a targeting hypothesis before applying it.
+- Reuse or upload an eligible image and prepare a draft single-image ad.
+- Apply selected updates only after reviewing the current object and proposed change.
+
+# Current boundaries
+
+- Campaign Manager remains the final place to preview rendering, billing, warnings, and Page permissions.
+- HireOtto does not currently create LinkedIn Lead Gen Forms.
+- Do not assume the image upload workflow also supports video or document ads.
+- Creating an ad does not install or validate the LinkedIn Insight Tag, Google Tag Manager, or the destination page.
+- LinkedIn permissions and lifecycle rules can still block status changes or edits.
