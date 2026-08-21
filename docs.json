@@ -16,29 +16,19 @@
             "group": "Get Started",
             "pages": [
               "introduction",
-              "quickstart",
               "setup/connect-ai-tool",
+              "credits-and-billing",
+              "feature-entitlement-matrix",
               "changelog"
             ]
           },
           {
-            "group": "How HireOtto Works",
+            "group": "Google Ads",
             "pages": [
+              "quickstart",
               "authentication-1",
-              "credits-and-billing",
+              "google-ads-mcp-tools",
               "output-modes",
-              "untitled-page"
-            ]
-          },
-          {
-            "group": "Tools Reference",
-            "pages": [
-              "google-ads-mcp-tools"
-            ]
-          },
-          {
-            "group": "Guides",
-            "pages": [
               "guides/reporting",
               "guides/google-ads-account-audit-with-ai",
               "guides/keyword-research-ai",
@@ -47,7 +37,18 @@
               "guides/google-ads-daily-optimization-with-ai",
               "guides/manage-performance-max-campaigns",
               "guides/extension-assets",
-              "guides/demand-gen",
+              "guides/demand-gen"
+            ]
+          },
+          {
+            "group": "LinkedIn Ads",
+            "pages": [
+              "linkedin-ads/quickstart"
+            ]
+          },
+          {
+            "group": "Search Console",
+            "pages": [
               "guides/google-search-console"
             ]
           },
@@ -69,12 +70,6 @@
                   "manage-google-ads-conversions-with-ai"
                 ]
               }
-            ]
-          },
-          {
-            "group": "LinkedIn Ads",
-            "pages": [
-              "linkedin-ads/quickstart"
             ]
           }
         ]
