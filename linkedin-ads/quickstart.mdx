@@ -48,7 +48,16 @@ Start with a small read request:
 <Prompt description="List the LinkedIn Ads accounts I can access. Include each account ID, my role, and whether the connection is read-only or write-capable." actions={["copy"]}>
 </Prompt>
 
-Select the account by its returned name and ID. A successful account list confirms both the MCP connection and LinkedIn authorization.
+HireOtto reports the current connection state along with the account list:
+
+| State | Meaning | What to do |
+| --- | --- | --- |
+| `not_connected` | The HireOtto MCP server is connected, but a LinkedIn identity has not been linked yet. | Open the returned authorization URL and approve LinkedIn access. |
+| `connected_no_accounts` | LinkedIn is linked, but that identity has no accessible Campaign Manager ad accounts. | Create an ad account or request access to an existing one, then ask HireOtto to refresh the account list. |
+| `account_lookup_failed` | LinkedIn authorization is saved, but HireOtto could not check account access. | Retry with `refresh=true`; reconnect LinkedIn Ads if the error persists. |
+| `connected_with_accounts` | One or more accessible ad accounts were found. | Select the account by its returned name and ID. |
+
+Viewer access is read-only. Creating or changing ads requires a sufficient ad-account role. Some sponsored-content workflows also require access to the LinkedIn Page used by the ad.
 
 Viewer access is read-only. Creating or changing ads requires a sufficient ad-account role. Some sponsored-content workflows also require access to the LinkedIn Page used by the ad.
 
@@ -110,9 +119,16 @@ Use the sequence: validate → create in DRAFT → inspect each object → previ
   </Accordion>
 
   <Accordion title="No ad accounts appear">
-    - Confirm that the LinkedIn identity you authorized can open the ad account in Campaign Manager.
-    - Reconnect with the correct LinkedIn identity if you used a different login.
-    - Ask for the accessible account list again after permissions change.
+    An empty account list can mean either that no ad account exists yet or that the LinkedIn identity you authorized does not have access to an existing account.
+
+    - If an ad account already exists, confirm that the authorized LinkedIn identity can open it in Campaign Manager. Check that you are using the correct LinkedIn login and, where applicable, the correct Business Manager. After access changes, ask HireOtto to refresh the account list.
+    - If no ad account exists, [open Campaign Manager](https://www.linkedin.com/campaignmanager/) and create one. Then ask HireOtto to refresh the account list.
+
+    <Warning>
+      Before creating an ad account, confirm the selected Business Manager or personal-profile context, billing currency, and LinkedIn Page. LinkedIn suggests a currency from the member profile, and the currency and associated Page cannot be changed after the account is created. If the account should belong under a Business Manager, select the correct Business Manager before creating it.
+    </Warning>
+
+    See [LinkedIn’s ad-account creation guidance](https://www.linkedin.com/help/lms/answer/a426102) for the current creation steps and restrictions.
   </Accordion>
 
   <Accordion title="I can read the account but cannot create or update">
