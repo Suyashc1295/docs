@@ -80,14 +80,32 @@
     "primary": {
       "type": "github",
       "href": "https://github.com/hireotto"
-    }
+    },
+    "links": []
   },
-  "favicon": "/images/OTTO-Beehiiv-Icon(1).png",
-  "logo": "/images/OTTO-Beehiiv-Icon(1).png",
+  "favicon": {
+    "light": "/images/hireottofavicon.png",
+    "dark": "/images/hireottofavicon.png"
+  },
+  "logo": {
+    "light": "/images/hireottofavicon.png",
+    "dark": "/images/hireottofavicon.png"
+  },
   "appearance": {
     "default": "light"
   },
   "seo": {
     "indexing": "all"
+  },
+  "integrations": {
+    "ga4": {
+      "measurementId": "G-8Z0VWEBYW4"
+    }
+  },
+  "footer": {
+    "socials": {
+      "youtube": "https://www.youtube.com/@HireOtto",
+      "website": "https://hireotto.com/"
+    }
   }
 }
