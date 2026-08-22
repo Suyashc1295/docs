@@ -4,6 +4,17 @@ description: "Browse HireOtto’s Google Ads MCP tools for reporting, keyword re
 sidebarTitle: "Tools reference"
 ---
 
+## What HireOtto can do in Google Ads
+
+HireOtto connects your AI client to the Google Ads accounts you authorize. Use the tools reference to check which tasks are read-only, which can change an account, and which defaults apply before you run a prompt.
+
+- Read and report: discover accessible accounts, inspect campaign structure and settings, analyze performance, run audits, review change history, research keywords, and retrieve supported Search Console data.
+- Create and update: manage supported campaigns, ad groups, ads, keywords, negative keyword lists, budgets, bidding settings, assets, conversion actions, Performance Max campaigns, and Demand Gen campaigns.
+- Audit safely: daily operations, weekly optimization, and account health audits are read-only and available on the Agency plan.
+- Verify every write: name the customer ID and affected entities, review the proposed values, approve the change, and read the live setting back after the tool finishes.
+
+Your Google Ads role still controls what the connected account can read or change. Search Console uses a separate Google permission and remains read-only.
+
 ## Account discovery
 
 List all Google Ads accounts accessible to your connected Google login(s).
@@ -325,9 +336,12 @@ Add "[KEYWORD]" as a phrase match negative keyword to campaign [CAMPAIGN_ID].
 
 #### Negative keyword lists
 
-Create shared negative keyword lists and assign them to campaigns.
+HireOtto can add keywords to a shared negative list, attach or detach a list from campaigns, and remove individual negative keywords. To remove one item, use its exact resource identifier when available. Otherwise provide the exact keyword text and match type, review the resolved match, and then approve the removal.
 
 **Example prompts**
+
+<Prompt description="In shared negative list 444555666, find the exact-match negative keyword \[free template\]. Show its resource identifier and current match type, then remove only that item and verify the remaining list." actions={["copy"]}>
+</Prompt>
 
 ```text
 Create a negative keyword list called "[LIST_NAME]" with these keywords: [KW1], [KW2].
@@ -523,10 +537,10 @@ Three listing actions are available under _Discovery & listing_:
 
 **Update ads**
 
-- Ad status (pause or enable)
-- Creative replacement: pass the new creative details and HireOtto creates a replacement ad, then pauses the old one
+- Direct update: change top-level final URLs or supported tracking fields while preserving the ad ID.
+- Creative replacement: change images, videos, headlines, descriptions, logos, call-to-action text, or carousel creative. HireOtto creates a replacement ad and pauses the previous ad.
 
-Creative fields in Demand Gen cannot be edited directly — replacement is the correct pattern.
+Before a creative replacement, inspect the live ad, prepare the complete replacement creative, and confirm the destination campaign and ad group. After the operation, read back both ads and verify that the replacement is in the intended state and the prior ad is paused.
 
 **Example prompts**
 
@@ -653,6 +667,51 @@ Turn off Search Partners for campaign [CAMPAIGN_ID].
 Increase mobile bid modifier by 20% for campaign [CAMPAIGN_ID].
 ```
 
+### URL tracking fields
+
+HireOtto can read and update supported URL-tracking settings at account, campaign, ad-group, and ad level.
+
+Account level
+
+- Tracking template.
+- Final URL suffix.
+- Account-level custom parameters are not supported.
+
+Campaign and ad-group level
+
+- Tracking template.
+- Final URL suffix.
+- Custom parameters.
+
+Ad level
+
+Supported Search and Demand Gen ads can update the final URL, mobile final URL, tracking template, final URL suffix, and custom parameters.
+
+How updates behave
+
+- Omit a field to leave it unchanged.
+- Use an empty string to clear a tracking template or final URL suffix.
+- Use an empty object or list to clear custom parameters.
+- A custom-parameter update replaces the complete existing set, so include every parameter you want to keep.
+- Campaign custom parameters support up to 8 alphanumeric keys.
+
+Demand Gen URL updates
+
+A direct update to a Demand Gen ad’s top-level final URL or tracking fields preserves the ad ID. It does not update URLs stored inside carousel cards. Changing creative fields uses the creative-replacement workflow instead: HireOtto creates a replacement ad and pauses the previous ad.
+
+Example
+
+<Prompt description="For customer 123-456-7890, show the current campaign tracking template, suffix, and custom parameters for campaign 111222333. Then replace the suffix with utm\_source=google&utm\_medium=cpc, preserve the current template, and verify the live values." actions={["copy"]}>
+</Prompt>
+
+Common failures
+
+- The tracking template is invalid or contains unsupported ValueTrack syntax.
+- A custom-parameter key contains punctuation or exceeds platform limits.
+- An update unintentionally removes parameters because the complete existing set was not included.
+- The final URL belongs to a Demand Gen carousel card rather than the ad’s top-level URL.
+- The connected user can read the campaign but does not have permission to edit it.
+
 ---
 
 ## Campaign budgets, bidding strategies, and conversion actions
@@ -765,39 +824,59 @@ Remove unused portfolio bidding strategy [BIDDING_STRATEGY_ID].
 
 ### Conversion actions
 
-What you can do
+HireOtto can inspect conversion actions, create supported native Google Ads conversion actions, import eligible GA4 key events, and update supported conversion settings.
 
-- Update existing conversion action default values
-- Set whether Google Ads should always use the default value
-- Update primary-for-goal status
-- Update counting type
-- Update status, category, and attribution model where Google Ads allows it
+#### Create a native Google Ads conversion action
 
-Important notes
+Provide a name and choose the source type:
 
-- This is currently a basic conversion-action update primitive and will evolve based on user feedback.
-- It updates existing conversion actions only.
-- It does not create conversion actions, upload offline conversions, configure enhanced conversions, create GA4 imports, or set up tags.
-- Some fields may not be editable depending on conversion action type, origin, ownership, or Google Ads eligibility rules.
-- Changing conversion action settings can affect bidding and reporting.
+- WEBPAGE — default.
+- UPLOAD\_CLICKS.
+- UPLOAD\_CALLS.
 
-**Example prompts**
+You can also set the category, counting type, primary status, default value, whether to always use that value, and a supported attribution model.
 
-```text
-Update conversion action [CONVERSION_ACTION_ID] to use a default value of 75 and always use the default value.
-```
+Creating a WEBPAGE action creates the Google Ads object. It does not install, test, or validate the website tag. Creating an UPLOAD\_CLICKS or UPLOAD\_CALLS action does not upload offline conversions.
 
-```text
-Set conversion action [CONVERSION_ACTION_ID] as primary for goal optimization.
-```
+#### Import a GA4 key event
 
-```text
-Change conversion action [CONVERSION_ACTION_ID] counting type to ONE_PER_CLICK.
-```
+The event must already be marked as a key event in a Google Analytics property linked to the Google Ads account. Provide the exact event name. Include the GA4 property ID when possible; it is required when the same event name exists in more than one linked property.
 
-```text
-Update conversion action [CONVERSION_ACTION_ID] attribution model to GOOGLE_SEARCH_ATTRIBUTION_DATA_DRIVEN.
-```
+#### Update an existing action
+
+Supported settings include the name, status, category, counting type, primary status, default value, value behavior, attribution model, and eligible lookback windows. Editability depends on the action’s source, ownership, and current Google Ads eligibility.
+
+Use primary status – not the legacy include-in-conversions field – to control whether an eligible conversion goal can influence optimization. Changing primary status or attribution can affect both reporting and automated bidding.
+
+#### Safe sequence
+
+- List the existing actions and check for duplicates.
+- Confirm whether the business outcome belongs in Google Ads natively or should be imported from GA4.
+- Prepare the exact settings.
+- Create, import, or update one action.
+- Validate measurement data before making it primary.
+- Read the action back and confirm the live settings.
+
+#### Examples
+
+<Prompt description="Create a secondary WEBPAGE conversion action named Qualified demo request for customer 123-456-7890. Count one conversion, use no default value, and return the new resource without changing campaign goals." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="Import the GA4 key event qualified\_lead from property 123456789 into customer 123-456-7890 as a secondary conversion. Show eligible matches before importing." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="Update conversion action 987654321 so it remains secondary and uses a 30-day click-through lookback window. Show the current and proposed settings before applying the change." actions={["copy"]}>
+</Prompt>
+
+#### Common failures
+
+- A conversion action with the same purpose already exists.
+- The GA4 property is not linked to the Google Ads account.
+- The GA4 event is not marked as a key event.
+- The event name is ambiguous across linked properties and no property ID was provided.
+- The requested field is not editable for that action type or origin.
+- The connected Google user lacks permission to make the change.
+- The tag or offline upload pipeline has not been implemented; creating the action alone does not solve measurement.
 
 ---
 
@@ -952,34 +1031,131 @@ Did anyone make changes to this account last week?
 
 ## Daily ops audit
 
-A combined pacing \+ waste check designed to run every morning, especially useful across multiple accounts.
+The daily operations audit is a read-only Agency-plan check for delivery, pacing, and sudden spend changes. It is designed for daily triage, not a full optimization review.
 
-**What it checks**
+### What it checks
 
-1. **Budget pacing** — flags campaigns that overspent or underspent yesterday relative to their daily budget
-2. **Wasteful search terms** — search terms with zero conversions, sorted by cost (highest waste first)
+- Campaigns that stopped serving even though they are enabled.
+- Spend spikes or drops against the recent baseline.
+- Campaign and shared-budget pacing.
+- Coverage gaps or partial results that may make a finding incomplete.
 
-**Options**
+### Defaults
 
-- Date range (defaults to yesterday)
-- Overspend threshold (default: 150% of daily budget)
-- Underspend threshold (default: 50% of daily budget)
-- Number of wasteful search terms to show inline
-- Suggested match type for adding flagged terms as negatives (default: Exact)
+- Audit date: yesterday in the Google Ads account time zone.
+- Campaign scope: enabled campaigns. Paused campaigns can be included; removed campaigns are excluded.
+- Baseline: the previous 14 days.
+- Spend spike threshold: at least 1.5 times the baseline.
+- Spend drop threshold: at most 0.5 times the baseline.
+- Pacing thresholds: above 1.5 times or below 0.5 times expected pacing.
+- Minimum baseline activity: 1 unit of account currency in average daily cost and 10 average daily impressions.
+- Inline findings: 25 by default; set 1–100.
+- CSV link lifetime: 30 minutes by default; set 1–1,440 minutes.
 
-**Example prompts**
+### What it does not check
+
+Daily operations does not review search terms, keyword opportunities, ad creative, location performance, or device performance. Use the weekly optimization audit for those questions.
+
+### Example
 
 ```text
-Run the daily ops audit for account [CUSTOMER_ID].
+Run the daily operations audit for customer 123-456-7890 for yesterday. Check enabled campaigns only. Show the most urgent delivery and pacing findings, include the comparison baseline, and do not make changes.
 ```
 
-```text
-Run yesterday's ops audit for [CUSTOMER_ID] — flag anything over 130% spend or under 60%.
-```
+### Limits and failure cases
+
+- The audit never writes to Google Ads.
+- A shared budget is evaluated as a group, so the result may not assign all pacing pressure to one campaign.
+- Newly launched or very low-volume campaigns may not have enough baseline activity to classify a spike or drop.
+- If Google Ads returns only part of the requested data, treat the audit as partial and review the coverage notes.
+- Download links expire. Rerun the audit if a CSV link has expired.
+
+---
+
+## Weekly optimization audit
+
+The weekly optimization audit is a read-only Agency-plan review that turns recent Google Ads performance into a ranked decision queue. It covers campaign trends, search terms, keywords, and responsive search ads without changing the account.
+
+### Default windows and thresholds
+
+- Performance window: the last 7 days.
+- Comparison: the immediately preceding period of equal length.
+- Search-term lookback: 30 days, excluding the most recent 3 days to allow for reporting and conversion lag.
+- Negative-keyword candidate: fewer than 1 conversion, at least 3 clicks, and no minimum-spend requirement unless you set one.
+- New-keyword candidate: at least 1 conversion.
+- Keyword review: at least 10 clicks.
+- Target CPA: optional. If omitted, HireOtto can use the account CPA when the account has at least 5 conversions in the selected period.
+- High-CPA threshold: 1.5 times the target or account CPA.
+- RSA review: at least 100 impressions; low CTR is 75% or less of the ad group CTR.
+- Campaign performance drop: current conversions at 50% or less of the comparison period.
+- Detailed rows: 500 per detailed query by default; set 25–5,000.
+- Inline findings: 50 by default; set 1–200.
+- CSV link lifetime: 30 minutes by default; set 1–1,440 minutes.
+
+### What it can surface
+
+- Campaigns with material changes in spend, conversions, CPA, or search impression share.
+- Search terms that may belong on a negative list.
+- Converting search terms that may deserve their own keyword.
+- Manual CPC keywords that may need a bid review.
+- Disapproved or low-CTR responsive search ads.
+- Findings that need more evidence before a marketer acts.
+
+### Example
 
 ```text
-Daily audit for [CUSTOMER_ID], export wasteful search terms to CSV.
+Run the weekly optimization audit for customer 123-456-7890. Compare the last 7 days with the previous 7 days. Use the default search-term lag, rank the findings by severity, and separate Act, Investigate, and Monitor items. Do not change the account.
 ```
+
+### Limits and failure cases
+
+- Candidate means review, not automatic action. Check intent, conversion lag, sample size, match type, lead quality, and business context before approving a change.
+- A search-term row can be absent because of Google Ads privacy thresholds or reporting limits.
+- If the account has fewer than 5 conversions and no target CPA is supplied, CPA-based classifications may be limited.
+- Partial results and row limits appear in the coverage notes. Increase limits or narrow the scope when important entities are missing.
+- The audit never writes to Google Ads.
+
+---
+
+## Account health audit
+
+The account health audit is a read-only Agency-plan check for structural, tracking, targeting, quality, and coverage risks. Use it monthly, quarterly, or before taking over an account.
+
+### Defaults
+
+- Review window: the last 90 days.
+- Comparison: the immediately preceding 90 days.
+- RSA copy review: off by default.
+- Detailed checklist: off by default.
+- Keyword rows: 5,000 by default; set 100–20,000.
+- Ad rows: 1,000 by default when RSA copy review is enabled; set 100–5,000.
+- Inline findings: 100 by default; set 1–300.
+- CSV link lifetime: 30 minutes by default; set 1–1,440 minutes.
+
+### What it reviews
+
+- Auto-tagging and conversion-tracking readiness visible in Google Ads.
+- Search and display network settings.
+- Location targeting mode and language targeting.
+- Keyword count by ad group, match-type mix, Quality Score, and Quality Score components.
+- Negative-keyword coverage.
+- Geographic and device performance.
+- Search impression share lost to budget or rank.
+- Optional RSA counts, copy review, and pinning patterns.
+
+### Example
+
+```text
+Run an account health audit for customer 123-456-7890. Compare the last 90 days with the previous 90 days. Include the detailed checklist and RSA review. Return the highest-severity risks first and do not make changes.
+```
+
+### Limits and failure cases
+
+- The audit can only evaluate data available through the connected Google Ads account. It does not know CRM lead quality, competitor activity, landing-page experiments, or offline business context unless you provide that context separately.
+- Enabling RSA copy review increases the amount of ad data requested and can make large-account audits slower or more likely to return partial coverage.
+- A missing signal is not always a broken setup. Confirm account structure, measurement design, and campaign intent before changing anything.
+- Review coverage notes whenever limits, permissions, or Google Ads reporting restrictions exclude part of the account.
+- The audit never writes to Google Ads.
 
 ---
 
@@ -1028,6 +1204,18 @@ Check if https://www.example.com/pricing is indexed in Google.
 For setup and workflow details, see [Google Search Console MCP reporting](/guides/google-search-console).
 
 ---
+
+## Common access, output, and safety rules
+
+- Account access: HireOtto only sees Google Ads accounts available to the Google identity you connect. The user’s Google Ads role determines whether a write can succeed.
+- Customer IDs: use the ten-digit customer ID without guessing. Manager-account access does not remove the need to target the intended client account.
+- Audit access: daily operations, weekly optimization, and account health audits are Agency-plan features and are always read-only.
+- Search Console: Search Console tools require separate authorization and remain read-only.
+- Inline and CSV output: large results may be summarized inline and returned as a downloadable CSV. CSV links expire; rerun the request to create a fresh link.
+- Partial coverage: API limits, row limits, permissions, privacy thresholds, and unavailable metrics can produce partial results. Read the coverage notes before acting.
+- Validation: Google Ads can reject writes because of account state, entity state, field compatibility, date rules, policy, or permissions. Correct the request and retry only after reviewing the error.
+- Verification: for consequential changes, ask HireOtto to show the current value, proposed value, customer ID, and entity IDs; wait for approval; apply one class of change; then read the live value back.
+- Pricing and credits: availability and credit use depend on the active HireOtto plan. Check the current pricing page before promising access.
 
 ## Billing
 
