@@ -1,0 +1,187 @@
+---
+title: "Run a weekly Google Ads optimization audit with HireOtto"
+description: "Turn mature account data into a ranked, review-ready decision queue without changing Google Ads."
+sidebarTitle: "Weekly Audit"
+---
+
+# What the weekly audit does
+
+The weekly optimization audit reviews enabled Google Ads campaigns after performance and conversion data has had time to mature. It compares the selected performance period with the preceding equal-length period, checks Search visibility, and reviews search terms, keywords, and responsive search ads.
+
+The result is a severity-ranked decision queue with supporting evidence and downloadable CSV exports. The audit is read-only: it does not add negative keywords, change bids, pause ads, or make any other account changes.
+
+# Before you begin
+
+- Use an Agency plan. Weekly optimization audits are not included in Starter or Pro.
+- Connect Google Ads and save the account you want HireOtto to access.
+- Use the correct ten-digit Google Ads customer ID. Hyphens are optional.
+- Make sure the selected period contains enough mature performance data to support a decision.
+- Treat every recommendation as a review candidate, not an instruction to change the account.
+
+# Quick start
+
+<Prompt description="Run the weekly optimization audit for customer 123-456-7890. Compare the last 7 days with the previous 7 days. Use the default search-term lag, show every high- and medium-severity finding, summarize the low-severity findings, list all CSV exports, and do not change the account." actions={["copy"]}>
+</Prompt>
+
+With the defaults, HireOtto reviews the last 7 days against the previous 7 days. Search terms use a separate 30-day window that excludes the most recent 3 days so late conversions have more time to appear.
+
+# How the audit works
+
+## 1. Resolve the reporting windows
+
+HireOtto resolves the main performance period in the Google Ads account’s time zone. If you do not supply a comparison period, it uses the immediately preceding period of equal length.
+
+Search terms use their own mature window. By default, the audit includes 30 days and ends 3 days before the current day. You can replace that automatic window with an explicit search-term date range.
+
+## 2. Review enabled-campaign trends
+
+The audit compares enabled campaigns across the current and comparison periods. It reviews cost, clicks, impressions, conversions, conversion value, CPA context, and Search impression share.
+
+A campaign-level conversion decline is flagged when the current period falls to 50% or less of the comparison period, provided the comparison period had at least 2 conversions. This protects the default check from reacting to a fall from one conversion to zero as if it were a mature trend.
+
+## 3. Find search-term candidates
+
+Search terms are organized into review queues rather than changed automatically.
+
+- Possible negatives: fewer than 1 conversion, at least 3 clicks, and at least the minimum spend you set. The default minimum spend is 0 in the account currency.
+- Possible new keywords: at least 1 conversion and not already represented as the same keyword.
+- Same-as-keyword underperformance: a search term already represented by a keyword but showing evidence that deserves a closer look.
+
+These are candidates only. A term can look inefficient because of conversion lag, a small sample, match behavior, offline lead quality, or an intentional upper-funnel role.
+
+## 4. Review keywords
+
+Enabled keywords are reviewed after they reach the minimum click threshold. The default is 10 clicks.
+
+If you provide a target CPA, HireOtto uses it as the benchmark. If you omit it and the account has at least 5 conversions in the selected period, the audit can use the account CPA. A converting keyword is a high-CPA candidate at 1.5 times the benchmark by default.
+
+Manual CPC keywords may also be returned for bid review. The audit does not change the bid.
+
+## 5. Review responsive search ads
+
+Enabled responsive search ads are reviewed for disapproval and relative CTR performance.
+
+- Disapproved enabled ads are high-priority investigation items.
+- An RSA needs at least 100 impressions before the default relative-performance check applies.
+- The RSA is compared with other eligible RSAs in the same ad group—not with a universal CTR benchmark.
+- The default low-CTR threshold is 75% or less of the eligible ad-group CTR.
+
+An ad group needs at least two eligible ads for the relative CTR comparison.
+
+## 6. Rank and export the results
+
+HireOtto ranks findings by severity and returns the evidence behind each finding. It also separates detailed campaign, search-term, keyword, bid-review, and ad candidate rows.
+
+CSV exports are created only for non-empty datasets. Depending on the account, the response can include exports for campaign performance, negative candidates, new-keyword candidates, keyword candidates, Manual CPC bid candidates, and underperforming ads.
+
+# Parameters and defaults
+
+## Reporting windows
+
+- Performance period – LAST\_7\_DAYS by default. You can use a supported predefined period or provide custom start and end dates.
+- Comparison period – omitted by default. HireOtto uses the immediately preceding period of equal length.
+- Search-term period – omitted by default. HireOtto creates the mature search-term window from the lookback and lag settings.
+- Search-term lookback – 30 days by default; set 1–90 days. Ignored when you provide an explicit search-term period.
+- Conversion lag – 3 days by default; set 0–30 days. The most recent days are excluded from the automatically generated search-term window.
+
+## Search-term and keyword thresholds
+
+- Negative candidate conversions – fewer than 1 conversion by default.
+- Negative candidate clicks – at least 3 clicks by default.
+- Negative candidate cost – at least 0 in the account currency by default.
+- New-keyword candidate conversions – at least 1 conversion by default.
+- Keyword review clicks – at least 10 clicks by default.
+- Target CPA – optional. When omitted, the account CPA is used only if the period has at least 5 conversions.
+- High-CPA ratio – 1.5 times the CPA benchmark by default.
+
+## Ad and performance thresholds
+
+- RSA minimum impressions – 100 by default.
+- RSA CTR ratio – 0.75 by default, meaning 75% or less of the eligible ad-group CTR.
+- Campaign conversion-drop ratio – 0.5 by default, meaning current conversions are 50% or less of the comparison period.
+
+## Output limits
+
+- Detailed query limit – 500 rows per focused query by default; set 25–5,000. The limit applies separately to negative terms, positive terms, keywords, and ads.
+- Inline findings limit – 50 by default; set 1–200. Full eligible candidate tables can still be available through CSV exports.
+- CSV link lifetime – 30 minutes by default; set 1–1,440 minutes.
+
+# How to read the response
+
+## Start with scope
+
+Confirm the customer ID, account time zone, performance period, comparison period, search-term period, conversion lag, enabled-campaign count, and detailed-query limit. This proves what the audit actually reviewed.
+
+## Separate findings from interpretation
+
+Each finding should include its severity, confidence, evidence, and a suggested next step. The finding is produced from the selected data and thresholds. Any additional explanation from the AI client should be presented separately.
+
+Ask the client to show every high- and medium-severity finding. Low-severity findings can be summarized, but they should not disappear silently.
+
+## Review passed checks
+
+A useful audit reports important checks that passed as well as issues. No material finding does not mean the account is healthy in every respect; it means the reviewed data did not cross the selected thresholds.
+
+## Check truncation and exports
+
+If the inline findings or detail rows were truncated, use the CSV exports before calling the review complete. Download exports before their signed links expire, or rerun the audit to create fresh links.
+
+# Move from finding to action safely
+
+The audit can suggest the next supported Google Ads workflow, but it never executes it. Use a separate, approval-gated request for each change.
+
+- Read the live entity and confirm the customer, campaign, ad-group, keyword, or ad ID.
+- Check the finding against conversion lag, intent, attribution, sample size, lead quality, and account strategy.
+- Ask for the exact proposed change and affected scope.
+- Approve one class of change at a time.
+- Read the live account state back after the change.
+
+For negative keywords, review match type and scope before adding anything. For new keywords, choose the destination ad group and match type. For bids and ad status, confirm that the campaign’s bidding strategy and experiment structure make the proposed action valid.
+
+# Practical examples
+
+## Default weekly review
+
+<Prompt description="Run the weekly optimization audit for customer 123-456-7890 with the default windows. Return the resolved periods first, then every high- and medium-severity finding, passed checks, truncated sections, and CSV exports. Do not make changes." actions={["copy"]}>
+</Prompt>
+
+## Account with a known CPA target
+
+<Prompt description="Run the weekly optimization audit for customer 123-456-7890 using a target CPA of 120 in the account currency. Compare the last 14 days with the previous 14 days. Keep the default search-term maturity window and do not change the account." actions={["copy"]}>
+</Prompt>
+
+## Longer conversion lag
+
+<Prompt description="Run the weekly optimization audit for customer 123-456-7890. Review the last 7 days against the previous 7 days, but use a 30-day search-term lookback that excludes the most recent 7 days. Explain how the longer lag changes the candidate set." actions={["copy"]}>
+</Prompt>
+
+## Large-account export
+
+<Prompt description="Run the weekly optimization audit for customer 123-456-7890 with a detailed-query limit of 2,000 and a 2-hour CSV link lifetime. Keep 50 findings inline, list every export, and call out any truncated or incomplete section." actions={["copy"]}>
+</Prompt>
+
+## Decision-queue follow-up
+
+<Prompt description="Turn the weekly audit into three queues: Act, Investigate, and Monitor. For each item, include the evidence, entity IDs, proposed next step, and what must be checked before approval. Do not make changes." actions={["copy"]}>
+</Prompt>
+
+# Limits and failure cases
+
+- Plan restriction – weekly optimization audits require the Agency plan.
+- Read-only scope – the audit cannot add negatives, create keywords, change bids, pause ads, or edit campaigns.
+- Missing account – reauthenticate or refresh accessible accounts if the customer ID was not saved or the connected Google identity no longer has access.
+- Low conversion volume – when no target CPA is supplied and the selected period has fewer than 5 conversions, CPA-based keyword classifications can be limited.
+- Young or low-volume account – default thresholds may produce few findings even when a marketer should still inspect the account manually.
+- Privacy and reporting limits – some search terms can be absent because of Google Ads privacy thresholds or reporting behavior.
+- Row limits – detailed queries can stop at their configured limits. Increase the limit or narrow the request when important entities are missing.
+- Truncated inline output – the findings limit controls what appears in chat, not necessarily every eligible candidate. Use the exports.
+- Expired export – signed CSV links expire. Rerun the audit or request a longer lifetime.
+- Permissions, quota, or platform error – read the returned error before retrying. Do not describe the audit as complete if a required section failed or was not run.
+
+# Weekly audit versus other HireOtto audits
+
+Use the daily operations audit for delivery, pacing, stopped-serving campaigns, and sudden spend changes. Use the weekly optimization audit for mature campaign, search-term, keyword, and RSA decisions. Use the account health audit for monthly or quarterly structural, tracking, targeting, Quality Score, negative-coverage, geographic, device, and Search visibility checks.
+
+# Related documentation
+
+[Connect Google Ads to HireOtto](https://docs.hireotto.com/quickstart)<br />[Google Ads authentication and account access](https://docs.hireotto.com/authentication-1)<br />[Google Ads MCP tools reference](https://docs.hireotto.com/google-ads-mcp-tools)<br />[Google Ads report output modes](https://docs.hireotto.com/output-modes)<br />[HireOtto pricing](https://hireotto.com/pricing)<br />[HireOtto product changelog](https://docs.hireotto.com/changelog)
