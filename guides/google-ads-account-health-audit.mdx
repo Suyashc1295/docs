@@ -1,0 +1,170 @@
+---
+title: "Run a Google Ads account health audit with HireOtto"
+description: "Review account structure, settings, measurement signals, and coverage in one read-only workflow."
+sidebarTitle: "Account Health Audit"
+---
+
+# What this audit does
+
+HireOtto’s account health audit gives you a monthly or quarterly structural review of a connected Google Ads account. It checks configuration, campaign structure, keyword and Quality Score patterns, negative-keyword coverage, geographic and device performance, Search visibility, and – when requested – responsive search ad structure.
+
+The audit is read-only. It does not change campaigns, budgets, keywords, ads, targeting, or conversion settings. It is available on the Agency plan.
+
+By default, HireOtto reviews the last 90 days and compares them with the preceding 90 days. It returns prioritized findings, passed checks, coverage notes, and downloadable CSV exports. Optional RSA review and checklist modes are off by default.
+
+Use this audit when you need to understand whether the account is structurally sound – not when you need a short-term optimization queue. For weekly performance decisions, use the weekly optimization audit instead.
+
+# Before you begin
+
+- An active HireOtto Agency plan.
+- A connected Google Ads profile and access to the account you want to review.
+- The Google Ads customer ID. You can enter it with or without hyphens.
+- Enough recent activity to interpret performance and Quality Score patterns. Low-volume accounts can return valid but limited evidence.
+
+# Run a default account health audit
+
+Ask your connected AI client:
+
+<Prompt description="Run a read-only account health audit for Google Ads customer 123-456-7890. Use the default period and comparison. Show every high- and medium-priority finding, summarize low-priority findings and passed checks, call out incomplete coverage, and link every CSV export." actions={["copy"]}>
+</Prompt>
+
+The default audit uses the last 90 days, compares them with the previous equal period, reviews up to 5,000 enabled keyword rows, returns up to 100 findings inline, and keeps export links available for 30 minutes.
+
+# What HireOtto checks
+
+## Tracking and campaign settings
+
+- Auto-tagging status.
+- Enabled campaign settings, including network configuration, positive location matching, languages, schedules, and other available settings.
+- Configuration patterns that deserve review, such as a Search campaign targeting the Display Network or a broader-than-presence positive location option.
+- Multiple languages are reported as a review signal, not an automatic error.
+
+## Performance and account structure
+
+- Campaign performance for the current and comparison periods.
+- Enabled-keyword counts by ad group and match-type performance.
+- Ad groups with more than 15 enabled keywords may be flagged for review. This is a heuristic, not a universal failure.
+- Quality Score coverage and component distributions. When at least 10 enabled keywords have a score, the audit flags an account where fewer than 70% score above 7.
+
+## Negative-keyword coverage
+
+- Counts of campaign-level and ad-group-level negative keywords.
+- A finding when no campaign or ad-group negatives are present.
+- This check does not prove that a negative-keyword strategy is complete. Review current search terms and shared negative lists before adding exclusions.
+
+## Geography, devices, and Search visibility
+
+- Geographic and device performance for enabled campaigns.
+- Search impression share and impression share lost to budget or rank when Google Ads supplies those metrics.
+- A medium-priority budget visibility finding when Search impression share lost to budget is at least 30%. Treat it as a prompt to review economics and constraints—not as an instruction to raise budgets.
+
+## Optional responsive search ad review
+
+Turn on RSA review when you want structural evidence about enabled responsive search ads. It is off by default because it adds a heavier account read.
+
+The review can flag an RSA with fewer than eight headlines or three descriptions, and it reports pinned assets. These are review signals. Pinning may be intentional, and asset count alone does not establish creative quality.
+
+## Optional audit checklist
+
+Turn on the checklist when you want the audit evidence organized into a reusable review list. The checklist does not make extra Google Ads requests; it reuses evidence already collected by the audit.
+
+- Checklist answers have three forms:
+- Computed: HireOtto can answer directly from account data.
+- Needs interpretation: your AI client can interpret only the evidence included with the item.
+- Needs user input: a business or account owner must confirm the answer.
+
+Evidence in checklist items is capped for readability. Use the raw exports when you need the complete available row set.
+
+# Parameters and defaults
+
+- Customer ID: required; hyphens are optional.
+- Audit period: last 90 days by default. You can request another supported preset, a LAST\_N\_DAYS period from 1 to 365 days, or supported custom dates.
+- Comparison period: the preceding equal-length period by default. You can supply a different supported preset or custom period.
+- Include RSA review: false by default.
+- Include checklist: false by default.
+- Maximum keyword rows: 5,000 by default; allowed range 100–20,000.
+- Maximum ad rows: 1,000 by default; allowed range 100–5,000. This applies only when RSA review is enabled.
+- Findings shown inline: 100 by default; allowed range 1–300.
+- Export-link lifetime: 30 minutes by default; allowed range 1–1,440 minutes.
+
+# How to read the result
+
+- Start with execution status and coverage. A complete audit means all requested sections ran; a partial audit means at least one section failed, was unavailable, or was truncated.
+- Review all high- and medium-priority findings first. Low-priority findings are usually heuristics or context-dependent review prompts.
+- Read passed checks as evidence of what was examined, not proof that every possible account issue was ruled out.
+- Keep HireOtto’s generated findings separate from any additional interpretation supplied by your AI client.
+- Check row and finding limits. A valid result can still be partial when a large account exceeds the selected limits.
+- Open every relevant export before it expires.
+
+Available exports can include keywords, campaign settings, geographic performance, device performance, Search visibility, and – when enabled and available – ad copy.
+
+# Safe follow-through
+
+The account health audit never writes to Google Ads. If a finding merits action, handle the change in a separate, approval-gated request:
+
+- Read the current value and identify the exact account, campaign, ad group, keyword, ad, or budget.
+- State the proposed value and affected scope.
+- Check the finding against business context, conversion lag, sample size, and account constraints.
+- Ask for approval before making a consequential change.
+- Apply one class of changes at a time.
+- Read the live setting back after the write.
+
+A finding is evidence for a decision. It is not an instruction to change the account automatically.
+
+# Practical prompts
+
+## Monthly structural review
+
+<Prompt description="Run the Google Ads account health audit for customer 123-456-7890 using the default 90-day period. Group the result into act, investigate, and monitor. Do not change the account." actions={["copy"]}>
+</Prompt>
+
+## Quarterly takeover review
+
+<Prompt description="Audit customer 123-456-7890 for the last 90 days versus the previous 90 days. Include RSA review and the checklist. Show incomplete or capped evidence clearly, and separate computed answers from items that need interpretation or owner input." actions={["copy"]}>
+</Prompt>
+
+## Large account with longer-lived exports
+
+<Prompt description="Run an account health audit for customer 123-456-7890. Review up to 20,000 keyword rows and 5,000 ad rows, include RSA review, return up to 300 findings, and keep exports available for 120 minutes. Do not make changes." actions={["copy"]}>
+</Prompt>
+
+## Custom comparison
+
+<Prompt description="Run an account health audit for customer 123-456-7890 for \[start date\] through \[end date\], compared with \[comparison start\] through \[comparison end\]. Explain any difference in period length before interpreting the comparison." actions={["copy"]}>
+</Prompt>
+
+## Decision queue
+
+<Prompt description="From this account health audit, create a decision queue with the evidence, entity IDs, current setting, proposed next step, reason, and required approval for each item. Do not execute any writes." actions={["copy"]}>
+</Prompt>
+
+# Limits and common failures
+
+- Plan restriction: the account health audit is available only on the Agency plan.
+- Read-only scope: the audit does not change Google Ads. Any follow-up write requires a separate supported action, adequate Google Ads permissions, and your approval.
+- External context: the audit cannot see CRM pipeline impact, competitor activity, landing-page experiments, quarterly business goals, or other data you have not supplied.
+- Semantic judgment: naming conventions, ad-group themes, negative-keyword strength, and some schedule decisions require interpretation or owner input.
+- Partial coverage: API errors, permissions, quotas, unavailable metrics, or selected row limits can leave a section incomplete. Read the execution status and coverage notes before calling the audit complete.
+- Large accounts: increasing keyword and ad limits makes the request heavier. Enable RSA review only when you need it.
+- Low-volume accounts: a missing finding can mean there was not enough eligible data, not that the account passed every check.
+- Quality Score: the distribution check applies only when at least 10 enabled keywords have scores. Keywords without scores are not treated as passing.
+- Visibility: impression-share metrics are available only when Google Ads returns them. Lost visibility does not establish that spending more will be profitable.
+- Expired exports: CSV links stop working after the selected lifetime. Run the audit again if you need fresh links.
+- Access errors: confirm that the correct HireOtto profile and Google Ads identity are connected and that the identity can access the requested customer ID.
+
+# Choose the right audit
+
+- Daily operations audit: use for near-term operational checks and urgent issues.
+- Weekly optimization audit: use for recent performance, search-term, keyword, bid, disapproval, and RSA decision queues.
+- Account health audit: use monthly, quarterly, during onboarding, or after a major restructure to review settings, structure, quality, coverage, and Search visibility.
+- Manual account audit guide: use when you want to assemble a custom review from separate prompts and reports.
+
+# Related documentation
+
+- [Google Ads quickstart](https://docs.hireotto.com/quickstart)
+- [Authentication and account access](https://docs.hireotto.com/authentication-1)
+- [Google Ads MCP tools reference](https://docs.hireotto.com/google-ads-mcp-tools)
+- [Google Ads account audit with AI](https://docs.hireotto.com/guides/google-ads-account-audit-with-ai)
+- [Output modes and CSV exports](https://docs.hireotto.com/output-modes)
+- [HireOtto pricing](https://hireotto.com/pricing)
+- [Product changelog](https://docs.hireotto.com/changelog)
