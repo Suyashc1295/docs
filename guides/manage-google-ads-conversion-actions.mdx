@@ -1,0 +1,200 @@
+---
+title: "Manage Google Ads conversion actions with HireOtto"
+description: "Review tracking readiness, create a native action, import an eligible GA4 key event, or update an existing action without confusing configuration with measurement."
+sidebarTitle: "Conversion action management"
+---
+
+# What you can do
+
+Use HireOtto’s Google Ads server to inspect conversion tracking, create supported native conversion actions, import eligible GA4 key events, and update supported settings on existing actions.
+
+The server can change Google Ads configuration when you explicitly ask it to. It does not decide which business outcome should guide bidding, install or test your website tag, validate GA4 measurement, upload offline conversion records, or change campaign goals automatically.
+
+A safe workflow starts by reading the current setup, chooses one source of truth for the outcome, makes one reviewable change, and reads the live action back.
+
+# Choose the right path
+
+## Create a native website conversion action
+
+Choose this path when Google Ads should receive a website conversion directly through the Google tag or Google Tag Manager. HireOtto creates the conversion action definition in Google Ads. You must still implement and test the tag separately.
+
+## Import a GA4 key event
+
+Choose this path when the business event is already measured correctly in a linked GA4 property and marked as a key event. Importing makes the eligible event available as a Google Ads conversion action; it does not validate the GA4 event or repair its implementation.
+
+## Create an offline upload action
+
+Choose `UPLOAD_CLICKS` or `UPLOAD_CALLS` only when you already have an appropriate offline-conversion ingestion workflow. HireOtto creates the action definition. It does not upload click or call conversion records, and Google may apply separate eligibility or integration restrictions to ingestion.
+
+## Update an existing action
+
+Choose this path when the correct action already exists and you need to change a supported setting. Inspect the action first: editable fields vary by source, owner, conversion type, and Google Ads eligibility.
+
+# Access, plans, and write scope
+
+- Connect the Google Ads server at [https://googleads.hireotto.com/mcp](https://googleads.hireotto.com/mcp) and select the intended Google Ads customer.
+- Conversion review is read-only. Create, import, and update operations write to the connected Google Ads account.
+- Your connected Google identity needs sufficient Google Ads permission for the requested operation. HireOtto cannot exceed that identity’s access.
+- Conversion management is part of the core Google Ads server across the plans shown on the current pricing page. Usage-based plans consume credits; Agency currently advertises unlimited usage.
+- Write access is capability, not approval. Ask the AI client to show the exact customer, action, current value, and proposed value before a consequential change.
+
+# Before you begin
+
+- Identify the exact Google Ads customer ID and business outcome.
+- Decide whether Google Ads or GA4 is the source of truth for that outcome.
+- List existing actions and check for duplicates, ownership, source, status, primary status, and recent data.
+- For GA4 imports, confirm the property is linked to Google Ads and the exact event is marked as a GA4 key event.
+- Choose the counting rule, value behavior, and whether the action should begin as primary or secondary.
+- Review how a primary-status, attribution, or lookback-window change could affect reporting and automated bidding.
+
+# Review conversion tracking first
+
+Begin with a read-only review. HireOtto can report auto-tagging, conversion-tracking ownership, available GA4 link evidence, imported GA4 actions, and GA4 key events that Google Ads exposes as available to import.
+
+Treat “not detected” carefully. If a linked GA4 property has not exposed a synced key event to Google Ads, the review may be inconclusive rather than proof that no link exists. Confirm the link and key-event status in the platforms, then allow time for synchronization.
+
+You can also list conversion actions and inspect conversion volume and value for a date range. Use those results to find duplicates and stale or unused actions; do not treat a short period with zero conversions as automatic evidence that an action is broken.
+
+## Read-only prompt
+
+<Prompt description="Review conversion tracking for customer 123-456-7890. Show auto-tagging, conversion ownership, linked-GA4 evidence, imported GA4 actions, eligible key events, and any inconclusive checks. Do not make changes." actions={["copy"]}>
+</Prompt>
+
+# Create a native conversion action
+
+Creating a native action requires a customer ID and a name. The default source type is WEBPAGE. The supported source types are WEBPAGE, UPLOAD\_CLICKS, and UPLOAD\_CALLS.
+
+## Supported settings and defaults
+
+- name — Required. Use a clear business-outcome name and check for an equivalent action first.
+- source type — WEBPAGE by default; UPLOAD\_CLICKS and UPLOAD\_CALLS are also supported.
+- status — New actions are created as ENABLED. A different creation status is not supported.
+- category — DEFAULT when omitted, or another valid Google Ads conversion category.
+- counting type — ONE\_PER\_CLICK or MANY\_PER\_CLICK. When omitted, Google Ads applies its applicable behavior.
+- primary for goal — Set true for a primary action or false for a secondary action. When omitted, Google Ads applies its applicable behavior.
+- default value — Optional and must be zero or greater.
+- always use default value — Optional. If you provide a default value without enabling this setting, event-specific values can still take precedence.
+- attribution model — Optional and limited to a model supported and eligible for that action.
+- click-through lookback window — A whole number from 1 to 90 days.
+- view-through lookback window — A whole number from 1 to 30 days.
+
+For optional settings that you omit, HireOtto does not invent a value; Google Ads applies the behavior available to that action.
+
+## Example: create a secondary website action
+
+<Prompt description="For customer 123-456-7890, first list actions that could duplicate ‘Qualified demo request’. If none exists, prepare one WEBPAGE conversion action with category SUBMIT\_LEAD\_FORM, counting type ONE\_PER\_CLICK, and primary for goal false. Show the exact settings and wait for my approval before creating it." actions={["copy"]}>
+</Prompt>
+
+After creation, implement the Google tag or GTM configuration, test it, and wait for reliable data before considering primary status. Creating the action does not install or verify the website measurement.
+
+## Example: create an offline action definition
+
+<Prompt description="Prepare an UPLOAD\_CLICKS conversion action named ‘Qualified offline lead’ as secondary. Do not create it yet. Explain what separate upload or Data Manager workflow will still be required." actions={["copy"]}>
+</Prompt>
+
+# Import a GA4 key event
+
+A GA4 import requires the exact, case-sensitive key-event name. If more than one linked property exposes the same name, provide the GA4 property ID as a number or in properties/123456789 format.
+
+## Prerequisites
+
+- The GA4 property is linked to the intended Google Ads customer.
+- The event exists in GA4 and is marked as a key event.
+- Google Ads has synchronized and exposed the event as eligible to import.
+- The event has not already been imported into that customer.
+
+For an import, you can set a name, category, primary status, default value, and default-value behavior. Counting type, attribution model, and a custom creation status are not accepted during import. The imported action becomes enabled.
+
+If the event is already imported, HireOtto returns the existing state instead of creating a duplicate. If multiple properties match, the operation stops and asks for a property ID.
+
+## Example: import as secondary
+
+<Prompt description="List GA4 key events available to import for customer 123-456-7890. Find the exact event generate\_lead in property 123456789. If it is eligible and not already imported, prepare an import with primary for goal false. Show the match and wait for approval." actions={["copy"]}>
+</Prompt>
+
+Validate the event’s trigger, parameters, consent behavior, and observed data in GA4 before using it for optimization. Importing an event is not measurement QA.
+
+# Update an existing action
+
+Provide the conversion action ID or full resource name and at least one field to change. Only the supplied fields are updated; omitted fields remain unchanged.
+
+## Supported update fields
+
+- name
+- status, when Google Ads allows it
+- category
+- counting type: ONE\_PER\_CLICK or MANY\_PER\_CLICK
+- primary for goal
+- default value of zero or greater
+- always use default value
+- an eligible attribution model
+- click-through lookback window from 1 to 90 whole days
+- view-through lookback window from 1 to 30 whole days
+
+The legacy include\_in\_conversions\_metric field cannot be changed. Use primary for goal to manage primary-versus-secondary behavior where the action supports it.
+
+Google Ads may reject a field because the action’s source, owner, type, or current eligibility makes it read-only. HireOtto does not change an action’s source, owner, ID, or resource identity.
+
+## Example: change value behavior
+
+<Prompt description="Read conversion action 987654321 for customer 123-456-7890. Show its current default value and always-use-default-value setting. Prepare an update to set the default value to 250 and always use the default value. Wait for approval, apply only those fields, then read them back." actions={["copy"]}>
+</Prompt>
+
+## Example: change a lookback window
+
+<Prompt description="For conversion action 987654321, show the current click-through and view-through windows. Prepare a change to 30 click-through days and 7 view-through days. Explain the reporting impact and wait for approval." actions={["copy"]}>
+</Prompt>
+
+## Example: promote a validated action
+
+<Prompt description="Read conversion action 987654321 and summarize its last 30 days of data. If it is currently secondary, prepare—but do not apply—a change to primary for goal true. Show which campaigns or goals may be affected and wait for approval." actions={["copy"]}>
+</Prompt>
+
+# Recommended review sequence
+
+1. List existing conversion actions and identify the intended action by customer ID and action ID.
+2. Check for duplicates and confirm whether the source is native Google Ads, GA4, or offline upload.
+3. Review ownership, status, primary status, counting, value behavior, attribution, and lookback windows.
+4. Prepare one action or one class of updates with exact before-and-after values.
+5. Wait for practitioner approval before a write.
+6. Apply the change and read the live action back.
+7. Validate measurement data separately before allowing the signal to influence bidding.
+
+# Limits and common failure cases
+
+## The action already exists
+
+A duplicate name or equivalent outcome can fragment reporting and bidding signals. List actions first. GA4 imports also stop when the exact event is already imported.
+
+## The GA4 key event is missing or ambiguous
+
+Confirm the property link, exact case-sensitive name, key-event status, and synchronization. If several properties expose the same name, supply the property ID.
+
+## The field is unsupported for that operation
+
+GA4 import does not accept counting type, attribution model, or a custom status. New native actions cannot be created paused. Update support varies by action source and eligibility.
+
+## A value or window is invalid
+
+Default value must be zero or greater. Click-through windows must be whole numbers from 1 to 90 days; view-through windows must be whole numbers from 1 to 30 days.
+
+## Google Ads rejects the write
+
+Check the connected identity, customer access, action owner, source, current status, and Google Ads eligibility. A manager-account view does not guarantee edit permission in every client account.
+
+## The action exists but no data arrives
+
+For website actions, confirm tag or GTM implementation, consent, trigger conditions, and network requests. For GA4 imports, validate the event in GA4 and allow for reporting delay. For upload actions, confirm the separate ingestion workflow. HireOtto’s configuration response is not proof that measurement is firing.
+
+## A change alters bidding or reporting
+
+Primary status, attribution, counting, value behavior, and lookback windows can change how conversions appear or influence automated bidding. Review downstream goals and campaigns before applying the change.
+
+# Related documentation
+
+- Google Ads quickstart — [https://docs.hireotto.com/quickstart](https://docs.hireotto.com/quickstart)
+- Authentication — [https://docs.hireotto.com/authentication-1](https://docs.hireotto.com/authentication-1)
+- Google Ads MCP tools reference — [https://docs.hireotto.com/google-ads-mcp-tools](https://docs.hireotto.com/google-ads-mcp-tools)
+- Video walkthrough: manage Google Ads conversions with AI — [https://docs.hireotto.com/manage-google-ads-conversions-with-ai](https://docs.hireotto.com/manage-google-ads-conversions-with-ai)
+- Plans and pricing — [https://hireotto.com/pricing](https://hireotto.com/pricing)
+- Product changelog — [https://docs.hireotto.com/changelog](https://docs.hireotto.com/changelog)
