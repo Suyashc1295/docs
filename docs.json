@@ -56,6 +56,12 @@
             ]
           },
           {
+            "group": "Google Tag Manager",
+            "pages": [
+              "tag-manager/quickstart"
+            ]
+          },
+          {
             "group": "Support",
             "pages": [
               "faq",

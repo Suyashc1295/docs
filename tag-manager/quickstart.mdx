@@ -1,0 +1,140 @@
+---
+title: "Connect Google Tag Manager to Claude, ChatGPT, and AI tools"
+description: "Connect HireOtto’s Google Tag Manager MCP server to inspect the accounts, containers, workspaces, tags, triggers, variables, folders, and tag wiring available to your Google login."
+sidebarTitle: "GTM quickstart"
+---
+
+## **What you need**
+
+- An AI client that supports remote HTTP MCP servers and OAuth, such as Claude, ChatGPT, Make, Grok, or another compatible client.
+- A HireOtto trial or paid plan. Tag Manager inspection is available on Free, Starter, Pro, and Agency.
+- A Google login that can already open the Tag Manager accounts and containers you want to inspect.
+
+You do not need a Google Cloud project, API key, JSON credential file, terminal, or local server.
+
+## **Connect the MCP server**
+
+Add a new remote MCP connection in your AI client and use:
+
+```text
+https://tagmanager.hireotto.com/mcp
+```
+
+Name the connection something clear, such as **HireOtto — Tag Manager**. Choose OAuth if the client asks for an authentication method, complete the HireOtto sign-in, and enable the server for the current chat or agent.
+
+Client menus change over time. Look for **Apps**, **Connectors**, **Tools**, **Integrations**, or **MCP**. Configure HireOtto as a remote HTTP server, not a local command or stdio process.
+
+## **Authorize Google Tag Manager**
+
+Connecting the MCP server and connecting Google Tag Manager are two separate steps. Seeing HireOtto’s tools confirms the first connection only.
+
+1. Ask your AI client: _“Connect my Google Tag Manager account.”_
+2. Open the authorization link returned by HireOtto.
+3. Choose the Google login that has access to the required GTM accounts and containers.
+4. Grant the requested read-only Tag Manager permission.
+5. Accept HireOtto’s Terms of Use and Privacy Policy to finish the connection. Product-update emails remain optional.
+6. Close the confirmation window and return to your AI client.
+
+HireOtto requests Google’s read-only Tag Manager scope together with basic identity permissions used to identify the connected Google login. It stores the resulting connection so it can refresh access when needed. You never paste a Google password, access token, or refresh token into the conversation.
+
+## **Verify the connection**
+
+Start with a small read request:
+
+List my Google Tag Manager accounts and the web containers inside each one. Include the account ID, container ID, public GTM ID, container name, and usage context.
+
+A successful response confirms that both connections work: your AI client can reach HireOtto, and HireOtto can read Tag Manager using the Google identity you authorized.
+
+Check that the returned account, container name, and public GTM-\* ID match the property you intended to connect before moving to a larger review.
+
+## **Default and named profiles**
+
+The authentication action accepts one optional parameter:
+
+| Parameter | Required | Default | Use |
+| :-- | :-- | :-- | :-- |
+| profile\_id | No | default | Labels the connected Google login so it can be selected in later Tag Manager requests. |
+
+Free, Starter, and Pro use the default profile. Agency supports multiple connected Google profiles. When you need another Google login on Agency, use a distinct, recognizable profile name such as client-mcc-west or agency-ops.
+
+A profile name is only a label. Giving the same Google login a different name does not expose additional GTM accounts or containers. A profile name also cannot contain a colon (:).
+
+## **What you can inspect**
+
+After authentication, HireOtto can read:
+
+- Accessible Tag Manager accounts and containers
+- Container lookup by public GTM-\* ID or supported destination ID
+- Workspaces
+- Tags, firing triggers, blocking triggers, and trigger conditions
+- User-defined and built-in variables
+- Folders
+- Live published container inventory or a selected workspace inventory
+- Structured tag-wiring summaries and CSV exports
+
+The server can also scan public website HTML for GTM, GA4, Google Ads, forms, booking tools, consent signals, and related tracking clues. That scan is read-only and separate from GTM authorization. It inspects static HTML, so it cannot prove that interaction-based tags fire correctly on JavaScript-rendered pages.
+
+## **Read and write scope**
+
+| Workflow | Current support |
+| :-- | :-- |
+| List and inspect GTM configuration | Read |
+| Review live or workspace tag wiring | Read |
+| Export inventory to CSV | Read/export |
+| Scan a public website for tracking signals | Read-only external scan |
+| Create or edit tags, triggers, variables, or folders | Not supported |
+| Create container versions or publish a container | Not supported |
+
+HireOtto’s OAuth permission and current tools are read-only. Any change to a GTM container must still be reviewed and made in Google Tag Manager.
+
+## **Useful first requests**
+
+### **Find the right container**
+
+List my Tag Manager accounts and web containers. Show the account ID, container ID, public GTM ID, container name, domains, and a direct Tag Manager link where available.
+
+### **Inspect the live container**
+
+Inspect the live published setup for GTM-XXXXXXX. Summarize tags, firing and blocking triggers, important parameters, variables, folders, and anything that needs a closer human review. Do not change anything.
+
+### **Review an unpublished workspace**
+
+List the workspaces in this container. Then inspect the workspace I select and explain how its tag wiring differs from what I should verify in Preview mode. Do not publish anything.
+
+A workspace can contain unpublished changes and may not match what visitors currently receive. Use the live source for production-state reviews; choose a workspace only when you intentionally want to inspect draft configuration.
+
+## **Common setup problems**
+
+### **The server connects, but no Tag Manager tools appear**
+
+- Confirm the endpoint is exactly [https://tagmanager.hireotto.com/mcp](https://tagmanager.hireotto.com/mcp).
+- Complete the AI client’s HireOtto OAuth flow.
+- Enable the connector in the current chat or agent.
+- Refresh or reconnect the server if the client cached its tool list.
+
+### **HireOtto says Tag Manager is not connected**
+
+Run the connect prompt again, open the newest authorization link, and finish both Google authorization and the final HireOtto consent step. Returning to the chat before completing the final step can leave the platform connection unfinished.
+
+### **No accounts or containers appear**
+
+- Open Google Tag Manager directly with the same Google login and confirm the resource is visible there.
+- Reconnect using the Google identity that actually has access.
+- If you need a second Google login, use a separate named profile on Agency.
+- Remember that HireOtto cannot bypass Google’s account and container permissions.
+
+### **Access worked earlier but now fails**
+
+Google access may need to be reauthorized after a revoked grant, password or security-policy change, missing refresh permission, or expired connection. Reconnect Tag Manager and retry the same small account-list request.
+
+### **A named profile is rejected**
+
+Non-default profiles require Agency or Enterprise access. Use default on other plans, and remove any colon from the profile name.
+
+### **The request is blocked by the plan or credits**
+
+Tag Manager inspection is available across plans, but the free trial ends after 14 days or 200 credits, whichever comes first. Starter and Pro use monthly credits; Agency includes unlimited credits. Expired access, inactive billing, exhausted credits, or a disabled entitlement can block a request.
+
+## **Next step**
+
+Once the account and container are verified, continue with the Tag Manager tools reference or the container inventory and tag-wiring guide. For a first review, inspect the live published container and keep the request read-only.
