@@ -58,7 +58,8 @@
           {
             "group": "Google Tag Manager",
             "pages": [
-              "tag-manager/quickstart"
+              "tag-manager/quickstart",
+              "tag-manager/tools-reference"
             ]
           },
           {

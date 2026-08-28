@@ -1,0 +1,246 @@
+---
+sidebarTitle: "GTM MCP tools reference"
+title: "Google Tag Manager MCP tools reference"
+description: "Use HireOtto’s Google Tag Manager MCP tools to find accessible GTM resources, inspect a live container or workspace, understand how tags and triggers are wired, export that inventory, and scan public website HTML for tracking signals."
+---
+
+## **Before using the tools**
+
+Connect the remote MCP server, then run authenticate\_tag\_manager to authorize a Google login with access to the required Tag Manager accounts and containers. The [Tag Manager quickstart](https://docs.hireotto.com/tag-manager/quickstart) covers the complete connection flow.
+
+Free, Starter, Pro, and Agency include Tag Manager inspection. Free, Starter, and Pro use one default Google profile. Agency supports multiple connected Google profiles. Normal trial, credit, billing, entitlement, and Google permission checks still apply.
+
+## **Tool summary**
+
+| Tool | Use it for | Changes GTM? |
+| :-- | :-- | :-- |
+| authenticate\_tag\_manager | Connect or reconnect a Google login | No |
+| list\_gtm\_accounts | List GTM accounts visible to the connected login | No |
+| list\_gtm\_containers | List containers under one GTM account | No |
+| lookup\_gtm\_container | Resolve a public GTM or destination ID to a container | No |
+| list\_gtm\_workspaces | List workspaces inside a container | No |
+| get\_gtm\_container\_inventory | Inspect live or workspace configuration and tag wiring | No |
+| scan\_website\_tracking | Scan public HTML for tracking and conversion-point signals | No |
+| get\_billing\_status | Check plan, credits, access period, and entitlements | No |
+
+## **authenticate\_tag\_manager**
+
+Returns a Google authorization link. Open it, choose the Google identity that can access the required GTM resources, grant read-only Tag Manager permission, and finish the HireOtto consent step.
+
+| Parameter | Required | Default | Description |
+| :-- | :-- | :-- | :-- |
+| profile\_id | No | default | Labels the connected Google login. Non-default profiles require Agency. A profile ID cannot contain a colon. |
+
+Authentication does not modify GTM. The tool starts the authorization flow and returns the link that the user must complete.
+
+### **Example**
+
+<Prompt description="Connect my Google Tag Manager account using the default profile." actions={["copy"]}>
+</Prompt>
+
+## **list\_gtm\_accounts**
+
+Lists every Tag Manager account visible to the selected Google profile. Use it as the first verification request after authentication.
+
+| Parameter | Required | Default | Description |
+| :-- | :-- | :-- | :-- |
+| profile\_id | No | default | Selects the connected Google profile. |
+| include\_raw | No | false | Includes Google’s underlying response fields in addition to HireOtto’s normalized fields. |
+
+The normalized response includes the account ID, name, path, share information, and account-level metadata where Google provides it.
+
+### **Example**
+
+<Prompt description="List the GTM accounts available to my default Google profile. Show account names and IDs. Do not include raw data." actions={["copy"]}>
+</Prompt>
+
+## **list\_gtm\_containers**
+
+Lists the containers under a selected GTM account.
+
+| Parameter | Required | Default | Description |
+| :-- | :-- | :-- | :-- |
+| account\_id | Yes | — | GTM account ID. A full account path is also accepted. |
+| profile\_id | No | default | Selects the connected Google profile. |
+| include\_raw | No | false | Adds Google’s underlying fields. |
+
+The normalized response includes each container’s internal ID, public GTM-\* ID, name, domains, usage context, Tag Manager URL, path, and fingerprint where available.
+
+### **Example**
+
+<Prompt description="List the web containers in GTM account 123456. Include the container ID, public GTM ID, name, domains, and Tag Manager URL." actions={["copy"]}>
+</Prompt>
+
+## **lookup\_gtm\_container**
+
+Resolves a public tracking identifier to the matching GTM container available to the connected Google profile. This is useful when a website scan finds an ID but you do not know its account or internal container ID.
+
+| Parameter | Required | Default | Description |
+| :-- | :-- | :-- | :-- |
+| tag\_id | Conditional | — | Public Tag Manager ID such as GTM-ABC1234. |
+| destination\_id | Conditional | — | Supported Google destination ID such as a G-\* ID. |
+| profile\_id | No | default | Selects the connected Google profile. |
+| include\_raw | No | false | Adds Google’s underlying fields. |
+
+Provide tag\_id or destination\_id. If neither is supplied, the request is rejected locally.
+
+### **Example**
+
+<Prompt description="Resolve GTM-ABC1234 to the GTM account and container I can access. Show the internal container ID and direct Tag Manager URL." actions={["copy"]}>
+</Prompt>
+
+## **list\_gtm\_workspaces**
+
+Lists the workspaces inside a selected container. Use this before inspecting unpublished configuration.
+
+| Parameter | Required | Default | Description |
+| :-- | :-- | :-- | :-- |
+| account\_id | Yes | — | GTM account ID. |
+| container\_id | Yes | — | Internal GTM container ID, not the public GTM-\* ID. |
+| profile\_id | No | default | Selects the connected Google profile. |
+| include\_raw | No | false | Adds Google’s underlying fields. |
+
+The response includes workspace IDs, names, descriptions, paths, fingerprints, and Tag Manager URLs where available.
+
+### **Example**
+
+<Prompt description="List the workspaces in account 123456, container 789012. Tell me which workspace ID belongs to “Default Workspace.”" actions={["copy"]}>
+</Prompt>
+
+## **get\_gtm\_container\_inventory**
+
+Returns a normalized view of tags, triggers, variables, built-in variables, folders, and joined tag wiring for either the live published container or a workspace.
+
+Use source="live" when you want to understand what the published container currently serves. Use source="workspace" when reviewing draft or unpublished configuration.
+
+| Parameter | Required | Default | Accepted values and behavior |
+| :-- | :-- | :-- | :-- |
+| account\_id | Yes | — | GTM account ID. |
+| container\_id | Yes | — | Internal GTM container ID. |
+| workspace\_id | No | — | Used only with source="workspace". If omitted for a workspace request, HireOtto prefers “Default Workspace,” then falls back to the first available workspace. |
+| source | No | live | live or workspace. A workspace ID cannot be combined with live. |
+| profile\_id | No | default | Selects the connected Google profile. |
+| include\_raw | No | false | Adds Google’s underlying entity data. Leave off for normal marketer-facing reviews. |
+| output\_mode | No | summary\_and\_csv | summary, summary\_and\_csv, or csv\_only. Unsupported values fall back to summary\_and\_csv. |
+| limit | No | 50 | Inline tag-wiring rows. Range: 1–5,000. This does not reduce the normalized entity inventory. |
+| export\_limit | No | 5000 | Maximum flattened CSV rows. Range: 1–50,000. |
+| export\_ttl\_minutes | No | 30 | How long the signed CSV link remains available. Range: 1–1,440 minutes. |
+
+### **What the inventory returns**
+
+- Counts for tags, triggers, variables, built-in variables, and folders
+- The selected workspace or published container-version metadata
+- Normalized tag details, including type, paused state, folder, and important parameters
+- Firing and blocking triggers with condition summaries
+- A plain-language wiring summary for each tag
+- Optional raw entity fields
+- Optional flattened CSV export
+
+CSV rows represent tag-to-trigger relationships. A single tag can produce several rows when it has multiple firing or blocking triggers, so the export row count can be higher than the tag count.
+
+### **Output modes**
+
+| Mode | Inline response | CSV | Best for |
+| :-- | :-- | :-- | :-- |
+| summary | Inventory plus limited inline tag wiring | No | Smaller reviews inside the conversation |
+| summary\_and\_csv | Inventory plus limited inline tag wiring | Yes, when wiring rows exist | Default review with a downloadable working file |
+| csv\_only | Identifiers, source, counts, and export metadata | Yes, when wiring rows exist | Large containers or spreadsheet analysis |
+
+### **Examples**
+
+<Prompt description="Inspect the live published configuration for account 123456 and container 789012. Summarize the first 100 tag-wiring rows and include a CSV export. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="Inspect workspace 7 in account 123456, container 789012. Show tags with no firing trigger, paused tags, blocking triggers, and important Google Ads or GA4 parameters. Use summary output only." actions={["copy"]}>
+</Prompt>
+
+## **scan\_website\_tracking**
+
+Scans public website HTML for tracking identifiers and likely conversion points. The tool starts from the supplied URL, uses sitemap discovery when possible, and falls back to links found on the homepage. It prioritizes pages such as contact, booking, demo, pricing, checkout, and confirmation pages.
+
+This tool requires a connected HireOtto server and eligible plan access, but it does not require a Google Tag Manager platform connection because it reads publicly served HTML.
+
+| Parameter | Required | Default | Accepted values and behavior |
+| :-- | :-- | :-- | :-- |
+| url | Yes | — | Public HTTP or HTTPS website URL. A missing scheme is treated as HTTPS. |
+| max\_pages | No | 6 | Maximum automatically selected pages. Range: 1–10. |
+| additional\_urls | No | None | Force-includes pages discovery may miss, such as an unlinked thank-you page. The final deduplicated scan is capped at 10 URLs. |
+| timeout\_seconds | No | 10 | Per-request timeout. Range: 3–30 seconds. |
+
+### **Signals returned**
+
+- GTM container IDs and install-loader signals
+- GA4 measurement IDs, Google Ads conversion IDs, and legacy Universal Analytics IDs
+- Forms, telephone links, email links, iframes, and recognized form or booking providers
+- Consent-management and JavaScript-framework signals
+- HTTP status, final URL after redirects, page-level errors, and a cross-page summary
+- Warnings for inconsistent GTM IDs or suspected duplicate installations
+
+### **Important limitation**
+
+The scan reads static HTML. It does not execute the page like a browser, click elements, submit forms, enter consent states, or prove that a tag fired. Client-rendered content and interaction-triggered tags can be missed. Treat the result as discovery evidence and follow it with GTM Preview mode and live browser QA before declaring a tracking setup correct or broken.
+
+### **Example**
+
+<Prompt description="Scan [https://example.com](https://example.com) for tracking signals. Include up to 8 discovered pages and force-include [https://example.com/thank-you](https://example.com/thank-you). Report GTM, GA4 and Ads IDs, forms, booking tools, consent signals, inconsistent IDs, page failures, and anything that needs live browser verification." actions={["copy"]}>
+</Prompt>
+
+## **get\_billing\_status**
+
+Returns the current HireOtto plan, billing state, access period, credits included and used, remaining credits where applicable, entitlement flags, and available upgrade links.
+
+This tool has no parameters and does not consume or modify GTM data.
+
+### **Example**
+
+<Prompt description="Show my HireOtto plan, remaining credits, access period, and whether Tag Manager and multi-profile access are enabled." actions={["copy"]}>
+</Prompt>
+
+## **Shared behavior and limits**
+
+- **Read-only:** No current tool creates, edits, deletes, versions, or publishes GTM entities.
+- **Google permissions:** Results are limited to resources visible to the selected Google login.
+- **Profiles:** default is used when profile\_id is omitted. Non-default profiles require Agency.
+- **Raw data:** include\_raw=false is the recommended default. Enable it only when normalized fields are insufficient.
+- **IDs:** Account, container, and workspace tools use Google’s internal numeric IDs. A public GTM-\* ID is accepted by the lookup tool, not as container\_id.
+- **Exports:** Inventory CSV links are signed and expire after the requested TTL. Regenerate an expired export instead of reusing the old URL.
+- **Credits:** Listing and lookup requests are lighter than a full inventory. Website-scan usage scales with pages scanned. Agency includes unlimited credits.
+
+## **Common failures**
+
+### **Tag Manager is not connected**
+
+Run authenticate\_tag\_manager, open the newest link, finish Google authorization and HireOtto consent, then retry list\_gtm\_accounts.
+
+### **The selected profile does not exist**
+
+Use default, or reconnect the intended Google login with the exact named profile on Agency.
+
+### **An account, container, or workspace is missing**
+
+Confirm that the selected Google login can open the resource directly in Tag Manager. Check that you used the internal numeric ID in the correct field. HireOtto cannot bypass Google permissions.
+
+### **The live inventory fails**
+
+A live request requires an available published container version. If the container has no usable live version, list workspaces and inspect a workspace instead, clearly labeling it as unpublished configuration.
+
+### **The workspace request fails**
+
+Use source="workspace". Do not combine workspace\_id with source="live". If the chosen workspace no longer exists, list workspaces again and use the current ID.
+
+### **The website scan misses a form or tag**
+
+Check for JavaScript-framework signals, consent-gated tags, embedded applications, authentication requirements, or interaction-based loading. Add known confirmation pages explicitly, then verify behavior in a real browser and GTM Preview mode.
+
+### **A request is blocked before reaching Google**
+
+Expired trial access, inactive billing, exhausted credits, a disabled entitlement, or use of an Agency-only named profile can block the request. Run get\_billing\_status for the current state.
+
+## **Recommended review sequence**
+
+1. List accounts and choose the correct account ID.
+2. List containers and verify the public GTM-\* ID.
+3. Inspect the live container inventory first.
+4. List and inspect a workspace only when unpublished work matters.
+5. Scan the public website to compare served identifiers with GTM configuration.
+6. Use GTM Preview mode and browser QA for firing behavior.
