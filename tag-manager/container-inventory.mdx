@@ -1,0 +1,301 @@
+---
+title: "Review a GTM container inventory and tag wiring with HireOtto"
+description: "Inspect live or workspace GTM configuration, trace tags to firing and blocking triggers, and export a review-ready inventory without changing the container."
+sidebarTitle: "Review container & tag wiring"
+---
+
+Use HireOtto to turn a Google Tag Manager container into a readable inventory of tags, triggers, variables, folders, and tag-to-trigger relationships. The workflow is read-only: it cannot create, edit, version, or publish anything in GTM.
+
+Start with the live published container when you need to understand what is currently configured for production. Inspect a workspace only when you intentionally want to review draft or unpublished configuration.
+
+> The inventory explains configuration. It does not prove that a tag fired in a browser, that a consent state allowed it, or that the destination received data. Use GTM Preview mode and live browser QA for runtime validation.
+
+## What this workflow helps you answer
+
+- Which tags, triggers, variables, built-in variables, and folders exist?
+- Which firing triggers are attached to each tag?
+- Which blocking triggers can prevent a tag from firing?
+- Which tags are paused or have no firing trigger attached?
+- Which important measurement IDs, event names, conversion IDs, or labels appear in the configuration?
+- Is the review based on the live published version or an unpublished workspace?
+- Should the result stay in the conversation or move to a CSV for deeper analysis?
+
+## Before you start
+
+You need:
+
+- A connected HireOtto Google Tag Manager server at `https://tagmanager.hireotto.com/mcp`.
+- A Google login that can already access the required GTM account and container.
+- The GTM account ID and internal numeric container ID. The public `GTM-XXXXXXX` identifier is not used as `container_id`.
+- A workspace ID only when you want to inspect a specific workspace.
+
+Tag Manager inspection is available on Free, Starter, Pro, and Agency. Free, Starter, and Pro use the `default` Google profile. Agency supports additional named Google profiles. Normal trial, billing, entitlement, credit, and Google permission checks still apply.
+
+If you have not connected Tag Manager yet, follow the [GTM quickstart](https://docs.hireotto.com/tag-manager/quickstart).
+
+## Choose the correct source
+
+| Source | What it represents | Use it when | Workspace ID |
+| --- | --- | --- | --- |
+| `live` | The currently published container version | You are reviewing production configuration | Not accepted |
+| `workspace` | Draft or unpublished configuration in a GTM workspace | You are reviewing work before it is versioned or published | Optional |
+
+`live` is the default. A live request cannot be combined with `workspace_id`.
+
+When `source="workspace"` and no workspace ID is supplied, HireOtto prefers a workspace named `Default Workspace`. If it is unavailable, HireOtto uses the first accessible workspace. Supply the ID when the exact workspace matters.
+
+Do not describe workspace inventory as production state. A workspace can contain changes that visitors do not receive.
+
+## Run a container inventory
+
+For a normal production review, ask:
+
+```text
+Inspect the live published configuration for GTM account 123456 and internal container 789012.
+Summarize its tags, firing and blocking triggers, variables, folders, paused state,
+and important measurement parameters. Include a CSV export. Do not change anything.
+```
+
+For unpublished work, ask:
+
+```text
+Inspect workspace 7 in GTM account 123456 and internal container 789012.
+Identify tags with no firing trigger, paused tags, blocking triggers, and configuration
+that needs human review. Use summary output only. Do not publish anything.
+```
+
+## Parameters and defaults
+
+| Parameter | Required | Default | Accepted values and behavior |
+| --- | --: | --- | --- |
+| `account_id` | Yes | — | GTM account ID. |
+| `container_id` | Yes | — | Internal numeric GTM container ID, not the public `GTM-*` ID. |
+| `workspace_id` | No | — | Used only with `source="workspace"`. |
+| `source` | No | `live` | `live` or `workspace`. Other values are rejected. |
+| `profile_id` | No | `default` | Selects the connected Google profile. Non-default profiles require Agency. |
+| `include_raw` | No | `false` | Adds Google’s underlying entity fields. Leave disabled for normal marketer-facing reviews. |
+| `output_mode` | No | `summary_and_csv` | `summary`, `summary_and_csv`, or `csv_only`. Unsupported values fall back to `summary_and_csv`. |
+| `limit` | No | `50` | Maximum inline tag-wiring entries. Range: 1–5,000. It does not reduce the normalized entity inventory. |
+| `export_limit` | No | `5000` | Maximum flattened CSV rows. Range: 1–50,000. |
+| `export_ttl_minutes` | No | `30` | Signed CSV-link lifetime. Range: 1–1,440 minutes. |
+
+## What the inventory returns
+
+### Source context
+
+The response identifies the GTM account and container and labels the result as `live` or `workspace`.
+
+A live inventory includes available published container-version metadata. A workspace inventory includes the selected workspace details.
+
+Always verify this context before interpreting the configuration.
+
+### Entity counts and normalized inventory
+
+The response includes counts and normalized lists for:
+
+- Workspaces
+- Tags
+- Triggers
+- User-defined variables
+- Built-in variables
+- Folders
+
+Normalized tag details can include the tag type, paused state, folder, trigger IDs, and important parameters such as measurement IDs, event names, conversion IDs, or conversion labels where present.
+
+`include_raw=false` is the recommended default. Enable raw fields only when the normalized view cannot answer a specific question.
+
+### Joined tag wiring
+
+The tag-wiring view joins each tag to:
+
+- Its firing triggers
+- Human-readable trigger-condition summaries
+- Its blocking triggers
+- Its folder
+- Its paused state
+- Selected important parameters
+- A plain-language summary of when the tag is configured to fire and when it can be blocked
+
+Built-in All Pages, Consent Initialization, and Initialization triggers are recognized in the wiring view when Google represents them as system trigger IDs.
+
+A missing firing trigger is a review signal, not an automatic error. Confirm the tag’s purpose and inspect the configuration in GTM before deciding what to change.
+
+## Review the inventory step by step
+
+### 1. Confirm the account, container, and source
+
+Check that the returned account ID, internal container ID, public GTM ID from the earlier container lookup, and source match the property you intended to review.
+
+Do not continue from a plausible-looking container name alone.
+
+### 2. Scan the counts
+
+Use the counts to orient the review:
+
+- An unexpectedly empty live container may not have a usable published version.
+- A workspace with many more entities than expected may contain unfinished work.
+- Very low trigger or variable counts can indicate a simple implementation, not necessarily a problem.
+
+Counts tell you where to inspect. They do not establish tracking quality.
+
+### 3. Trace each important tag
+
+For every conversion, analytics, remarketing, and consent-related tag, check:
+
+- Is it paused?
+- Which firing triggers are attached?
+- What conditions do those triggers use?
+- Are blocking triggers attached?
+- Which measurement or conversion identifiers appear?
+- Is it organized in the expected folder?
+
+Start with commercially important outcomes such as lead submissions, purchases, bookings, phone calls, and qualified funnel events.
+
+### 4. Review exceptions
+
+Create a review queue for:
+
+- Tags with no firing trigger
+- Paused tags that may still be expected
+- Very broad firing conditions
+- Blocking conditions that may prevent intended measurement
+- Duplicate-looking tags or destination identifiers
+- Unfamiliar custom HTML
+- Naming or folder organization that makes ownership unclear
+
+Treat these as questions for investigation. Do not label a tag broken from configuration evidence alone.
+
+### 5. Check variables and folders
+
+Variables help explain how identifiers, event values, URLs, selectors, and other settings are supplied to tags and triggers. Folders help identify ownership and organization.
+
+The inventory lists these entities, but the flattened CSV focuses on tag-to-trigger relationships. Use the normalized response when the complete variable or folder inventory matters.
+
+### 6. Move large reviews to CSV
+
+Use CSV when the container is too large for a useful conversational review or when you want to filter by tag type, paused state, trigger role, folder, or important parameters.
+
+One tag can produce several CSV rows because firing and blocking relationships are flattened. A tag with no attached firing or blocking trigger produces a row with trigger role `none`. Therefore, CSV row count can be higher than tag count.
+
+## Output modes
+
+| Mode | Inline response | CSV | Best for |
+| --- | --- | --- | --- |
+| `summary` | Full normalized inventory plus tag wiring limited by `limit` | No | Focused reviews inside the conversation |
+| `summary_and_csv` | Full normalized inventory plus limited inline tag wiring | Yes, when wiring rows exist | Default review with a downloadable working file |
+| `csv_only` | IDs, source, counts, and export metadata | Yes, when wiring rows exist | Large containers and spreadsheet analysis |
+
+The `limit` parameter affects only inline tag wiring. It does not truncate the normalized lists of tags, triggers, variables, built-in variables, folders, or workspaces.
+
+`export_limit` applies after the relationships are flattened. Check the returned total, inline, CSV, and exported row counts to see whether the response or export was limited.
+
+## Practical review patterns
+
+### Find tags without a firing trigger
+
+```text
+Inspect the live container. List every tag with no firing trigger attached.
+For each one, show its tag type, paused state, folder, and important parameters.
+Treat the result as a review queue, not proof that the tag is broken.
+```
+
+### Review Google Ads and GA4 measurement wiring
+
+```text
+Inspect the live container and isolate Google Ads conversion, remarketing, Google tag,
+GA4 configuration, and GA4 event tags. Show their identifiers, event names, firing
+conditions, blocking conditions, paused state, and folders. Flag ambiguous wiring for
+human review. Do not change GTM.
+```
+
+### Prepare a pre-publish workspace review
+
+```text
+Inspect workspace 7. Summarize its tag wiring and identify paused tags, tags without
+firing triggers, broad trigger conditions, blocking triggers, duplicate-looking
+identifiers, and custom HTML that needs manual inspection. Label the result unpublished.
+```
+
+### Export a large container
+
+```text
+Inspect the live container using csv_only. Export up to 20,000 flattened wiring rows
+and keep the link available for 60 minutes. Report the tag count, total wiring count,
+exported row count, and whether the export was limited.
+```
+
+## Read and write scope
+
+| Workflow | Current support |
+| --- | --- |
+| List and inspect accounts, containers, workspaces, and entities | Read |
+| Inspect live published configuration | Read |
+| Inspect unpublished workspace configuration | Read |
+| Export flattened tag wiring | Read/export |
+| Create or edit tags, triggers, variables, or folders | Not supported |
+| Create versions, resolve workspace changes, or publish a container | Not supported |
+
+HireOtto cannot bypass the permissions of the connected Google login. It also cannot apply a recommended repair. Make and publish any approved changes in Google Tag Manager.
+
+## Limits and interpretation
+
+- **Configuration is not runtime evidence.** The inventory cannot prove that a browser loaded GTM, a trigger activated, consent allowed a tag, or a destination recorded data.
+- **Live and workspace are different views.** The workflow does not automatically compare them. Run both explicitly when you need a side-by-side review.
+- **Inline wiring can be limited.** Increase `limit` or use CSV for large containers.
+- **Exports expire.** Regenerate a signed link after its requested TTL instead of reusing the old URL.
+- **No wiring rows means no CSV export.** Use the normalized entity inventory to understand an empty or unusual result.
+- **Permissions shape the result.** Missing resources can reflect the selected Google profile’s access.
+- **Usage rules still apply.** Inventory is a deeper request than account or container listing. Starter and Pro use monthly credits; Agency includes unlimited credits.
+- **Google API limits can cause transient failures.** Retry later when a request is rate-limited rather than treating it as a container problem.
+
+## Common failures
+
+### Tag Manager is not connected
+
+Run the Tag Manager authentication request, open the newest authorization link, complete Google authorization and HireOtto consent, then list accounts again.
+
+### The account or container is missing
+
+Open GTM using the same Google login and confirm that the resource is visible. Verify that `container_id` is Google’s internal numeric container ID. Use the container lookup workflow when you only know the public `GTM-*` identifier.
+
+### The live inventory fails
+
+A live request requires an available published container version. List workspaces and inspect a workspace instead when appropriate, but label the result as unpublished configuration.
+
+### The workspace request fails
+
+Set `source="workspace"`. Do not combine `workspace_id` with `source="live"`. If the workspace was renamed or removed, list current workspaces and select the current ID.
+
+### The wrong workspace was selected
+
+When a workspace ID is omitted, HireOtto chooses `Default Workspace` when available and otherwise uses the first accessible workspace. Supply the exact ID when that fallback is not acceptable.
+
+### A named profile is blocked
+
+Use `default` on Free, Starter, or Pro. Additional named Google profiles require Agency. Confirm the profile spelling and reconnect the intended Google identity when necessary.
+
+### The CSV link expired or the export is shorter than expected
+
+Run the inventory again with a suitable `export_ttl_minutes` value. Compare total wiring rows with exported rows and increase `export_limit` within the supported range when needed.
+
+### The inventory looks correct but tracking is still missing
+
+Move to runtime validation. Check the deployed GTM identifier, consent behavior, browser requests, GTM Preview mode, destination diagnostics, and the actual conversion journey. Configuration inspection alone cannot establish that measurement works.
+
+## Recommended workflow
+
+1. List accounts and confirm the intended account ID.
+2. List containers and match the public `GTM-*` ID to the internal container ID.
+3. Inspect `source="live"` first for production-state questions.
+4. Inspect a specific workspace only when unpublished work matters.
+5. Review tag wiring, important parameters, paused state, variables, and folders.
+6. Export large relationship sets to CSV.
+7. Turn anomalies into a human review queue.
+8. Validate firing behavior with GTM Preview mode and live browser QA.
+9. Make and publish approved changes in Google Tag Manager.
+
+## Related documentation
+
+- [Connect Google Tag Manager to HireOtto](https://docs.hireotto.com/tag-manager/quickstart)
+- [Google Tag Manager MCP tools reference](https://docs.hireotto.com/tag-manager/tools-reference)
+- [HireOtto plans and credits](https://hireotto.com/pricing)

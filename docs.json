@@ -59,7 +59,8 @@
             "group": "Google Tag Manager",
             "pages": [
               "tag-manager/quickstart",
-              "tag-manager/tools-reference"
+              "tag-manager/tools-reference",
+              "tag-manager/container-inventory"
             ]
           },
           {
