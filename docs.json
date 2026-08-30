@@ -64,6 +64,12 @@
             ]
           },
           {
+            "group": "Google Analytics",
+            "pages": [
+              "google-analytics/quickstart"
+            ]
+          },
+          {
             "group": "Support",
             "pages": [
               "faq",

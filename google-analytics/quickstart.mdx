@@ -1,0 +1,300 @@
+---
+title: "Connect Google Analytics 4 to Claude, ChatGPT, and AI tools"
+description: "Connect HireOtto’s read-only GA4 MCP server, authorize Google Analytics, verify accessible properties, and run your first report."
+sidebarTitle: "GA4 quickstart"
+---
+
+Connect HireOtto’s Google Analytics 4 server to analyze property configuration, acquisition, landing pages, events, comparisons, and recent activity from your AI workspace.
+
+Use this MCP endpoint:
+
+```text
+https://ga4.hireotto.com/mcp
+```
+
+<Info>
+  The Google Analytics 4 integration is available in beta. It is read-only: HireOtto can discover properties, inspect configuration, and run reports, but it cannot edit GA4 properties, data streams, key events, links, custom definitions, or other Analytics settings.
+</Info>
+
+## Before you start
+
+You need:
+
+- An AI client that supports remote MCP servers and OAuth
+- A HireOtto account with GA4 access and available usage
+- A Google login that can access the GA4 property you want to analyze
+
+You do not need to create a Google Cloud project, configure Analytics APIs, download credentials, or run a local server. HireOtto hosts the MCP server and manages the connection flow.
+
+## Connect the GA4 server
+
+The labels differ by AI client, but the sequence is the same:
+
+1. Open your AI client’s connectors, integrations, or MCP settings.
+2. Add a custom remote MCP server.
+3. Enter `https://ga4.hireotto.com/mcp`.
+4. Complete the HireOtto sign-in when prompted.
+5. Return to the conversation after the server connects.
+
+A successful MCP connection only proves that your AI client can reach HireOtto. You must authorize Google Analytics separately before the server can see any accounts or properties.
+
+## Authorize Google Analytics
+
+Ask your AI client:
+
+> Connect my Google Analytics account. Use the default profile.
+
+HireOtto returns a Google authorization link. Open it, then:
+
+1. Choose the Google login that has access to the required GA4 property.
+2. Review and grant the requested read-only Analytics permission.
+3. Accept HireOtto’s Terms and Privacy Policy to complete the connection.
+4. Return to your AI client.
+
+The default profile is named `default`. It is the right choice for most users and is available on every plan that includes GA4 beta access.
+
+<Warning>
+  Granting access to the wrong Google login is the most common reason a property does not appear. HireOtto can only list the Analytics accounts and properties visible to the login you authorized.
+</Warning>
+
+## Verify accounts and properties
+
+Before requesting a report, list the accessible accounts and properties:
+
+<Prompt description="List every Google Analytics account and GA4 property available to the default profile. Include the account name, account ID, property name, and property ID. Do not run a report yet." actions={["copy"]}>
+</Prompt>
+
+Confirm all four identifiers:
+
+- Account name
+- Account ID
+- Property display name
+- Property ID
+
+Use the property ID in later requests. This prevents a similarly named development, staging, regional, or client property from being selected by mistake.
+
+If the result is empty, check the connected Google login and its Analytics permissions. The MCP connection can be healthy even when the authorized login has no GA4 property access.
+
+## Inspect the property before reporting
+
+A configuration read is a useful first check:
+
+<Prompt description="For GA4 property `PROPERTY_ID`, summarize the property details, data streams, key events, Google Ads links, custom dimensions, and custom metrics. Read only; do not change anything." actions={["copy"]}>
+</Prompt>
+
+Replace `PROPERTY_ID` with the numeric ID returned by property discovery. You may also supply the full `properties/PROPERTY_ID` resource name.
+
+Configuration reads can reveal whether you selected the correct web or app stream and whether the measurement objects needed for analysis exist. They do not validate that a website tag fires correctly, that events contain the intended parameters, or that imported conversions are suitable for bidding.
+
+## Run a first standard report
+
+Start with a constrained question and an explicit date range:
+
+<Prompt description="For GA4 property `PROPERTY_ID`, report sessions and active users by session default channel group for the last 30 complete days. Compare with the previous 30 days, show the raw values and percentage change, and flag incompatible fields before running the report." actions={["copy"]}>
+</Prompt>
+
+HireOtto can inspect property-specific metadata and check whether the requested dimensions and metrics are compatible. Google Analytics rejects incompatible report combinations, so compatibility should be checked before a complex request.
+
+A good reporting prompt specifies:
+
+- The property ID
+- Exact start and end dates, or an unambiguous relative window
+- Dimensions
+- Metrics
+- Filters
+- Comparison period
+- Desired output
+
+For decision-making, keep the date range and raw values visible. A percentage change without its denominator can overstate a small movement.
+
+## Check recent activity
+
+Use a realtime report when you need recent activity rather than a historical date range:
+
+<Prompt description="For GA4 property `PROPERTY_ID`, show active users by country and device category from the realtime reporting window. Read only." actions={["copy"]}>
+</Prompt>
+
+Realtime reports use GA4’s recent activity window and do not accept standard historical date ranges. Use a standard report for yesterday, last week, month-over-month, or other historical comparisons.
+
+## Profile behavior
+
+The optional `profile_id` parameter selects which saved Google connection to use.
+
+| Parameter | Default | Behavior |
+| --- | --- | --- |
+| `profile_id` | `default` | Uses the primary Google Analytics connection. |
+| Named profile | None | Uses a separately authorized Google login. Named profiles require Agency or Enterprise access. |
+| Profile naming | — | Profile IDs cannot contain a colon. |
+
+Free, Starter, and Pro users should omit `profile_id` or use `default`. Agency and Enterprise users can authorize named profiles to keep client or business logins separate.
+
+To connect a named profile:
+
+<Prompt description="Connect Google Analytics using the profile ID `client_acme`." actions={["copy"]}>
+</Prompt>
+
+Then include that same profile ID in discovery and reporting requests:
+
+<Prompt description="Using the `client_acme` GA4 profile, list accessible accounts and properties." actions={["copy"]}>
+</Prompt>
+
+A profile separates saved authorization. It does not grant additional Google Analytics permissions. Each profile can only read the properties visible to its own Google login.
+
+## Read and write scope
+
+| Workflow | Access |
+| --- | --- |
+| Authenticate a Google login | Starts a read-only OAuth connection |
+| List accounts and properties | Read |
+| Inspect property details and data streams | Read |
+| Inspect key events, Google Ads links, and custom definitions | Read |
+| Discover property-specific dimensions and metrics | Read |
+| Check dimension and metric compatibility | Read |
+| Run standard and comparison reports | Read |
+| Run realtime reports | Read |
+| Export report rows | Read |
+| Create or edit properties, streams, events, key events, links, or custom definitions | Not supported |
+| Change attribution, retention, reporting identity, or other GA4 settings | Not supported |
+
+HireOtto’s GA4 integration does not write to Analytics, even if the connected Google user has an Administrator or Editor role.
+
+## Reporting defaults and limits
+
+These defaults apply when the AI client does not supply an override.
+
+### Standard reports
+
+| Setting | Default | Accepted behavior |
+| --- | --- | --- |
+| Maximum rows collected | 10,000 | Clamped to 1–100,000 rows |
+| Output mode | `summary_and_csv` | Returns an inline summary and a downloadable CSV when available |
+| Inline rows | 200 | Clamped to 1–5,000 rows |
+| CSV export rows | 50,000 | Clamped to 1–100,000 rows |
+| Export link lifetime | 30 minutes | Clamped to 1–1,440 minutes |
+
+If the report request includes its own lower row limit, that lower limit takes precedence.
+
+### Realtime reports
+
+| Setting | Default | Accepted behavior |
+| --- | --- | --- |
+| Output mode | `summary` | Returns an inline summary by default |
+| Inline rows | 500 | Clamped to 1–5,000 rows |
+| CSV export rows | 10,000 | Clamped to 1–10,000 rows |
+| Export link lifetime | 30 minutes | Clamped to 1–1,440 minutes |
+
+### Metadata and compatibility
+
+- Metadata search returns up to 500 dimensions and 500 metrics by default; the limit is clamped to 1–2,000 for each group.
+- Deprecated API names are excluded by default.
+- Compatibility checks return compatible fields by default.
+
+Large reports may be truncated at the requested or plan-supported limit. Download exports promptly because signed links expire.
+
+## Plans, beta status, and usage
+
+GA4 reporting is currently in beta.
+
+| Plan | GA4 beta access | Usage |
+| --- | --- | --- |
+| Free | Included during the trial | 14 days or 200 credits, whichever comes first |
+| Starter | Included | 2,000 credits per month |
+| Pro | Included | 5,000 credits per month |
+| Agency | Included | Unlimited usage and multiple profiles |
+| Enterprise | Contact HireOtto | Custom access and controls |
+
+Requests can be blocked when the trial ends, monthly credits are exhausted, a feature is outside the current plan, or a named profile is used without Agency or Enterprise access. Check the current [pricing page](https://hireotto.com/pricing) before relying on an entitlement.
+
+## Common failure cases
+
+### The server connects, but GA4 is not authorized
+
+The AI client-to-HireOtto connection succeeded, but the Google connection did not.
+
+Ask to connect Google Analytics again, open the authorization link, finish consent, and then retry property discovery.
+
+### No accounts or properties appear
+
+The authorized Google login has no visible GA4 properties, or it is the wrong login.
+
+Reconnect with the correct Google account or ask an Analytics administrator to grant that login access. Property discovery only returns resources accessible to the caller.
+
+### The expected property is missing
+
+Verify that you authorized the intended Google identity and that its access has not been removed. Search by both property display name and property ID.
+
+### A named profile is rejected
+
+Named profiles require Agency or Enterprise access. Use the `default` profile or change to a plan that supports multiple profiles.
+
+### Authorization worked before but now fails
+
+The Google token may have expired, been revoked, or lost the required scope. Reconnect the affected profile and repeat property discovery.
+
+### A report says dimensions and metrics are incompatible
+
+Remove or replace the incompatible fields. Ask HireOtto to search property metadata and check compatibility before rerunning the report.
+
+### A report returns no rows
+
+Confirm the property, date range, filters, and field names. No rows can also be a valid result when the property has no matching data. Do not broaden the request until you have verified the property and filters.
+
+### The output is incomplete
+
+Reduce the dimensions, narrow the date range, or request a CSV within the supported export limit. If the result reached a row cap, treat it as partial rather than as a complete account view.
+
+### A report is blocked by quota or usage
+
+Retry later for a temporary Google Analytics API quota response. For a HireOtto plan or credit block, review the account’s current entitlement and usage.
+
+## Practical prompts
+
+### Confirm the connection
+
+<Prompt description="Using the default GA4 profile, list accessible accounts and properties with names and IDs. Do not run a report." actions={["copy"]}>
+</Prompt>
+
+### Review measurement configuration
+
+<Prompt description="For property `PROPERTY_ID`, summarize data streams, key events, Google Ads links, custom dimensions, and custom metrics. Flag missing information but make no changes." actions={["copy"]}>
+</Prompt>
+
+### Review acquisition
+
+<Prompt description="For property `PROPERTY_ID`, compare sessions, active users, key events, and total revenue by session default channel group for the last 30 complete days versus the previous 30 days. Check compatibility first and preserve raw values." actions={["copy"]}>
+</Prompt>
+
+### Review landing pages
+
+<Prompt description="For property `PROPERTY_ID`, show landing pages by sessions, engaged sessions, engagement rate, key events, and total revenue for the last 28 complete days. Return the top 100 rows and identify pages that need investigation, not automatic changes." actions={["copy"]}>
+</Prompt>
+
+### Use property metadata before a custom report
+
+<Prompt description="Search the metadata for property `PROPERTY_ID` for dimensions and metrics related to campaigns, landing pages, revenue, and key events. Show API names and check whether my selected fields are compatible before running anything." actions={["copy"]}>
+</Prompt>
+
+### Keep profiles separate
+
+<Prompt description="Using the `client_acme` profile, list accessible properties. Confirm the account and property IDs before running a report." actions={["copy"]}>
+</Prompt>
+
+## Safe operating pattern
+
+For consequential analysis, use this sequence:
+
+1. Discover the live property.
+2. Confirm the exact property ID.
+3. Inspect relevant configuration.
+4. Check reporting metadata and compatibility.
+5. Run a small report with explicit dates.
+6. Review raw rows and any truncation notice.
+7. Expand or export only after the small report is correct.
+
+HireOtto can collect and organize GA4 evidence. The marketer still decides whether the measurement design is trustworthy and whether the data is strong enough to support a business decision.
+
+## Related pages
+
+- [Connect HireOtto to Claude, ChatGPT, or another AI tool](https://docs.hireotto.com/setup/connect-ai-tool)
+- [Google Analytics MCP beta](https://hireotto.com/analytics-mcp)
+- [Plans and pricing](https://hireotto.com/pricing)
