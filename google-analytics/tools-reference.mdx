@@ -1,0 +1,319 @@
+---
+title: "Google Analytics 4 MCP tools reference"
+description: "Discover GA4 properties, inspect configuration, choose compatible reporting fields, and retrieve standard or realtime reports with clear output limits."
+sidebarTitle: "Tools reference"
+---
+
+Use HireOtto’s GA4 tools to identify the right property, inspect its measurement configuration, and retrieve the rows needed to answer an acquisition, landing-page, or event question. Start with property discovery, check reporting fields, then run a small report before requesting a larger export.
+
+<Info>
+  GA4 is available in beta. Analytics access is read-only: none of these tools creates, edits, or deletes GA4 settings. Connecting a Google login saves an authorization in HireOtto; downloading a report creates an export, not a change in Analytics.
+</Info>
+
+## Connect and confirm access
+
+Add `https://ga4.hireotto.com/mcp` to your remote MCP-capable AI client, complete the HireOtto sign-in, then authorize Google Analytics separately. Use a Google login that can access the required property. See the [GA4 quickstart](/google-analytics/quickstart) for the complete flow.
+
+The Free trial, Starter, Pro, and Agency plans include GA4 beta. The trial provides 200 credits or 14 days, whichever comes first; Starter includes 2,000 monthly credits and Pro 5,000. Agency includes unlimited credits and multiple connected profiles. Creating named GA4 connections requires Agency or enabled Enterprise access. Google permissions and API quotas still apply on every plan. See [current pricing](https://hireotto.com/pricing).
+
+## Choose the right tool
+
+| Reader job | Tool title | What it does |
+| --- | --- | --- |
+| Connect or reconnect Google | Authenticate Google Analytics | Returns a read-only Google authorization link |
+| Find the intended property | List GA4 Accounts and Properties | Lists accessible accounts and properties with names and IDs |
+| Inspect measurement setup | Get GA4 Property Configuration | Reads property details, streams, key events, Ads links, and custom definitions |
+| Find valid reporting fields | Get GA4 Reporting Metadata | Searches property-specific dimensions and metrics |
+| Check a field combination | Check GA4 Report Compatibility | Checks Core reporting dimensions and metrics |
+| Analyze historical performance | Run GA4 Report | Retrieves a standard report, including supported comparisons and filters |
+| Check recent activity | Run GA4 Realtime Report | Retrieves recent activity using realtime fields and minute ranges |
+| Check HireOtto access or usage | Get Billing Status | Reads the current plan, usage, and access information |
+
+These tools do not install tags, send test events, mark key events, create Google Ads links, edit custom definitions, or change attribution, retention, or reporting identity. Inspecting configuration is not proof that tracking works in a browser or that the measurement design is suitable for bidding.
+
+## Shared inputs
+
+| Input | Required | Default | Meaning |
+| --- | --- | --- | --- |
+| `profile_id` | No | `default` | The saved Google connection to use; available on every GA4-specific tool |
+| `property_id` | Required except for authentication and account discovery | None | The numeric GA4 property ID or `properties/PROPERTY_ID` |
+
+Omitting `profile_id`, supplying `null`, or supplying a blank value selects `default`. Surrounding whitespace is removed. Profile IDs cannot contain a colon. Use the same profile for discovery and later property requests. A profile name does not extend the permissions of its Google login.
+
+Use a property ID returned by discovery, not the account ID or a web stream’s `G-...` measurement ID. `PROPERTY_ID` below is a placeholder to replace with your discovered property.
+
+## Authenticate Google Analytics
+
+**Input:** optional `profile_id`; default `default`.
+
+Returns a Google authorization link and identifies the selected profile. Open the link, choose the intended Google login, grant read-only Analytics permission, and finish the connection steps. Return to the AI client and list accounts and properties.
+
+<Prompt description="Connect Google Analytics using the default profile. After I finish authorization, list the properties that login can access." actions={["copy"]}>
+</Prompt>
+
+For a separate Agency connection:
+
+<Prompt description="Connect another Google Analytics login using profile `client_acme`. Keep subsequent discovery and reporting requests on that profile." actions={["copy"]}>
+</Prompt>
+
+The authorization-link response is not evidence that Google consent has finished. If access was revoked or reconnection is requested, repeat authorization for the affected profile.
+
+## List GA4 Accounts and Properties
+
+**Input:** optional `profile_id`; default `default`. No property ID is needed.
+
+Returns accounts and properties visible to the connected Google login. Accounts include a name and ID. Properties include a name, ID, type, and parent account name and resource. A property count is also returned. Discovery follows the available result pages; there is no user-supplied row-limit parameter on this tool.
+
+<Prompt description="List GA4 accounts and properties for the default profile. Show the account name, account ID, property name, and property ID so I can select the production property." actions={["copy"]}>
+</Prompt>
+
+An empty result means no properties were returned for that identity; it does not prove the server connection failed. Confirm that the same Google login can open the property in Analytics.
+
+## Get GA4 Property Configuration
+
+**Inputs:** required `property_id`; optional `profile_id`.
+
+Reads six sections:
+
+- Property details
+- Data streams
+- Key events
+- Google Ads links
+- Custom dimensions
+- Custom metrics
+
+Each section carries its own `status` and `data`. A section can return `status: error`, an HTTP status, a message, and `data: null` while other sections succeed. An overall successful tool response therefore does not mean every configuration section was read.
+
+<Prompt description="Inspect configuration for property `PROPERTY_ID`. Summarize all six sections and list any failed sections separately. Do not treat a failed key-events or Ads-links read as an empty configuration." actions={["copy"]}>
+</Prompt>
+
+Use the successful sections as evidence and resolve the failed sections before declaring a complete measurement review. There are no output-mode or CSV parameters on this tool.
+
+## Get GA4 Reporting Metadata
+
+Use metadata to find the actual reporting names available to the property, including custom definitions, before asking for a custom report.
+
+| Parameter | Required | Default | Behavior |
+| --- | --- | --- | --- |
+| `property_id` | Yes | None | Property to inspect |
+| `search` | No | No filter | Case-insensitive substring search across API name, display name, description, and category; blank means no filter |
+| `include_deprecated` | No | `false` | Whether to retain the deprecated API-name aliases in each returned entry |
+| `limit` | No | `500` | Maximum entries per list: independently up to 500 dimensions and 500 metrics by default; clamped to 1–2,000 |
+| `profile_id` | No | `default` | Saved Google connection |
+
+Setting `include_deprecated` to `false` removes deprecated-name aliases from entries. It does not discard an entire field merely because it has a deprecated alias. Prefer the current API name when building requests.
+
+<Prompt description="Search metadata for property `PROPERTY_ID` for landing-page fields. Show current API names and descriptions, with a limit of 100 per list." actions={["copy"]}>
+</Prompt>
+
+The returned dimension and metric counts describe the displayed lists. A limited or filtered metadata result is not a complete inventory of everything the property can report.
+
+## Check GA4 Report Compatibility
+
+| Parameter | Required | Default | Behavior |
+| --- | --- | --- | --- |
+| `property_id` | Yes | None | Use the same property as the intended report |
+| `dimensions` | No | Empty list | Dimension API names as strings |
+| `metrics` | No | Empty list | Metric API names as strings |
+| `compatibility_filter` | No | `COMPATIBLE` | `COMPATIBLE`, `INCOMPATIBLE`, or `COMPATIBILITY_UNSPECIFIED`; converted to uppercase |
+| `profile_id` | No | `default` | Saved Google connection |
+
+This checks **Core reports only**, not realtime. It returns dimension and metric compatibility information. If the supplied field combination is already incompatible, the check itself can fail; reduce the field set and retry. See Google’s [compatibility guidance](https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/checkCompatibility).
+
+<Prompt description="For property `PROPERTY_ID`, check whether `sessionDefaultChannelGroup` can be combined with `sessions` and `activeUsers`. Return compatible fields. Do not run the report yet." actions={["copy"]}>
+</Prompt>
+
+This tool accepts field names, not the full reporting request. It does not expose dimension-filter or metric-filter parameters and does not validate dates, filters, business interpretation, or realtime field combinations.
+
+## Run GA4 Report
+
+Use this for historical acquisition, page, event, and other supported Core reports. Dates, dimensions, and metrics come from your request; HireOtto does not select a default report or date window for you.
+
+### Parameters
+
+| Parameter | Required | Default | Limit or behavior |
+| --- | --- | --- | --- |
+| `property_id` | Yes | None | Numeric ID or property resource |
+| `request_json` | Yes | None | A JSON object containing the Core report request |
+| `profile_id` | No | `default` | Saved Google connection |
+| `max_rows` | No | `10000` | Maximum rows collected, clamped to 1–100,000 |
+| `output_mode` | No | `summary_and_csv` | `summary`, `summary_and_csv`, or `csv_only` |
+| `inline_limit` | No | `200` | Maximum rows included in the conversation, clamped to 1–5,000 |
+| `export_limit` | No | `50000` | Maximum collected rows included in CSV, clamped to 1–100,000 |
+| `export_ttl_minutes` | No | `30` | Export-link lifetime, clamped to 1–1,440 minutes |
+
+“Clamped” means numeric values outside the range are brought to the nearest boundary. Supply valid integers deliberately; this is not a guarantee that malformed input will be accepted.
+
+### Request fields
+
+Use camelCase inside `request_json` and snake\_case for the tool’s outer parameters.
+
+| Request field | Purpose |
+| --- | --- |
+| `dateRanges` | Date windows for the report |
+| `dimensions`, `metrics` | Columns, each specified with a `name` |
+| `dimensionFilter`, `metricFilter` | Narrow the data using valid filter expressions |
+| `orderBys` | Order results; specify this when selecting top rows or continuing a result |
+| `metricAggregations` | Request supported totals, minimums, or maximums |
+| `currencyCode` | Optional reporting currency; otherwise the property’s default applies |
+| `keepEmptyRows` | Whether to retain recorded rows whose metrics are all zero; false if omitted |
+| `comparisons`, `cohortSpec` | Advanced requests subject to Google’s rules and compatible fields |
+| `offset` | Starting row, default 0; negative values are treated as 0 |
+| `limit` | Optional lower cap on rows collected; cannot raise `max_rows` |
+| `returnPropertyQuota` | Defaults to true when omitted; includes quota information when returned |
+
+Supply the property through `property_id`. A `property` value inside the JSON does not override it. See Google’s [Core report request reference](https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/runReport) for field shapes and restrictions. Support for a request object does not imply support for separate pivot, funnel, audience-export, or batch-report tools.
+
+Dates are inclusive. Standard dates can be `YYYY-MM-DD`, `NdaysAgo`, `yesterday`, or `today`; relative dates use the property’s reporting timezone. Up to four date ranges are supported. For 28 complete days, use `28daysAgo` through `yesterday`; ending at `today` includes the current partial day. See [date-range rules](https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/DateRange).
+
+### Example: acquisition over 28 complete days
+
+<Prompt description="For property `PROPERTY_ID`, check the requested fields, then show sessions and active users by session default channel group for the last 28 complete days. Sort by sessions descending and return both inline rows and a CSV." actions={["copy"]}>
+</Prompt>
+
+The report inputs can be expressed as:
+
+```json
+{
+  "property_id": "PROPERTY_ID",
+  "request_json": {
+    "dateRanges": [{"startDate": "28daysAgo", "endDate": "yesterday"}],
+    "dimensions": [{"name": "sessionDefaultChannelGroup"}],
+    "metrics": [{"name": "sessions"}, {"name": "activeUsers"}],
+    "orderBys": [{"metric": {"metricName": "sessions"}, "desc": true}]
+  },
+  "output_mode": "summary_and_csv"
+}
+```
+
+To compare equal periods, use one range from `28daysAgo` to `yesterday` and another from `56daysAgo` to `29daysAgo`. Keep date-range labels in the results and calculate changes from matching rows. An absent row or zero prior value is not a reliable percentage-growth calculation.
+
+### Collection, display, and export are separate limits
+
+The report collects up to `max_rows`, or the lower `request_json.limit` when supplied. It then displays at most `inline_limit` and exports at most `export_limit` from those collected rows.
+
+For example, with defaults and a 60,000-row result, HireOtto collects at most 10,000 rows, shows at most 200 inline, and can export at most those 10,000 collected rows. The 50,000-row export default does not cause an additional 40,000 rows to be collected.
+
+To request up to 60,000 rows, set both `max_rows` and `export_limit` to 60000 and remove any lower request limit. This still does not guarantee 60,000 matching rows or an unthrottled response.
+
+### Read coverage before interpreting the result
+
+| Response field | Meaning |
+| --- | --- |
+| `row_count` | Total matching rows reported by GA4, not the inline row count |
+| `returned_rows` | Rows collected for this call before output slicing |
+| `offset` | Where collection started |
+| `truncated` | Whether more matching rows remain after the collected segment |
+| `inline_row_count` | Rows actually included in the conversation |
+| `rows` | The inline rows, or an empty list in CSV-only mode |
+| `metadata` | GA4 reporting metadata, when supplied |
+| `property_quota` | Returned property-quota information |
+
+`truncated: false` does not guarantee the inline preview or CSV contains every collected row. Check those output caps separately. With a nonzero offset, earlier rows are intentionally omitted even if no later rows remain.
+
+The CSV contains flattened dimension and metric rows, not a separate metadata or totals appendix. Keep metadata and coverage notes with the exported file. Report metric values may arrive as strings; parse them numerically before calculating ratios. Do not treat the sum of a limited preview—or a sum of users across overlapping groups—as an account-wide total. Use returned report aggregates when requested and appropriate.
+
+## Run GA4 Realtime Report
+
+Use realtime for a recent-activity check, not a historical report or a replacement for browser-based tracking validation.
+
+### Parameters
+
+| Parameter | Required | Default | Limit or behavior |
+| --- | --- | --- | --- |
+| `property_id` | Yes | None | Numeric ID or property resource |
+| `request_json` | Yes | None | A JSON object using realtime fields |
+| `profile_id` | No | `default` | Saved Google connection |
+| `output_mode` | No | `summary` | `summary`, `summary_and_csv`, or `csv_only` |
+| `inline_limit` | No | `500` | Clamped to 1–5,000 rows |
+| `export_limit` | No | `10000` | Clamped to 1–10,000 rows |
+| `export_ttl_minutes` | No | `30` | Clamped to 1–1,440 minutes |
+
+Realtime has no `max_rows` parameter and does not automatically collect subsequent result pages. Use `request_json.limit` to control the response from Google; if omitted, Google defaults to 10,000 rows. A larger response still cannot make the CSV exceed HireOtto’s 10,000-row realtime export cap.
+
+The JSON accepts realtime `dimensions`, `metrics`, `dimensionFilter`, `metricFilter`, `limit`, `metricAggregations`, `orderBys`, `returnPropertyQuota`, and `minuteRanges`. Quota information is requested by default. The outer property ID determines the property.
+
+### Time window and field boundaries
+
+Without `minuteRanges`, the report uses the last 30 minutes. Standard properties can query that 30-minute window; Analytics 360 properties can query up to 60 minutes. Google allows up to two minute ranges. A range defaults to `startMinutesAgo: 29` and `endMinutesAgo: 0`. Realtime rejects `dateRanges`; use the standard report for dates. See [Google’s realtime request reference](https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/runRealtimeReport).
+
+Realtime uses a different field set from Core reporting. Examples include `country`, `deviceCategory`, `eventName`, `minutesAgo`, and `streamId`, with metrics such as `activeUsers` or `eventCount`. Registered user-scoped custom dimensions are supported; event-scoped custom dimensions and custom metrics are not. Use the [realtime field reference](https://developers.google.com/analytics/devguides/reporting/data/v1/realtime-api-schema), not a Core compatibility result, to select realtime fields.
+
+### Example: recent events by stream
+
+<Prompt description="For property `PROPERTY_ID`, show event counts by event name and stream ID for the last 30 minutes. Return a summary and CSV. State how many rows Google reports, how many were returned, and how many are shown inline." actions={["copy"]}>
+</Prompt>
+
+```json
+{
+  "property_id": "PROPERTY_ID",
+  "request_json": {
+    "dimensions": [{"name": "eventName"}, {"name": "streamId"}],
+    "metrics": [{"name": "eventCount"}],
+    "minuteRanges": [{"startMinutesAgo": 29, "endMinutesAgo": 0}],
+    "limit": "1000"
+  },
+  "output_mode": "summary_and_csv"
+}
+```
+
+Realtime returns `row_count`, `returned_rows`, `inline_row_count`, and a window note, but no Core-style `truncated` flag. Compare the counts yourself. A realtime snapshot changes as new activity arrives and older activity leaves the window; repeated calls are not a stable historical export.
+
+## Output modes and export failures
+
+| Mode | Inline rows | CSV |
+| --- | --- | --- |
+| `summary` | Up to the inline limit | Not requested |
+| `summary_and_csv` | Up to the inline limit | Requested from collected rows, up to the export limit |
+| `csv_only` | None | Requested from collected rows, up to the export limit |
+
+Summary means a compact structured result; it is not a guarantee that the AI has already interpreted the data. Ask for analysis separately when needed.
+
+If there are no collected rows, no CSV is generated. In CSV-only mode, empty inline `rows` are expected even when a file exists. Confirm the export result and link before telling someone the download is ready. An export failure is not proof that Google returned no data. Retry with a smaller request or use summary output to inspect the report without requesting a file.
+
+Download signed exports before expiry. Rerunning a report generates a new result, which may differ from the original. Treat export links and downloaded Analytics data as sensitive.
+
+## Get Billing Status
+
+This shared utility takes no parameters and reads the current HireOtto plan, billing status, period or trial dates, credits used and remaining, unlimited-credit status, and enabled features. It does not change a subscription and does not require a GA4 property ID.
+
+<Prompt description="Show my current HireOtto plan, remaining credits, and whether GA4 and multiple connected profiles are enabled." actions={["copy"]}>
+</Prompt>
+
+Billing or access-period problems may also block this request; it is not an unconditional bypass for an inactive account. Refer to [credits and billing](/credits-and-billing) or contact HireOtto when access needs attention.
+
+## Failures and interpretation limits
+
+| What you see | What to check next |
+| --- | --- |
+| GA4 is not connected | Finish Google authorization for the selected profile, then list properties |
+| Reconnect or refresh-access error | Reauthorize that Google login; do not paste credentials into chat |
+| Missing property or permission error | Confirm the login can open the property directly and that the property ID is correct |
+| Plan, feature, trial, or credit block | Review HireOtto access and usage; use `default` if named profiles are unavailable |
+| A failed configuration section | Preserve successful sections and resolve the failed read; do not label it empty |
+| Invalid or incompatible field | Inspect metadata and reduce the Core field set; use the separate realtime schema for realtime |
+| Invalid JSON or output mode | Supply an object and supported parameter values, not a JSON-encoded string |
+| Realtime request contains dates | Replace `dateRanges` with `minuteRanges`, or use a standard report |
+| No rows | Verify property, dates, filters, and measurement coverage before concluding there was no activity |
+| Fewer rows than expected | Compare matching, collected, inline, and exported row counts independently |
+| Temporary quota or service failure | Reduce scope and retry after the indicated delay; unlimited HireOtto credits do not remove Google quotas |
+| Missing or expired CSV | Check whether rows existed, inspect the export result, and rerun deliberately if needed |
+
+For Core reports, inspect returned metadata for sampling, thresholding, schema restrictions, or data loss into an “other” row when those signals are present. A row cap and a privacy restriction are different problems; raising a row limit does not remove the latter. Google documents these indicators in [response metadata](https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/ResponseMetaData).
+
+Keep the business question separate from the retrieval result. A working report does not prove event quality, incremental advertising impact, or agreement with Google Ads or a CRM. State the property, dates, fields, filters, coverage limits, and any unresolved measurement questions alongside the conclusion.
+
+## Practical review workflow
+
+<Prompt description="List the properties I can access and wait for me to choose one. For that property, inspect measurement configuration and flag failed sections. Find the relevant reporting fields, check Core compatibility, then retrieve a small 28-complete-day acquisition report. Keep raw metrics and coverage counts visible. If the report is correct, prepare a larger CSV with explicit collection and export limits. Do not change Analytics or any advertising account." actions={["copy"]}>
+</Prompt>
+
+For cross-platform analysis, authorize each platform separately and keep its metrics distinct. GA4 can add on-site context to advertising or organic-search analysis; it does not turn different attribution systems into one interchangeable dataset.
+
+## Related pages
+
+- [GA4 authentication and quickstart](/google-analytics/quickstart)
+- [Connect a HireOtto server](/setup/connect-ai-tool)
+- [Feature and entitlement matrix](/feature-entitlement-matrix)
+- [Credits, billing, and plans](/credits-and-billing)
+- [Troubleshooting](/troubleshooting)

@@ -66,7 +66,8 @@
           {
             "group": "Google Analytics",
             "pages": [
-              "google-analytics/quickstart"
+              "google-analytics/quickstart",
+              "google-analytics/tools-reference"
             ]
           },
           {
