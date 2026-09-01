@@ -1,0 +1,268 @@
+---
+title: "Build custom GA4 reports with HireOtto"
+description: "Choose property-specific dimensions and metrics, check compatibility, and build review-ready GA4 reports with filters, comparisons, and exports."
+sidebarTitle: "Custom GA4 reporting"
+---
+
+Use HireOtto to turn a reporting question into a property-specific GA4 report without rebuilding it in the Analytics interface. The reliable workflow is: confirm the property, find the current API fields, check that those fields work together, run a small report, review coverage, then export the rows you need.
+
+HireOtto's Google Analytics server is read-only. Running a report does not change the GA4 property, its events, key events, audiences, links, or data streams.
+
+<Note>
+  Google Analytics is currently available in beta. Core GA4 tools are available on Free, Starter, Pro, and Agency plans and consume HireOtto credits. Named connection profiles require Agency. See [HireOtto pricing](https://hireotto.com/pricing) for current plan limits.
+</Note>
+
+## Before you start
+
+You need:
+
+- HireOtto's GA4 server connected at `https://ga4.hireotto.com/mcp`
+- A Google login with access to the GA4 property
+- The property ID you intend to query
+- A reporting question with a date range, breakdown, measures, and output requirement
+
+If GA4 is not connected yet, follow [Connect Google Analytics 4 to Claude, ChatGPT, and AI tools](/google-analytics/quickstart).
+
+Start by verifying the property rather than relying on a property name alone:
+
+<Prompt description="List the GA4 accounts and properties available to my connected Google login. Return each property name and property ID. Do not run a report yet." actions={["copy"]}>
+</Prompt>
+
+## Use this reporting workflow
+
+### 1. Write the reporting brief
+
+Define the question before selecting fields. Include:
+
+- **Property:** property ID and, for Agency users, the named profile
+- **Period:** complete start and end dates
+- **Breakdown:** the dimensions that define each row
+- **Measures:** the metrics that answer the question
+- **Filters:** the traffic, events, pages, countries, or campaigns to include or exclude
+- **Comparison:** the previous period, previous year, or another explicit range
+- **Sort and row cap:** how results should be ranked and how much detail to return
+- **Output:** inline review, CSV export, or both
+
+Prefer complete periods for performance comparisons. Ending a report at `yesterday` avoids mixing a partial current day with completed days. GA4 interprets relative dates in the property's time zone.
+
+### 2. Find the property's current fields
+
+Use metadata before asking for a custom report. Metadata returns the dimensions and metrics available to that property, including registered custom definitions.
+
+<Prompt description="For GA4 property `123456789`, find dimensions and metrics related to landing pages, sessions, engagement, key events, source, medium, and campaign. Return the API name, UI name, category, and description. Exclude deprecated aliases." actions={["copy"]}>
+</Prompt>
+
+The metadata search accepts:
+
+| Parameter | Default | Accepted value | Use |
+| --- | --- | --- | --- |
+| `property_id` | Required | A GA4 property ID, with or without `properties/` | Selects the property's reporting schema |
+| `search` | Blank | Text matched against API name, UI name, description, or category | Narrows a large schema |
+| `include_deprecated` | `false` | `true` or `false` | Includes deprecated API-name aliases in the metadata details |
+| `limit` | `500` | 1–2,000 per dimension and metric list | Caps returned metadata items |
+| `profile_id` | `default` | `default`, or an Agency named profile | Selects the connected Google login |
+
+<Tip>
+  Do not guess custom dimension or custom metric names. Their API names are property-specific. Search the property's metadata and use the returned API name exactly.
+</Tip>
+
+### 3. Check field compatibility
+
+Dimensions and metrics can exist in GA4 but still be incompatible in the same Core report. Check the exact set before running the report:
+
+<Prompt description="Check whether `landingPagePlusQueryString` can be reported with `sessions`, `engagedSessions`, `engagementRate`, and `keyEvents` for property `123456789`. Return only compatible fields. Do not run the report." actions={["copy"]}>
+</Prompt>
+
+The compatibility check accepts:
+
+| Parameter | Default | Accepted value | Use |
+| --- | --- | --- | --- |
+| `property_id` | Required | A GA4 property ID | Selects the property |
+| `dimensions` | Empty list | GA4 dimension API names | Fields that define rows |
+| `metrics` | Empty list | GA4 metric API names | Fields that measure results |
+| `compatibility_filter` | `COMPATIBLE` | `COMPATIBLE`, `INCOMPATIBLE`, or the API's unspecified value | Filters the compatibility response |
+| `profile_id` | `default` | `default`, or an Agency named profile | Selects the connected login |
+
+Compatibility checks apply to Core reports. Realtime reports use a different field set and different compatibility rules.
+
+<Warning>
+  A compatible field set is not a complete validation of the reporting decision. It does not confirm that your date range, filters, attribution interpretation, or comparison is appropriate.
+</Warning>
+
+### 4. Run a small review report
+
+Ask for a modest row cap and `summary` output first. This makes it easier to verify the property, date range, field names, filters, and ordering before creating a larger export.
+
+<Prompt description="For property `123456789`, report sessions, engaged sessions, engagement rate, and key events by landing page for the previous 28 complete days. Exclude blank landing pages, order by sessions descending, return the first 50 rows inline, and do not change GA4." actions={["copy"]}>
+</Prompt>
+
+For standard reports, HireOtto passes a GA4 `RunReportRequest` in `request_json`. Common request fields are:
+
+| Field | What it controls |
+| --- | --- |
+| `dateRanges` | One or more reporting periods |
+| `dimensions` | The breakdown shown in each row |
+| `metrics` | The measures returned for each row |
+| `dimensionFilter` | Conditions applied to dimension values |
+| `metricFilter` | Conditions applied to metric values after aggregation |
+| `orderBys` | Deterministic ranking of the result |
+| `metricAggregations` | Optional totals, minimums, or maximums |
+| `comparisons` | GA4 comparison definitions when supported by the request |
+| `currencyCode` | Display currency for currency metrics |
+| `keepEmptyRows` | Whether to retain rows whose metrics are all zero |
+
+Use camelCase field names inside `request_json`. The outer `property_id` selects the property; a `property` field inside the request is ignored.
+
+### 5. Review coverage before interpreting the result
+
+Check these fields in the response:
+
+- `row_count`: rows available from GA4 for the request
+- `returned_rows`: rows HireOtto collected
+- `inline_row_count`: rows shown directly in the AI client
+- `truncated`: whether the collection stopped before all available rows were retrieved
+- `metadata`: report time zone, currency, thresholding, sampling, schema restrictions, and high-cardinality signals when GA4 returns them
+- `property_quota`: remaining GA4 Data API quota information
+
+A short inline answer is not necessarily the full report. `inline_limit` only controls how many collected rows appear in the conversation. It does not increase collection.
+
+### 6. Export after the report is correct
+
+When the review report is correct, rerun it with the required collection and export limits:
+
+<Prompt description="Rerun the approved landing-page report for property `123456789`. Collect up to 25,000 rows, return a 100-row inline summary, and include a CSV export. Tell me if GA4 has more rows than were collected." actions={["copy"]}>
+</Prompt>
+
+CSV links are temporary. Download the file before its expiry.
+
+## Standard report parameters and defaults
+
+| Parameter | Default | Accepted range or value | Behavior |
+| --- | --- | --- | --- |
+| `property_id` | Required | GA4 property ID | Selects the property |
+| `request_json` | Required | A valid GA4 Core `RunReportRequest` object | Defines fields, dates, filters, and ordering |
+| `profile_id` | `default` | `default`, or an Agency named profile | Selects the connected login |
+| `max_rows` | `10,000` | 1–100,000 | Maximum rows collected across paginated requests |
+| `output_mode` | `summary_and_csv` | `summary`, `summary_and_csv`, `csv_only` | Controls inline rows and CSV creation |
+| `inline_limit` | `200` | 1–5,000 | Maximum collected rows shown inline |
+| `export_limit` | `50,000` | 1–100,000 | Maximum collected rows written to CSV |
+| `export_ttl_minutes` | `30` | 1–1,440 | CSV link lifetime |
+
+If `request_json.limit` is lower than `max_rows`, the request limit becomes the effective collection cap. Each GA4 page contains at most 10,000 rows, and HireOtto continues paging until it reaches the effective cap or the available result ends.
+
+<Warning>
+  `export_limit` does not cause HireOtto to collect more rows. To export 50,000 rows, set `max_rows` to at least 50,000 and confirm that the response is not truncated.
+</Warning>
+
+No CSV is created when GA4 returns no rows. In `csv_only` mode, an empty inline row list is expected even when the CSV contains data.
+
+## Practical report patterns
+
+### Compare acquisition periods
+
+Use separate, equal, complete date ranges and label them clearly:
+
+<Prompt description="For property `123456789`, compare sessions, engaged sessions, key events, and session key-event rate by session source, medium, and campaign for `28daysAgo` through `yesterday` versus `56daysAgo` through `29daysAgo`. Check metadata and compatibility first. Order each result by sessions descending and return the top 100 rows plus CSV." actions={["copy"]}>
+</Prompt>
+
+When several date ranges are requested, GA4 can return a date-range dimension identifying the period. Keep the raw periods visible; do not describe a change without showing both values and the denominator.
+
+### Review landing-page quality
+
+<Prompt description="Find the exact property-supported API names for landing page, sessions, engagement rate, and key events. Check compatibility. Then report the previous 28 complete days by landing page, exclude blank values, order by sessions descending, and flag pages with meaningful traffic but weak downstream outcomes. Show evidence separately from recommendations." actions={["copy"]}>
+</Prompt>
+
+Do not rank low-volume pages by a rate alone. A high or low percentage built from a handful of sessions is not a stable performance signal.
+
+### Investigate an event
+
+<Prompt description="For property `123456789`, report event count, total users, and key events by event name for the previous 30 complete days. Filter to events containing `lead`, order by event count descending, and include totals. Return the first 100 rows inline." actions={["copy"]}>
+</Prompt>
+
+Use an exact event-name filter when you already know the implemented event. A contains filter is useful for discovery, but it can combine events with different meanings.
+
+### Build a campaign export
+
+<Prompt description="For property `123456789`, find and verify the session campaign, source, and medium dimensions and compatible session, key-event, and revenue metrics. Report the previous calendar month, order by sessions descending, collect up to 50,000 rows, export CSV, and state whether the result is truncated or subject to thresholding." actions={["copy"]}>
+</Prompt>
+
+## Filters and ordering
+
+Use `dimensionFilter` for dimensions and `metricFilter` for metrics. Do not place a metric in a dimension filter or a dimension in a metric filter.
+
+For a single exact dimension value, a request can use:
+
+```json
+{
+  "filter": {
+    "fieldName": "sessionDefaultChannelGroup",
+    "stringFilter": {
+      "matchType": "EXACT",
+      "value": "Paid Search",
+      "caseSensitive": false
+    }
+  }
+}
+```
+
+For repeatable reports, specify the sort explicitly. For example, order by sessions descending instead of accepting an unspecified row order.
+
+## Read and write scope
+
+This workflow can read:
+
+- Reporting metadata for the selected property
+- Core report rows, totals, minimums, maximums, response metadata, and quota status
+- Property configuration needed to orient the report, including streams, key events, Ads links, and custom definitions
+
+It cannot:
+
+- Create or edit GA4 events, key events, custom definitions, audiences, data streams, links, or property settings
+- Install or validate website tags
+- Change attribution or data-retention settings
+- Repair missing historical data
+- Confirm CRM lead quality or business impact without data you provide
+
+## Limits and interpretation guardrails
+
+- **Collection, inline display, and export are separate limits.** Review all three before assuming you have a complete result.
+- **High-cardinality dimensions can produce an `(other)` row.** Check report metadata before treating the visible rows as a complete distribution.
+- **Thresholding or schema restrictions can hide detail.** Treat metadata warnings as part of the result, not as technical noise.
+- **GA4 can sample some reports.** If sampling metadata is returned, disclose it with the analysis.
+- **Long ranges, many columns, complex filters, and high-cardinality fields use more GA4 quota.** Start small, then expand deliberately.
+- **Current-day data is incomplete.** Prefer complete periods for comparisons unless the job is explicitly intraday monitoring.
+- **GA4 and ad-platform conversions are not interchangeable.** Attribution, identity, consent, processing, and import settings can produce legitimate differences.
+- **Rates need denominators.** Show the underlying sessions, users, or events alongside conversion and engagement rates.
+- **Do not average row-level rates to create a total.** Use report totals or recompute the rate from the relevant summed numerator and denominator.
+
+## Failure cases
+
+| Problem | What it usually means | What to do |
+| --- | --- | --- |
+| GA4 is not connected | The Google authorization is missing or expired | Reconnect GA4, then retry the property list |
+| Property is missing | The connected Google login cannot access it | Confirm the login and GA4 property permissions |
+| Invalid field name | The API name was guessed, renamed, deprecated, or belongs to another property | Search the property's metadata and copy the current API name |
+| Incompatible fields | The requested dimensions and metrics cannot be combined in a Core report | Run compatibility again and remove or split incompatible fields |
+| Invalid filter | The field type, expression, or value does not match the request | Check the field in metadata and keep dimension and metric filters separate |
+| Empty result | The date range, filters, property, or collection state produced no rows | Broaden one constraint at a time and confirm data exists in GA4 |
+| Partial configuration result | GA4 returned some property resources but not others | Review each section's status; permissions can differ by resource |
+| Truncated result | More rows exist than `max_rows` allowed HireOtto to collect | Raise `max_rows`, narrow the report, or split it into smaller requests |
+| No CSV link | The output mode was `summary`, or GA4 returned no rows | Use `summary_and_csv` or `csv_only` after confirming rows exist |
+| Expired CSV link | The signed export passed its time-to-live | Rerun the same reviewed request to generate a new link |
+| Quota error | The property or project reached a GA4 Data API limit | Reduce complexity or wait for the relevant quota window to reset |
+| HireOtto access blocked | Trial, credits, billing, or entitlement checks stopped the tool | Check billing status and current plan limits |
+
+## A reusable approval-gated prompt
+
+<Prompt description="Build a custom GA4 report for property `123456789` that answers: **Which landing pages gained qualified traffic but lost key-event efficiency?** Use the previous 28 complete days and the preceding equal period. First find the property's exact landing-page, session, engagement, and key-event fields. Check Core compatibility. Show me the proposed fields, filters, date ranges, ordering, and effective row limits before running anything. After I approve, run a 50-row summary. Report row coverage, truncation, thresholding, sampling, and `(other)`-row signals. Do not change GA4. Create a CSV only after I approve the reviewed report." actions={["copy"]}>
+</Prompt>
+
+This separates three decisions: whether the question is well-defined, whether GA4 can answer it with compatible fields, and whether the result is complete enough to support action.
+
+## Related resources
+
+- [Connect Google Analytics 4 to Claude, ChatGPT, and AI tools](/google-analytics/quickstart)
+- [Google Analytics 4 MCP tools reference](/google-analytics/tools-reference)
+- [Google Analytics Data API overview](https://developers.google.com/analytics/devguides/reporting/data/v1)
+- [Check GA4 field compatibility](https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/checkCompatibility)
+- [GA4 Data API limits and quotas](https://developers.google.com/analytics/devguides/reporting/data/v1/quotas)
