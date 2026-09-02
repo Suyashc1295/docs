@@ -52,7 +52,8 @@
           {
             "group": "Search Console",
             "pages": [
-              "guides/google-search-console"
+              "guides/google-search-console",
+              "search-console/quickstart"
             ]
           },
           {

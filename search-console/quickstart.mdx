@@ -1,0 +1,240 @@
+---
+title: "Connect Google Search Console to Claude, ChatGPT, and AI tools"
+description: "Connect HireOtto to Google Search Console, authorize the right Google login, verify accessible properties, and run a safe first organic-search request."
+sidebarTitle: "Quickstart"
+---
+
+Connect Search Console in two stages: add HireOtto's Google Ads MCP server to your AI client, then authorize Search Console separately with the Google login that can access your properties. Verify the connection by listing sites before requesting a report or URL inspection.
+
+Search Console access is read-only. HireOtto can retrieve properties, performance data, submitted sitemaps, and URL-indexing information, but it cannot add properties, submit sitemaps, request indexing, or change Search Console settings.
+
+## What you need
+
+- An AI client that supports remote MCP servers over HTTP and OAuth
+- A HireOtto trial or paid plan
+- A Google login that can open the Search Console property you need
+- Permission to the relevant domain property or URL-prefix property
+
+You do not need a Google Cloud project, API key, JSON credentials, terminal, or local server.
+
+<Note>
+  Search Console is available now on HireOtto's Free, Starter, Pro, and Agency plans. The trial ends after 14 days or 200 credits, whichever comes first. Starter includes 2,000 monthly credits, Pro includes 5,000, and Agency includes unlimited credits.
+</Note>
+
+## 1. Add the HireOtto connection
+
+Search Console tools currently use HireOtto's Google Ads MCP connection:
+
+```text
+https://googleads.hireotto.com/mcp
+```
+
+If that server is already connected and its tools are visible, continue to the Search Console authorization step. You do not need to add it again.
+
+If it is not connected:
+
+1. Open your AI client's Apps, Connectors, Tools, Integrations, or MCP settings.
+2. Add a remote HTTP MCP server.
+3. Paste `https://googleads.hireotto.com/mcp`.
+4. Complete the HireOtto sign-in.
+5. Enable the connection in the current chat or agent.
+
+For current client-specific menus, see [Connect a HireOtto server to an AI client](/setup/connect-ai-tool).
+
+<Warning>
+  Do not configure HireOtto as a local command or stdio process. It is a hosted remote MCP service.
+</Warning>
+
+## 2. Authorize Search Console separately
+
+In the connected AI client, ask:
+
+<Prompt description="Connect my Google Search Console account." actions={["copy"]}>
+</Prompt>
+
+HireOtto returns a Google authorization link. Open it, choose the Google login that has access to the required Search Console properties, and grant the requested permission.
+
+This step is required even if Google Ads already works through the same HireOtto server. Google Ads and Search Console are separate Google services with separate authorizations.
+
+After Google authorization, complete the HireOtto connection confirmation shown in the browser. HireOtto then attempts to retrieve the sites available to that Google login.
+
+## 3. Verify accessible properties
+
+Return to your AI client and ask:
+
+<Prompt description="List the Search Console properties I can access. Include each property value and my permission level. Do not run a report." actions={["copy"]}>
+</Prompt>
+
+Use the returned property value exactly in later requests. HireOtto supports both Search Console property formats:
+
+```text
+sc-domain:example.com
+```
+
+```text
+https://www.example.com/
+```
+
+The first is a domain property. The second is a URL-prefix property. A URL-prefix property covers only URLs under that exact protocol and prefix, so `http`, `https`, `www`, and non-`www` variants can be different properties.
+
+Review the returned property and permission level before continuing. HireOtto cannot expand the access granted to the connected Google login.
+
+## 4. Run a small first request
+
+Start with a narrow, completed date range:
+
+<Prompt description="For `sc-domain:example.com`, show clicks, impressions, CTR, and average position for the top 20 queries over the previous 28 complete days. End at yesterday. Return the rows inline and do not change anything." actions={["copy"]}>
+</Prompt>
+
+Confirm:
+
+- The property is the one you intended to use
+- The date range is correct
+- The result contains data you recognize
+- The dimensions and filters match the question
+
+Then continue to [Google Search Console MCP reporting with HireOtto](/guides/google-search-console) for reporting, exports, filters, URL inspection, sitemaps, fresh data, and paid-and-organic workflows.
+
+## Authentication parameters and defaults
+
+### Connect Search Console
+
+| Parameter | Default | Accepted value | When to use it |
+| --- | --- | --- | --- |
+| `profile_id` | `default` | A short profile name without `:` | Omit for the normal connection. Agency users can name another profile when authorizing a different Google login. |
+
+Use a named profile only when you need to connect a different Google identity, such as a second agency login. Giving the same Google login another profile name does not reveal additional properties.
+
+<Note>
+  Current public plan guidance reserves multiple connected profiles for Agency. Use the default profile on Free, Starter, and Pro.
+</Note>
+
+### List Search Console properties
+
+| Parameter | Default | Accepted value | When to use it |
+| --- | --- | --- | --- |
+| `action` | Required | `list_sites` | Lists properties available to the connected Google login |
+| `site_url` | Not used | — | Omit when listing properties |
+| `inspection_url` | Not used | — | Omit when listing properties |
+| `language_code` | `en-US` | A supported language code | Relevant to URL inspection, not property listing |
+| `profile_id` | `default` | `default`, or an eligible named profile | Selects the connected Google login |
+
+The property list returns each available `site_url` and the Google permission level associated with it.
+
+## What the connection can access
+
+After setup, HireOtto can read:
+
+- Search Console properties available to the connected Google login
+- The permission level returned for each property
+- Search performance for supported dimensions and search types
+- URL-indexing details available through Google's URL Inspection API
+- Submitted sitemaps for a selected property
+
+It cannot:
+
+- Add or verify a Search Console property
+- Grant access to another person
+- Submit, remove, or modify a sitemap
+- Request that Google index or recrawl a URL
+- Change canonical, robots, crawl, or indexing settings
+- Edit website content or tags
+- Retrieve properties the connected Google login cannot access
+
+Search Console access is separate from Google Ads, Tag Manager, and GA4. Connecting one service does not grant access to another.
+
+## Profiles and agency access
+
+The default profile represents the normal connected Google login. Agency supports multiple named profiles for users who manage properties across different Google identities.
+
+A named profile is useful when:
+
+- Different clients grant access to different Google logins
+- The required property is absent from the default login
+- An agency needs to keep separate client identities explicit
+
+Use clear names such as `client_name_gsc`. Profile names cannot contain `:`.
+
+When switching profiles, list properties again. Do not reuse a `site_url` until you confirm that the selected profile can access it.
+
+## Common setup failures
+
+### The HireOtto connection works, but Search Console asks me to authenticate
+
+The MCP connection and the Search Console authorization are separate. Ask to connect Search Console and complete the newest Google authorization link.
+
+### Google authorization succeeded, but no properties appear
+
+Check that the chosen Google login can open the required property directly in Search Console. A successful authorization proves the identity was connected; it does not guarantee that the identity has access to any property.
+
+If the property belongs to another login, reconnect with the correct Google identity. Agency users can create a separate named profile.
+
+### The wrong property variant appears
+
+Domain and URL-prefix properties are different. List the available properties and copy the returned `site_url` exactly. Confirm protocol, subdomain, and trailing slash for URL-prefix properties.
+
+### I can see a property in Search Console but not through HireOtto
+
+Confirm that the same Google login was authorized in HireOtto. If access was granted recently, reconnect Search Console or list properties again after Google's permission change has propagated.
+
+### The authorization link fails or expires
+
+Ask HireOtto to connect Search Console again and open the newest link. Complete the consent flow in the same browser session, then return to the original AI client.
+
+### HireOtto keeps asking me to reconnect
+
+The Google authorization may have expired or been revoked. A password change or organization security policy can also invalidate access. Reconnect Search Console and retry the property list before running a report.
+
+### No Search Console tools appear
+
+- Confirm that the endpoint is `https://googleads.hireotto.com/mcp`
+- Finish the HireOtto sign-in
+- Enable the connection in the current chat or agent
+- Refresh or rescan the tool list
+- Reconnect the MCP server if the client has cached an older tool list
+
+### A named profile is blocked
+
+Multiple connected profiles are an Agency feature in current public plan guidance. Use the default profile or check [HireOtto pricing](https://hireotto.com/pricing).
+
+### The request is blocked after setup
+
+Check the HireOtto trial, credit balance, billing status, and Search Console entitlement. Authentication does not override plan or usage limits.
+
+## Safe verification prompts
+
+### Verify the connected identity
+
+<Prompt description="List the Search Console properties available to my default profile. Include the exact `site_url` and permission level. Do not run a performance report." actions={["copy"]}>
+</Prompt>
+
+### Confirm a client property
+
+<Prompt description="Using profile `client_name_gsc`, list accessible Search Console properties. Confirm whether `sc-domain:example.com` is present. Do not inspect any URLs or run reports." actions={["copy"]}>
+</Prompt>
+
+### Test reporting access
+
+<Prompt description="For `sc-domain:example.com`, return the top 10 pages by clicks for the previous seven complete days. End at yesterday and keep the result inline." actions={["copy"]}>
+</Prompt>
+
+### Test URL inspection access
+
+<Prompt description="For property `sc-domain:example.com`, inspect `https://www.example.com/pricing`. Return Google's verdict, coverage state, crawl state, last crawl time, and declared versus selected canonical. Do not request indexing or change anything." actions={["copy"]}>
+</Prompt>
+
+## Disconnect Search Console
+
+To stop using the connection:
+
+1. Disconnect or remove the HireOtto server in your AI client if you no longer need any tools exposed through that server.
+2. Revoke HireOtto's Search Console access from your Google Account when you want to remove the Google authorization.
+
+Removing the MCP connection and revoking Google's permission are separate actions.
+
+## Next steps
+
+- [Run Search Console reports and URL inspections](/guides/google-search-console)
+- [Review HireOtto plans and credits](/credits-and-billing)
+- [Troubleshoot a HireOtto connection](/troubleshooting)
+- [Review Search Console product capabilities](https://hireotto.com/search-console-mcp)
