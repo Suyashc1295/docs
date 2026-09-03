@@ -53,7 +53,8 @@
             "group": "Search Console",
             "pages": [
               "guides/google-search-console",
-              "search-console/quickstart"
+              "search-console/quickstart",
+              "search-console/tools-reference"
             ]
           },
           {

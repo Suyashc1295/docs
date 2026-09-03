@@ -1,0 +1,334 @@
+---
+title: "Google Search Console MCP tools reference"
+description: "Discover Search Console properties, inspect indexing, list sitemaps, and query organic performance with HireOtto."
+sidebarTitle: "Tools reference"
+---
+
+Use HireOtto's read-only Search Console tools to find the properties available to your Google login, review submitted sitemaps, inspect Google's indexed version of a URL, and retrieve organic search performance from an MCP-capable AI client.
+
+Search Console tools currently use HireOtto's Google Ads MCP endpoint, but Search Console has its own Google authorization. Connecting Google Ads does not automatically connect Search Console.
+
+```text
+https://googleads.hireotto.com/mcp
+```
+
+| Tool | Use it for |
+| --- | --- |
+| `authenticate_search_console` | Start or renew Search Console authorization |
+| `search_console_resources` | List properties, list submitted sitemaps, or inspect an indexed URL |
+| `get_search_console_performance` | Retrieve clicks, impressions, CTR, and average position |
+
+If you have not connected Search Console yet, follow the [Search Console quickstart](/search-console/quickstart).
+
+## Availability and access
+
+| Item | Current behavior |
+| --- | --- |
+| Availability | Available now on Free, Starter, Pro, and Agency |
+| Scope | Read-only |
+| Default profile | `default` |
+| Additional named profiles | Agency, according to current public plan guidance |
+| Resource and performance requests | 5 HireOtto credits per successful request |
+| Authentication request | Does not retrieve Search Console data |
+
+HireOtto can read properties, permission levels, performance data, submitted sitemaps, and URL-indexing information available to the connected Google login. It cannot add or verify properties, grant access, submit or remove sitemaps, request indexing, run a live URL test, change Search Console settings, or edit a website.
+
+<Note>
+  Search Console access follows the connected Google identity. HireOtto cannot reveal a property or URL that the selected Google login is not permitted to access.
+</Note>
+
+## Authentication
+
+### Authenticate Search Console
+
+Starts the separate Google authorization flow for Search Console and returns a link for the user to open.
+
+| Parameter | Required | Default | Accepted value |
+| --- | --: | --- | --- |
+| `profile_id` | No | `default` | A short profile name without `:` |
+
+Omit `profile_id` for the normal connection. Under current public plan guidance, Agency users can name an additional profile when they need to authorize another Google login.
+
+<Prompt description="Connect Google Search Console." actions={["copy"]}>
+Connect my Google Search Console account. After I authorize it, list the properties available to the connected Google login and include my permission level for each property.
+</Prompt>
+
+Authentication can succeed even when the Google login has no Search Console properties. Verify the connection by listing properties before requesting a report or URL inspection.
+
+## Search Console resources
+
+Use the resource tool to list accessible properties, list submitted sitemaps, or inspect Google's indexed version of a URL.
+
+### Parameters
+
+| Parameter | Required | Default | Accepted value |
+| --- | --: | --- | --- |
+| `action` | Yes | — | `list_sites`, `list_sitemaps`, or `inspect_url` |
+| `site_url` | Conditional | — | A property value returned by `list_sites` |
+| `inspection_url` | Conditional | — | A fully qualified URL under `site_url` |
+| `language_code` | No | `en-US` | A supported BCP 47 language code for URL-inspection messages |
+| `profile_id` | No | `default` | `default` or an eligible named profile |
+
+### `list_sites`
+
+Lists the Search Console properties available to the selected Google login. Each result includes the exact `site_url` and Google's permission level for that property.
+
+Search Console uses two property formats:
+
+```text
+sc-domain:example.com
+https://www.example.com/
+```
+
+The first is a domain property. The second is a URL-prefix property. For a URL-prefix property, protocol, subdomain, and trailing slash matter. Copy the returned value exactly into later requests.
+
+<Prompt description="List accessible Search Console properties." actions={["copy"]}>
+List the Search Console properties available to my default profile. Include the exact site_url and permission level for each property. Do not run a performance report.
+</Prompt>
+
+### `list_sitemaps`
+
+Lists sitemaps submitted for a selected Search Console property. `site_url` is required.
+
+The response contains the sitemap records returned by Google, which may include submission and download details, status, warnings, errors, and sitemap content summaries. This action does not submit, modify, remove, fetch, or validate a sitemap on the live website.
+
+<Prompt description="Review submitted sitemaps." actions={["copy"]}>
+For Search Console property sc-domain:example.com, list the submitted sitemaps. Summarize their latest submission and download status, warnings, and errors. Do not submit or remove anything.
+</Prompt>
+
+### `inspect_url`
+
+Returns Google's indexed information for one URL. Both `site_url` and `inspection_url` are required. `inspection_url` must be a complete URL under the selected property.
+
+The summarized response includes:
+
+- Verdict and coverage state
+- Robots.txt and indexing states
+- Page-fetch state
+- Last crawl time
+- Google-selected canonical
+- User-declared canonical
+- Additional URL Inspection details returned by Google
+
+<Warning>
+  URL inspection reports the version currently known in Google's index. It does not test the live URL, request indexing, recrawl the page, or change canonical and robots settings.
+</Warning>
+
+<Prompt description="Inspect a URL's indexed status." actions={["copy"]}>
+For Search Console property sc-domain:example.com, inspect https://www.example.com/pricing. Return Google's verdict, coverage state, robots.txt state, indexing state, page-fetch state, last crawl time, and Google-selected versus user-declared canonical. Do not request indexing or change anything.
+</Prompt>
+
+## Search performance
+
+Use the performance tool for query, page, country, device, date, hour, and search-appearance reporting. It returns clicks, impressions, CTR, and average position for the requested dimensions.
+
+### Required parameters
+
+| Parameter | Description |
+| --- | --- |
+| `site_url` | Exact Search Console property value, preferably copied from `list_sites` |
+| `start_date` | Inclusive start date in `YYYY-MM-DD` format |
+| `end_date` | Inclusive end date in `YYYY-MM-DD` format |
+
+Search Console interprets reporting dates in Pacific Time. For stable reporting, end the range at yesterday or earlier unless you deliberately want fresh or hourly data.
+
+### Reporting parameters and defaults
+
+| Parameter | Default | Accepted value or range |
+| --- | --- | --- |
+| `dimensions` | `["query"]` | Any supported combination of `query`, `page`, `country`, `device`, `date`, `hour`, and `searchAppearance` |
+| `search_type` | `web` | `web`, `image`, `video`, `news`, `discover`, or `googleNews` |
+| `dimension_filter_groups` | None | A JSON string, one filter-group object, or an array of filter-group objects |
+| `aggregation_type` | Google default (`auto`) | `auto`, `byPage`, `byProperty`, or the eligible News Showcase option |
+| `data_state` | Finalized data | `final`, `all`, or `hourly_all` |
+| `output_mode` | `summary_and_csv` | `summary`, `summary_and_csv`, or `csv_only` |
+| `limit` | `50` | 1–5,000 inline rows |
+| `export_limit` | `25,000` | 1–25,000 exported rows |
+| `export_ttl_minutes` | `30` | 1–1,440 minutes |
+| `profile_id` | `default` | `default` or an eligible named profile |
+
+Values outside the supported numeric ranges are normalized to the nearest boundary. An unsupported output mode falls back to `summary_and_csv`.
+
+### Dimensions
+
+| Dimension | Use it to review |
+| --- | --- |
+| `query` | Search terms that produced organic impressions or clicks |
+| `page` | Landing-page performance |
+| `country` | Geographic performance; results use three-letter country codes |
+| `device` | `DESKTOP`, `MOBILE`, or `TABLET` performance |
+| `date` | Daily trends |
+| `hour` | Hourly trends when used with `data_state="hourly_all"` |
+| `searchAppearance` | Search-result features available for the selected property |
+
+The order of dimensions determines the order of the grouping keys. More granular combinations produce more rows and can increase Search Console query load.
+
+### Search types
+
+- `web` covers the combined All tab in Google Search.
+- `image` covers Image Search.
+- `video` covers video search results.
+- `news` covers the News tab in Google Search.
+- `discover` covers Google Discover.
+- `googleNews` covers news.google.com and the Google News app, not the News tab in Google Search.
+
+### Filters
+
+Filter groups use this shape:
+
+```json
+[
+  {
+    "groupType": "and",
+    "filters": [
+      {
+        "dimension": "country",
+        "operator": "equals",
+        "expression": "USA"
+      },
+      {
+        "dimension": "query",
+        "operator": "contains",
+        "expression": "pricing"
+      }
+    ]
+  }
+]
+```
+
+Supported filter dimensions are `country`, `device`, `page`, `query`, and `searchAppearance`. Supported operators are:
+
+- `equals`
+- `contains`
+- `notEquals`
+- `notContains`
+- `includingRegex`
+- `excludingRegex`
+
+Only `and` filter groups are supported. `equals` is case-sensitive for page and query filters. `contains` and `notContains` are not case-sensitive. Regex filters use RE2 syntax.
+
+<Prompt description="Report US organic queries containing a term." actions={["copy"]}>
+For Search Console property sc-domain:example.com, show organic queries in the United States containing "pricing" for the previous 90 complete days. Use dimensions=["query"], search_type="web", country equals USA, and query contains pricing. Return the top 50 rows inline and export up to 25,000 rows to CSV.
+</Prompt>
+
+### Aggregation
+
+Usually omit `aggregation_type` and let Search Console choose automatically.
+
+- Use `byPage` to aggregate by canonical page URI.
+- Use `byProperty` to aggregate at property level.
+- Do not use `byProperty` when grouping or filtering by page.
+- `byProperty` is not available for Discover or Google News reports.
+- The News Showcase aggregation is valid only for eligible News Showcase requests with the required search appearance and search type.
+
+An incompatible aggregation request fails rather than silently changing the requested aggregation.
+
+### Final, fresh, and hourly data
+
+| `data_state` | Behavior |
+| --- | --- |
+| Omitted or `final` | Finalized data only |
+| `all` | Includes fresh daily data that may still change |
+| `hourly_all` | Includes hourly data; use with the `hour` dimension |
+
+Use finalized data for routine reporting. Treat fresh and hourly rows as directional because Google may still be collecting and processing them.
+
+<Prompt description="Review recent hourly performance." actions={["copy"]}>
+For Search Console property sc-domain:example.com, show performance by hour for yesterday. Use dimensions=["hour"], data_state="hourly_all", and search_type="web". Label incomplete data as directional and keep the result inline.
+</Prompt>
+
+### Output modes
+
+| Mode | Returned output | Best for |
+| --- | --- | --- |
+| `summary` | Inline rows only, capped by `limit` | Quick checks and small comparisons |
+| `summary_and_csv` | Inline rows plus a signed CSV link | Most reporting workflows |
+| `csv_only` | CSV metadata and link with minimal inline data | Large pulls and spreadsheet work |
+
+CSV links expire after `export_ttl_minutes`. No CSV is created when a report returns zero rows. Rerun the request if a link expires.
+
+HireOtto makes one Search Console request per performance call and can retrieve at most 25,000 rows. Google does not guarantee every possible row; Search Console returns top rows within its internal limits. The tool does not currently expose pagination beyond the first 25,000 rows.
+
+Rows are generally sorted by clicks in descending order. Reports grouped by date are returned chronologically. CTR is returned as a decimal from 0 to 1, and position is the average position supplied by Search Console.
+
+## Practical workflows
+
+### Find organic opportunities for paid search
+
+<Prompt description="Compare organic demand with Google Ads coverage." actions={["copy"]}>
+For Search Console property sc-domain:example.com, retrieve the top non-brand organic queries from the previous 90 complete days with clicks, impressions, CTR, and average position. Then compare those queries with the Google Ads keywords and search terms I can access. Preserve the Search Console and Google Ads metrics separately, identify meaningful coverage gaps, and return recommendations for review. Do not change either platform.
+</Prompt>
+
+### Review pages by country and device
+
+<Prompt description="Break down landing-page performance." actions={["copy"]}>
+For Search Console property sc-domain:example.com, show page performance for the previous 28 complete days using dimensions=["page","country","device"]. Return the top 50 rows inline, export up to 25,000 rows, and summarize material mobile-versus-desktop or market differences without treating low-volume rows as conclusive.
+</Prompt>
+
+## Common failures
+
+### Search Console is not connected
+
+Run the authentication request and complete the newest Google authorization link. Search Console authorization is separate from the MCP connection and from Google Ads authorization.
+
+### No properties are returned
+
+Confirm that the same Google login can open the required property directly in Search Console. Successful authorization proves that the identity was connected; it does not prove that the identity has access to a property.
+
+### A named profile is blocked
+
+Use the default profile or confirm that the account has multiple-profile access. Current public plan guidance reserves additional named profiles for Agency.
+
+### The property or URL is rejected
+
+List properties again and copy the exact `site_url`. For a URL-prefix property, confirm the protocol, subdomain, and trailing slash. For URL inspection, confirm that the full `inspection_url` belongs to the selected property.
+
+### A report returns no rows
+
+Check the property, date range, search type, dimensions, and filters. A successful empty response can mean there was no matching data, a filter was too narrow, the selected profile cannot access the intended property, or Search Console has not finalized recent data.
+
+### A parameter combination fails
+
+Check for an unsupported dimension or search type, an invalid date, a filter with the wrong shape, or an incompatible aggregation. Avoid `byProperty` when a page dimension or page filter is present.
+
+### A quota error appears
+
+Wait before retrying, shorten the date range, and reduce expensive grouping or filtering by page and query. Repeated large requests for the same data also increase Search Console load.
+
+### The CSV link expired
+
+Rerun the same report and download the new file before its expiry time.
+
+### The results do not match the Search Console interface exactly
+
+Keep the date range, property, search type, filters, dimensions, and aggregation consistent. Search Console may omit anonymized or lower-volume rows, and the API returns top rows rather than guaranteeing every possible row.
+
+## Limits and boundaries
+
+- Search Console dates are inclusive and interpreted in Pacific Time.
+- Inline output is limited to 5,000 rows per request.
+- CSV output is limited to 25,000 rows per request.
+- CSV expiry can be set from 1 minute to 24 hours; the default is 30 minutes.
+- Google may return fewer rows than requested.
+- Search Analytics quota depends on query load as well as request frequency. Page and query grouping or filtering, especially together over long date ranges, is more expensive.
+- Google's URL Inspection quota is separate from Search Analytics quota.
+- URL Inspection shows indexed information, not a live-page test.
+- Search Console data does not include Google Ads cost or conversion metrics. Keep paid and organic evidence separate when combining the two sources.
+
+## Related guides
+
+- [Connect Google Search Console](/search-console/quickstart)
+- [Analyze Search Console performance](/guides/google-search-console)
+- [Connect HireOtto to an AI client](/setup/connect-ai-tool)
+- [Review plans and credits](/credits-and-billing)
+- [Troubleshoot HireOtto connections](/troubleshooting)
+
+## Sources
+
+- [HireOtto Search Console product page](https://hireotto.com/search-console-mcp)
+- [HireOtto pricing](https://hireotto.com/pricing)
+- [Google Search Analytics query reference](https://developers.google.com/webmaster-tools/v1/searchanalytics/query)
+- [Google Search Console API usage limits](https://developers.google.com/webmaster-tools/limits)
+- [Google URL Inspection API reference](https://developers.google.com/webmaster-tools/v1/urlInspection.index/inspect)
+- [Google Sites list reference](https://developers.google.com/webmaster-tools/v1/sites/list)
+- [Google Sitemaps list reference](https://developers.google.com/webmaster-tools/v1/sitemaps/list)
