@@ -1,363 +1,322 @@
 ---
-title: "Google Search Console MCP reporting with HireOtto"
-description: "Use HireOtto’s Google Search Console MCP support to pull organic search reports, analyze queries and pages, export Search Console data to CSV, and check URL indexing from your AI assistant."
+title: "Analyze Search Console performance and URL indexing with HireOtto"
+description: "Turn Google Search Console data into organic-search decisions, inspect Google's indexed version of important URLs, and export review-ready evidence from your AI client."
 sidebarTitle: "Reporting"
 ---
 
-This guide covers how to connect Search Console, what you can ask, how output modes work, and how to structure prompts for useful organic search analysis.
+Use HireOtto to answer two practical Search Console questions from your AI client:
 
----
+1. Which queries and pages deserve action?
+2. What does Google currently know about an important URL?
 
-## What you can do
+HireOtto can retrieve clicks, impressions, CTR, and average position; break results down by query, page, country, device, date, hour, or search appearance; export up to 25,000 rows; list submitted sitemaps; and inspect Google's indexed version of a URL.
 
-HireOtto can help you work with Google Search Console data from your AI workflow.
+Search Console access is read-only. HireOtto cannot change a property, submit or remove a sitemap, request indexing, run a live URL test, edit a canonical, or change your website.
 
-Common use cases:
+## Before you start
 
-- Analyze top organic search queries
-- Review page performance
-- Break down organic traffic by country or device
-- Compare search performance across dates
-- Export Search Console data to CSV
-- Find high-impression, low-CTR opportunities
-- Review organic queries that may be worth testing in Google Ads
-- Check whether a URL is indexed in Google
-- List Search Console properties and submitted sitemaps
+You need:
 
----
+- HireOtto connected to an MCP-capable AI client
+- Search Console authorized separately through HireOtto
+- A Google login that can access the property you want to review
+- The exact Search Console property value, such as `sc-domain:example.com` or `https://www.example.com/`
 
-## Before you start: connect Google Search Console
-
-Google Search Console uses a separate Google permission flow.
-
-Even if you have already connected Google Ads, you still need to connect Search Console before asking for organic search data.
-
-Ask your AI assistant:
+Search Console tools currently use HireOtto's Google Ads MCP endpoint:
 
 ```text
-Connect my Google Search Console account.
+https://googleads.hireotto.com/mcp
 ```
 
-HireOtto will return an authentication link. Open the link, choose the Google account that has access to your Search Console properties, and approve access.
+Connecting that endpoint does not authorize Search Console automatically. Follow the [Search Console quickstart](/search-console/quickstart) if you have not completed the separate Google permission flow.
 
-After authentication is complete, you can ask:
+<Prompt description="List the Search Console properties available to my default profile. Include the exact site_url and permission level for each property. Do not run a performance report or inspect any URLs." actions={["copy"]}>
+</Prompt>
 
-```text
-Show me the Search Console sites I have access to.
-```
+Copy the returned `site_url` exactly. A domain property looks like `sc-domain:example.com`. A URL-prefix property looks like `https://www.example.com/`; its protocol, subdomain, and trailing slash matter.
 
-Use the returned `site_url` when you want to specify a property directly.
+<Note>
+  Search Console is available on HireOtto Free, Starter, Pro, and Agency. The default connection uses the `default` profile. Current public plan guidance reserves additional named profiles for Agency.
+</Note>
 
-Examples of Search Console property values:
+## Choose the right workflow
 
-```text
-sc-domain:example.com
-```
+| Job | Use | What it returns |
+| --- | --- | --- |
+| Find organic opportunities | Search performance | Clicks, impressions, CTR, and average position grouped by the dimensions you choose |
+| Diagnose a specific page | URL inspection | Google's indexed verdict, coverage state, crawl and fetch details, and canonical information |
+| Confirm property coverage | Property list | Exact property values and permission levels available to the connected Google login |
+| Review sitemap records | Sitemap list | Sitemaps submitted for the selected property and the fields returned by Google |
 
-```text
-https://www.example.com/
-```
+Use performance data to identify where to investigate. Use URL inspection to check Google's indexed information for a specific page. Neither result, by itself, proves what is happening in the browser right now or what caused a performance change.
 
-Domain properties and URL-prefix properties are both supported.
+## Workflow 1: Turn Search performance into decisions
 
----
+### 1. Define the question before the dimensions
 
-## Output modes
+Start with the decision you need to make. Then request only the dimensions required to answer it.
 
-Search Console reports can return a lot of rows. Choose the right [output mode](/output-modes) upfront.
+| Question | Useful dimensions | What to review |
+| --- | --- | --- |
+| Which queries are gaining or losing demand? | `query`, then `date` if a trend is needed | Clicks, impressions, CTR, position, intent, and volume |
+| Which landing pages need attention? | `page` | Visibility, clicks, CTR, position, and page purpose |
+| Is performance different by market? | `country` plus `query` or `page` | Market-specific demand and landing-page fit |
+| Is mobile behaving differently? | `device` plus `query` or `page` | Device-specific visibility and CTR |
+| Which search-result features appear? | `searchAppearance` | Values actually present for the property |
 
-```text
-summary
-```
+Adding dimensions makes the result more granular. It can also fragment the data and increase Search Console query load. Begin with one or two dimensions, then drill into the rows that matter.
 
-Returns inline rows in chat. Good for quick checks.
+### 2. Use a completed date range
 
-```text
-summary_and_csv
-```
+For routine analysis, use finalized data and end the range at yesterday or earlier. Search Console interprets `start_date` and `end_date` in Pacific Time, and both dates are inclusive.
 
-Returns top rows inline plus a CSV export. Best for most reporting workflows.
+<Prompt description="For property sc-domain:example.com, return the top 50 organic queries for the previous 28 complete days, ending yesterday. Include clicks, impressions, CTR, and average position. Use finalized web-search data, show the rows inline, and identify only evidence-backed opportunities. Do not change anything." actions={["copy"]}>
+</Prompt>
 
-```text
-csv_only
-```
+Use fresh data only when the most recent activity matters more than completeness. Hourly reporting requires the `hour` dimension and hourly data. Treat fresh and hourly results as directional because recent data can be incomplete.
 
-Returns a CSV export with minimal inline data. Best for large pulls or spreadsheet work.
+<Prompt description="For property sc-domain:example.com, show web-search performance by hour for yesterday. Include clicks and impressions, use hourly data, flag that the result may be partial, and keep the output inline." actions={["copy"]}>
+</Prompt>
 
-CSV download links expire, so download the file soon after it is generated.
+### 3. Filter deliberately
 
-Example:
+Search Console filters are combined with AND logic. Supported filter dimensions are `country`, `device`, `page`, `query`, and `searchAppearance`.
 
-```text
-Show me the top organic search queries for the last 28 days. Include a CSV export.
-```
+Supported operators are:
 
----
+- `equals`
+- `contains`
+- `notEquals`
+- `notContains`
+- `includingRegex`
+- `excludingRegex`
 
-## Top organic queries
+Country filters use three-letter country codes such as `USA`, `IND`, and `GBR`. Device values are `DESKTOP`, `MOBILE`, and `TABLET`. Regex filters use RE2 syntax.
 
-Use this when you want to see what people are searching before they reach your site.
+<Prompt description="For property sc-domain:example.com, analyze web-search queries in the United States for the previous 90 complete days. Exclude queries containing example or example.com, return clicks, impressions, CTR, and average position, and export up to 25,000 rows. Group the strongest opportunities by search intent, but preserve the exact raw query in the evidence." actions={["copy"]}>
+</Prompt>
 
-```text
-Show me the top organic search queries for the last 28 days.
-```
+Do not infer that a missing row has zero demand. Search Console may omit anonymized queries, and the API returns top rows rather than guaranteeing every possible row.
 
-For a fuller export:
+### 4. Keep output appropriate to the job
 
-```text
-Show me the top organic search queries for the last 28 days. Include a CSV export.
-```
+| Parameter | Default | Accepted value or range | Use it for |
+| --- | --- | --- | --- |
+| `output_mode` | `summary_and_csv` | `summary`, `summary_and_csv`, `csv_only` | Choose inline rows, an export, or both |
+| `limit` | `50` | `1` to `5,000` | Control rows shown inline |
+| `export_limit` | `25,000` | `1` to `25,000` | Control rows retrieved for CSV |
+| `export_ttl_minutes` | `30` | `1` to `1,440` | Set how long the signed CSV link remains available |
 
-Useful follow-up questions:
+Use `summary` for a quick review, `summary_and_csv` for most analysis, and `csv_only` when the export is the deliverable. No CSV is created when the report returns zero rows. Download signed exports before they expire; rerun the report if a link has expired.
 
-```text
-Which of these queries have high impressions but low CTR?
-```
+HireOtto makes one Search Console request per performance call and does not currently paginate beyond the first 25,000 rows. A CSV export is therefore a larger slice of the available top rows, not a promise of complete Search Console data.
 
-```text
-Which of these queries look commercial enough to test in Google Ads?
-```
+### 5. Separate evidence from interpretation
 
-```text
-Group these into branded, competitor, problem-aware, and informational themes.
-```
+Search Console returns:
 
----
+- Clicks
+- Impressions
+- CTR as a decimal from `0` to `1`
+- Average position
 
-## Page performance
+Rows are generally sorted by clicks in descending order. A report grouped by date is returned chronologically.
 
-Use page performance when you want to see which URLs are getting organic search visibility.
+Use the metrics as evidence, then add the commercial and editorial context Search Console does not contain:
 
-```text
-Show me page performance for the last 28 days.
-```
+- What the page is meant to do
+- Whether the query is branded, commercial, navigational, or informational
+- Whether the page changed during the period
+- Whether seasonality, a launch, or a migration affected the comparison
+- Whether the site has another page serving the same intent
 
-For country and device breakdowns:
+Do not treat average position as a fixed rank for every searcher. Do not treat high impressions and low CTR as an automatic title-tag rewrite. First check query intent, page relevance, search appearance, brand presence, and the size of the evidence.
 
-```text
-Show me page performance for the last 28 days split by country and device. Give me the top pages inline and export the full data.
-```
+## Compare two periods safely
 
-This is useful for questions like:
+Run the same property, search type, dimensions, filters, and aggregation for both periods. Use complete, equal-length periods and keep the raw values next to percentage changes. If a page launched midway through one period, or the comparison crosses a seasonal event, label that structural difference.
 
-- Which landing pages perform best in the US?
-- Are mobile rankings weaker than desktop?
-- Which pages get impressions but poor CTR?
-- Which pages should be considered for paid search testing?
+<Prompt description="For property sc-domain:example.com, compare page-level web-search performance for the previous 28 complete days with the 28 complete days immediately before that. Use finalized data and identical settings for both periods. Show clicks, impressions, CTR, and average position for each period, plus absolute and percentage changes. Flag small denominators, new or missing pages, and any conclusion that needs another check. Export the underlying rows." actions={["copy"]}>
+</Prompt>
 
----
+If the AI client runs two separate reports, verify that both used the same `site_url`, dimensions, filters, search type, and date conventions before accepting the comparison.
 
-## Country-specific query reporting
+## Workflow 2: Inspect Google's indexed version of a URL
 
-Use country filters when performance differs by market.
+Use URL inspection after performance analysis identifies an important page, or when a new, updated, or business-critical URL needs an index-status check.
 
-Example:
+### 1. Select the correct property
 
-```text
-Show me organic queries in the US for the last 28 days. I want clicks, impressions, CTR and average position.
-```
+The full `inspection_url` must belong to the selected `site_url`. A domain property can cover protocols and subdomains for the domain. A URL-prefix property covers only its exact prefix.
 
-You can also ask for other countries:
+### 2. Ask for the fields that support a diagnosis
 
-```text
-Show me organic queries in India for the last 28 days.
-```
+<Prompt description="For Search Console property sc-domain:example.com, inspect https://www.example.com/pricing. Return Google's verdict, coverage state, robots.txt state, indexing state, page-fetch state, last crawl time, Google-selected canonical, and user-declared canonical. Explain what is confirmed, what is only suggested, and what needs a live-page check. Do not request indexing or change anything." actions={["copy"]}>
+</Prompt>
 
-```text
-Show me page performance in the UK for the last 3 months.
-```
+HireOtto can return:
 
-Country filters use Search Console country data. If you know the exact country code, you can include it directly.
+- Verdict and coverage state
+- Robots.txt and indexing states
+- Page-fetch state
+- Last crawl time
+- Google-selected canonical
+- User-declared canonical
+- Additional URL Inspection details returned by Google
 
-Examples:
+<Warning>
+  URL Inspection reports the version currently known in Google's index. It cannot test the live URL, request indexing, recrawl the page, or change robots and canonical settings.
+</Warning>
 
-```text
-USA
-IND
-GBR
-FRA
-DEU
-```
+### 3. Complete the diagnosis outside the indexed report
 
----
+An indexed-URL result is one layer of evidence. When a page looks wrong or stale, also check:
 
-## Query filters
+1. The live HTTP response and redirects
+2. The rendered page and canonical tag
+3. Robots directives and robots.txt
+4. Internal links and sitemap inclusion
+5. Recent deployments, migrations, or URL changes
+6. Search Console's live inspection tools when a live test is required
 
-Use query filters when you want to focus on a topic, product, competitor, or keyword family.
+Label the conclusion carefully:
 
-```text
-Show me US search queries containing "google ads" for the last 3 months. Export the full data and summarize the biggest opportunities.
-```
+- **Confirmed:** directly reported for Google's indexed version
+- **Likely:** supported by the indexed result and another source
+- **Needs live validation:** cannot be established from the indexed result alone
 
-Other examples:
+## Review submitted sitemaps
 
-```text
-Show me queries containing "pricing" for the last 90 days.
-```
+HireOtto can list sitemaps submitted for a Search Console property. It does not submit, remove, edit, fetch, or validate sitemap XML on the live website.
 
-```text
-Show me non-brand queries containing "automation" for the last 3 months.
-```
+<Prompt description="For Search Console property sc-domain:example.com, list the submitted sitemaps. Summarize the sitemap path, status, last submitted and downloaded dates, warnings, errors, and content counts when Google returns them. Do not submit, remove, or modify any sitemap." actions={["copy"]}>
+</Prompt>
 
-```text
-Show me queries matching this pattern: "google ads|ppc|paid search".
-```
+If a sitemap is missing from the list, check whether you selected the correct property and Google login before concluding that it was never submitted.
 
-Use filtered query reports when you want to move from raw SEO data to action.
+## Cross-platform workflow: paid and organic search
 
----
+Search Console and Google Ads describe different systems. Search Console reports organic visibility and clicks. Google Ads reports paid delivery, cost, and tracked conversions. Keep each dataset intact, align the date range, market, device, and query treatment, then compare them at the decision layer.
 
-## Search Console + Google Ads workflows
+<Prompt description="For the previous 90 complete days, compare Google Search Console queries for sc-domain:example.com with Google Ads search terms for the matching market and device scope. Preserve the raw query from each platform. Create four review queues: paid and organic overlap, paid-only converting demand, organic strength without paid coverage, and insufficient evidence. Keep paid cost and conversions separate from organic clicks, impressions, CTR, and average position. Do not pause keywords, add keywords, or change campaigns." actions={["copy"]}>
+</Prompt>
 
-Search Console is especially useful when paired with Google Ads.
+Use the output to form hypotheses, not automatic budget decisions. Organic visibility does not prove paid search is non-incremental, and a paid-only query does not prove that a new SEO page should be created.
 
-Example workflow:
+## Parameters and defaults
 
-```text
-Show me high-impression organic queries from Search Console where CTR is low. Then identify which ones may be worth testing as Google Ads keywords.
-```
+### Search performance
 
-Then:
+| Parameter | Required | Default | Accepted value or range |
+| --- | --- | --- | --- |
+| `site_url` | Yes | — | Exact property value returned by the property list |
+| `start_date` | Yes | — | Inclusive date in `YYYY-MM-DD` format, interpreted in Pacific Time |
+| `end_date` | Yes | — | Inclusive date in `YYYY-MM-DD` format, interpreted in Pacific Time |
+| `dimensions` | No | `["query"]` | Any supported combination of `query`, `page`, `country`, `device`, `date`, `hour`, `searchAppearance` |
+| `search_type` | No | `web` | `web`, `image`, `video`, `news`, `discover`, `googleNews` |
+| `dimension_filter_groups` | No | None | A JSON string, one filter-group object, or an array of filter-group objects |
+| `aggregation_type` | No | Search Console default | `auto`, `byPage`, `byProperty`, or the conditional News Showcase option |
+| `data_state` | No | `final` behavior | `final`, `all`, `hourly_all` |
+| `output_mode` | No | `summary_and_csv` | `summary`, `summary_and_csv`, `csv_only` |
+| `limit` | No | `50` | `1` to `5,000` inline rows |
+| `export_limit` | No | `25,000` | `1` to `25,000` export rows |
+| `export_ttl_minutes` | No | `30` | `1` to `1,440` minutes |
+| `profile_id` | No | `default` | `default` or an eligible named profile |
 
-```text
-Group the strongest paid search candidates by intent and suggest ad group themes.
-```
+Leave `aggregation_type` unset unless you need a specific calculation. Do not use `byProperty` when grouping or filtering by page. `byProperty` is also unavailable for Discover and Google News reports.
 
-Another workflow:
+### URL inspection and resources
 
-```text
-Show me organic page performance by country and device. Identify landing pages where paid search traffic may need a different page by region or device.
-```
+| Parameter | Required | Default | Accepted value |
+| --- | --- | --- | --- |
+| `action` | Yes | — | `list_sites`, `list_sitemaps`, `inspect_url` |
+| `site_url` | Conditional | — | Required for sitemaps and URL inspection |
+| `inspection_url` | Conditional | — | Full URL required for URL inspection |
+| `language_code` | No | `en-US` | Supported BCP 47 language code for issue messages |
+| `profile_id` | No | `default` | `default` or an eligible named profile |
 
-Use this when SEO data can help improve Google Ads targeting, landing page selection, and keyword discovery.
+See the [Search Console MCP tools reference](/search-console/tools-reference) for tool-by-tool details and request shapes.
 
----
+## Access, credits, and limits
 
-## URL indexing checks
+- Search Console is available now on Free, Starter, Pro, and Agency.
+- Search Console access is read-only.
+- Each successful property, sitemap, URL-inspection, or performance request uses 5 HireOtto credits. Agency includes unlimited credits.
+- Authentication starts the permission flow but does not retrieve Search Console data.
+- The default Google connection is `default`; current public plan guidance reserves additional named profiles for Agency.
+- Inline output is limited to 5,000 rows per performance request.
+- CSV output is limited to 25,000 rows per performance request.
+- Signed CSV links default to 30 minutes and can be set from 1 minute to 24 hours.
+- Google may return fewer rows than requested and does not guarantee every possible row.
+- Search Analytics and URL Inspection have separate Google quotas.
+- Large date ranges and queries grouped or filtered by both page and query consume more Search Console load.
 
-Use URL indexing checks when you want to know whether an important page is indexed by Google.
+## Common failures
 
-Example:
+### Search Console is not connected
 
-```text
-Check if https://www.example.com/pricing is indexed in Google.
-```
+Complete the separate Search Console authorization. A working HireOtto or Google Ads connection does not grant Search Console access.
 
-This is useful for:
+### No properties appear
 
-- Pricing pages
-- Product pages
-- Landing pages
-- New blog posts
-- Important SEO pages
-- Pages you are sending paid traffic to
+Confirm that the same Google login can open the property directly in Search Console. Successful authorization proves which identity was connected; it does not prove that the identity has property access.
 
-If the URL does not belong to the selected Search Console property, use the correct `site_url` from your list of Search Console sites.
+### The property or URL is rejected
 
----
+List properties again and copy the exact `site_url`. For a URL-prefix property, confirm the protocol, subdomain, and trailing slash. For URL inspection, confirm that the full URL belongs to the selected property.
 
-## Sitemaps
+### A named profile is blocked
 
-You can ask HireOtto to list submitted sitemaps for a Search Console property.
+Use the default profile or confirm that the account includes multiple-profile access. Current public plan guidance reserves additional profiles for Agency.
 
-```text
-Show me submitted sitemaps for my Search Console property.
-```
+### A report returns no rows
 
-Use this when checking whether important XML sitemaps are present in Search Console.
+Check the property, date range, search type, dimensions, filters, and selected profile. An empty result can mean there is no matching data, the filter is too narrow, recent data is not finalized, or the selected login cannot access the intended property.
 
----
+### A parameter combination fails
 
-## Search appearance reports
+Check for an unsupported dimension or search type, an invalid date, a filter with the wrong shape, or an incompatible aggregation. Avoid `byProperty` when a page dimension or page filter is present.
 
-Search appearance values can vary by property and over time.
+### A quota error appears
 
-To discover available values, ask:
+Wait before retrying. Then shorten the date range, remove unnecessary page or query grouping and filtering, and avoid repeatedly requesting the same large dataset.
 
-```text
-Show me Search Console performance grouped by search appearance for the last 28 days.
-```
+### The CSV link expired
 
-Use this before filtering by a specific search appearance.
+Rerun the report and download the new file before its expiry time.
 
----
+### The result differs from the Search Console interface
 
-## Fresh and hourly data
+Align the property, search type, dates, dimensions, filters, and aggregation. Search Console may omit anonymized or lower-volume rows, and its API returns top rows rather than guaranteeing a complete table.
 
-For most reporting workflows, use finalized data and end the date range at yesterday or earlier.
+## Practical checklist
 
-Use fresh or hourly data only when you need very recent Search Console data.
+Before acting on a Search Console finding:
 
-Example:
+- Confirm the Google login and exact property
+- Use complete dates unless recent data is intentionally required
+- Keep dimensions and filters tied to the question
+- Preserve raw clicks, impressions, CTR, and position
+- Check sample size before interpreting a rate
+- Inspect important URLs under the correct property
+- Treat indexed information separately from live-page behavior
+- Bring in content, conversion, and commercial context
+- Keep Google Ads metrics separate in cross-platform analysis
+- Record what is confirmed, likely, and still unverified
 
-```text
-Show me Search Console performance by date for the last 7 days, including fresh data if available.
-```
+## Related pages
 
-For hourly reporting:
+- [Connect Google Search Console](/search-console/quickstart)
+- [Search Console MCP tools reference](/search-console/tools-reference)
+- [Connect a HireOtto server](/setup/connect-ai-tool)
+- [HireOtto plans and credits](/credits-and-billing)
+- [Troubleshoot HireOtto](/troubleshooting)
+- [Search Console product page](https://hireotto.com/search-console-mcp)
 
-```text
-Show me hourly Search Console performance for yesterday.
-```
+## Sources
 
-Hourly data may be incomplete and should be treated as directional.
-
----
-
-## Recommended prompts
-
-```text
-Connect my Google Search Console account.
-```
-
-```text
-Show me the Search Console sites I have access to.
-```
-
-```text
-Show me the top organic search queries for the last 28 days. Include a CSV export.
-```
-
-```text
-Show me page performance for the last 28 days split by country and device. Give me the top pages inline and export the full data.
-```
-
-```text
-Show me organic queries in the US for the last 28 days. I want clicks, impressions, CTR and average position.
-```
-
-```text
-Show me US search queries containing "google ads" for the last 3 months. Export the full data and summarize the biggest opportunities.
-```
-
-```text
-Check if https://www.example.com/pricing is indexed in Google.
-```
-
----
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="I connected Google Ads. Why do I need to connect Search Console separately?">
-    Google Ads and Google Search Console are different Google products with different permissions. Connect Search Console separately before asking for organic search reports.
-  </Accordion>
-
-  <Accordion title="I authenticated but do not see any sites.">
-    Make sure you selected the Google account that has access to the Search Console properties you want to analyze.
-  </Accordion>
-
-  <Accordion title="My CSV link expired.">
-    Run the report again and download the CSV soon after it is generated.
-  </Accordion>
-
-  <Accordion title="URL inspection says the URL is not part of the property.">
-    Use the correct Search Console property. First list your available sites, then retry the indexing check with the matching `site_url`.
-  </Accordion>
-
-  <Accordion title="Should I use summary or CSV?">
-    Use `summary` for quick checks. Use `summary_and_csv` for most reporting workflows. Use `csv_only` for large exports.
-  </Accordion>
-</AccordionGroup>
-
----
+- [HireOtto Search Console product page](https://hireotto.com/search-console-mcp)
+- [HireOtto pricing](https://hireotto.com/pricing)
+- [Google Search Analytics query reference](https://developers.google.com/webmaster-tools/v1/searchanalytics/query)
+- [Google URL Inspection API reference](https://developers.google.com/webmaster-tools/v1/urlInspection.index/inspect)
+- [Google Search Console API usage limits](https://developers.google.com/webmaster-tools/limits)
