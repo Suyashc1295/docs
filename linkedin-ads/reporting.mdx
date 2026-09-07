@@ -1,0 +1,245 @@
+---
+title: "Analyze LinkedIn Ads performance and professional demographics with HireOtto"
+description: "Run account, campaign-group, ad-set, creative, and professional-demographic reports from your AI client, then turn the evidence into a review-ready decision queue."
+sidebarTitle: "Reporting"
+---
+
+Use HireOtto to inspect LinkedIn Ads delivery, engagement, conversions, and professional-demographic patterns without changing Campaign Manager.
+
+Start at the highest useful level, find the entities behind the result, and only then add a professional-demographic breakdown. This keeps the report tied to a decision instead of producing a large table with no operating context.
+
+<Info>
+  LinkedIn Ads reporting is read-only. A report request does not create, edit, pause, or activate ads. It does use HireOtto credits and can create a temporary CSV export when requested.
+</Info>
+
+## Before you run a report
+
+You need:
+
+- The HireOtto LinkedIn Ads server connected to your AI client.
+- A linked LinkedIn identity with access to the intended ad account.
+- The exact LinkedIn ad-account ID.
+- A reporting start date in `YYYY-MM-DD` format.
+- A clear question, reporting level, and primary outcome metric.
+
+If you have not connected LinkedIn Ads yet, follow the [LinkedIn Ads quickstart](/linkedin-ads/quickstart). Use the [LinkedIn Ads tools reference](/linkedin-ads/tools-reference) when you need the complete tool schema.
+
+<Prompt description="List the LinkedIn ad accounts available through my default profile. Show each account ID, name, currency, my role, and whether I can write to the account. Refresh the account list before returning the result. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## Choose the reporting level
+
+HireOtto uses a marketer-friendly hierarchy:
+
+`Account → campaign group → ad set → creative`
+
+The `level` parameter accepts the following values:
+
+| Level | What it reports | Default pivot | Use it for |
+| --- | --- | --- | --- |
+| `account` | The whole ad account | `ACCOUNT` | Executive pulse, spend and results across the account |
+| `campaign` | LinkedIn campaign groups | `CAMPAIGN_GROUP` | Finding the campaign groups behind an account-level change |
+| `ad_set` | LinkedIn ad campaigns, called ad sets in HireOtto | `CAMPAIGN` | Delivery, audience, budget, and result diagnosis |
+| `creative` | Individual ads and creatives | `CREATIVE` | Creative comparisons and test planning |
+
+`campaign` in the HireOtto reporting parameter means campaign group. `ad_set` maps to the LinkedIn object called a campaign in the API. Keep this distinction in mind when copying IDs from Campaign Manager or another export.
+
+If `ids` is omitted, HireOtto reports across the full ad account. If you provide `ids`, each ID must belong to the selected level.
+
+## Run a useful performance report
+
+A strong first report uses a complete period and raw metrics that match the business question. For a website-conversion campaign, that commonly means:
+
+- `impressions`
+- `clicks`
+- `landingPageClicks`
+- `costInLocalCurrency`
+- `externalWebsiteConversions`
+
+Use engagement, lead, document, or video metrics only when the campaign format and objective make them relevant. HireOtto returns raw LinkedIn metrics. Ask your AI client to calculate CTR, CPC, CPM, conversion rate, or CPA from the underlying counts instead of requesting those derived rates as reporting fields.
+
+<Prompt description="For LinkedIn ad account 123456, report campaign-group performance for the previous 30 complete days, ending yesterday. Include impressions, clicks, landing-page clicks, spend in the account currency, website conversions, and the raw values used to calculate CTR, cost per landing-page click, conversion rate, and CPA. Show the 50 most material rows inline, create a CSV for the complete result, identify the campaign groups driving the change, and separate observations from recommendations. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+### Compare complete periods
+
+Run the same fields at the same level for both periods. Keep launches, promotions, pauses, attribution lag, and major budget changes visible so a structural change does not masquerade as an optimization insight.
+
+<Prompt description="For LinkedIn ad account 123456, compare the last completed Monday-to-Sunday week with the previous completed Monday-to-Sunday week at campaign-group level. Use the same raw metrics and entity scope for both periods. Show spend, impressions, landing-page clicks, website conversions, CTR, cost per landing-page click, conversion rate, and CPA. Identify material movers, call out low-volume rows, and finish with Do now, Investigate, and Monitor queues. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+### Drill down without changing the question
+
+When a campaign group moves materially, keep the date range and metrics fixed while changing the reporting level. This isolates whether the movement came from one ad set, broad delivery, or the creative mix.
+
+<Prompt description="For LinkedIn ad account 123456 and campaign group 987654, break down performance by ad set for 2026-08-01 through 2026-08-31. Include impressions, clicks, landing-page clicks, spend in the account currency, and website conversions. Preserve the campaign-group context, calculate derived rates from the raw values, flag insufficient data, and explain which ad sets account for the campaign-group result. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="For LinkedIn ad account 123456 and ad set 456789, compare creative performance for 2026-08-01 through 2026-08-31. Include impressions, clicks, landing-page clicks, spend in the account currency, and website conversions. Keep sample size beside every rate, note uneven delivery or different start dates, and classify each creative as Scale carefully, Investigate, Test next, or Insufficient data. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## Add a professional-demographic breakdown
+
+Professional-demographic reporting helps answer whether the campaign reached and engaged the intended market. It is aggregated, approximate reporting—not a list of individual members or leads.
+
+HireOtto supports these professional-demographic pivots:
+
+| Question | Pivot |
+| --- | --- |
+| Which companies appeared in the eligible report? | `MEMBER_COMPANY` |
+| Which company sizes appeared? | `MEMBER_COMPANY_SIZE` |
+| Which industries appeared? | `MEMBER_INDUSTRY` |
+| Which seniorities appeared? | `MEMBER_SENIORITY` |
+| Which job titles appeared? | `MEMBER_JOB_TITLE` |
+| Which job functions appeared? | `MEMBER_JOB_FUNCTION` |
+| Which countries appeared? | `MEMBER_COUNTRY_V2` |
+| Which regions appeared? | `MEMBER_REGION_V2` |
+
+Use one demographic dimension at a time when the goal is diagnosis. Multiple pivots are supported, but a more granular report can become sparse and harder to interpret.
+
+<Prompt description="For LinkedIn ad account 123456 and campaign group 987654, break down eligible performance by member seniority for the previous 30 complete days, ending yesterday. Include impressions, clicks, and spend in the account currency. Use a full-period view, show the raw values, explain privacy suppression and reporting delay, and identify only patterns supported by enough data. Do not infer individual identities and do not change anything." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="For LinkedIn ad account 123456 and campaign group 987654, report member-company performance for the previous 90 complete days, ending yesterday. Include impressions, clicks, and spend in the account currency. Keep every returned organization URN visible, resolve names only when they can be verified, explain why companies outside the targeting list may appear, and do not recommend exclusions from a company name alone. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+### Interpret demographic data carefully
+
+LinkedIn applies privacy and completeness rules to professional-demographic reports:
+
+- Demographic data can arrive later than ordinary performance data. The LinkedIn Ads API documents a typical 12–24 hour delay, while Campaign Manager guidance says the data can take up to 48 hours to appear. Allow 48 hours before treating a missing recent segment as a tracking or targeting problem.
+- Values with fewer than three events are removed from API results.
+- Only the top 100 professional-demographic values are returned for each creative for each day.
+- Professional-demographic metrics are approximate and may not sum exactly across days, levels, or similar date ranges.
+- Professional-demographic data is retained for two years; ordinary performance data has a longer retention period.
+- A company in the report is evidence that eligible delivery or engagement was associated with that company. It is not proof that the company was explicitly targeted or that its traffic was wasteful.
+
+For the most stable interpretation, request the full period rather than summing daily demographic rows, and use the highest reporting level that answers the question.
+
+<Warning>
+  Missing demographic rows do not mean zero exposure. They may reflect low delivery, privacy suppression, reporting delay, an incompatible metric, or a date range with no matching activity.
+</Warning>
+
+## Parameters and defaults
+
+The reporting tool is `get_linkedin_ads_report`.
+
+| Parameter | Required | Default | Accepted values and limits |
+| --- | --- | --- | --- |
+| `ad_account_id` | Yes | — | LinkedIn sponsored-account ID |
+| `start_date` | Yes | — | `YYYY-MM-DD` |
+| `end_date` | No | LinkedIn reports through the current date | `YYYY-MM-DD`; use an explicit completed date for repeatable analysis |
+| `level` | No | `campaign` | `account`, `campaign`, `ad_set`, or `creative` |
+| `ids` | No | Whole ad account | One or more IDs that match the selected level |
+| `pivots` | No | Pivot for the selected level | One to three supported pivots |
+| `metrics` | No | See the default fields below | Up to 20 fields after required context fields are added |
+| `time_granularity` | No | `ALL` | `ALL`, `DAILY`, `MONTHLY`, or `YEARLY` |
+| `profile_id` | No | Default LinkedIn profile | Named profiles require Agency |
+| `output_mode` | No | `summary_and_csv` | `summary`, `summary_and_csv`, or `csv_only` |
+| `limit` | No | `50` | Inline rows: 1–5,000 |
+| `export_limit` | No | `5,000` | CSV rows: 1–50,000, subject to LinkedIn's 15,000-element response cap |
+| `export_ttl_minutes` | No | `30` | 1–1,440 minutes |
+
+When `metrics` is omitted, HireOtto requests:
+
+```text
+dateRange
+pivotValues
+impressions
+clicks
+landingPageClicks
+costInLocalCurrency
+externalWebsiteConversions
+likes
+shares
+totalEngagements
+```
+
+HireOtto automatically adds `dateRange` and `pivotValues` when they are missing from a custom metric list. They count toward LinkedIn's 20-field limit.
+
+### Output modes
+
+- `summary` returns inline rows only.
+- `summary_and_csv` returns inline rows and creates a temporary CSV when the report has data.
+- `csv_only` returns report metadata and the temporary CSV without placing the rows in chat.
+
+LinkedIn Ad Analytics does not paginate, and LinkedIn limits a response to 15,000 elements. Increasing `export_limit` cannot retrieve rows that LinkedIn did not return. The CSV link expires after `export_ttl_minutes`; download it before it expires or rerun the report.
+
+<Prompt description="For LinkedIn ad account 123456, return ad-set performance for 2026-07-01 through 2026-08-31 as CSV only. Include impressions, clicks, landing-page clicks, spend in the account currency, website conversions, and pivot values. Export every row LinkedIn returns, state the total and exported row counts, and warn me when the upstream response limit may make the result incomplete. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## Metric and pivot compatibility
+
+Some metrics are available only for particular objectives, ad formats, or pivots. HireOtto rejects unlisted metrics and blocks known-incompatible professional-demographic combinations before sending the report.
+
+Do not use these fields with `MEMBER_*` pivots:
+
+- `conversionValueInLocalCurrency`
+- `cardImpressions`
+- `cardClicks`
+- `viralCardImpressions`
+- `viralCardClicks`
+- `approximateMemberReach`
+
+Carousel-card metrics are not available with professional-demographic pivots. Other LinkedIn compatibility rules can still cause a request to fail; remove the least essential field and rerun rather than changing the business question.
+
+## Common failure cases
+
+### The report is empty
+
+An empty report is a valid result. It can mean:
+
+- No activity matched the account, IDs, pivots, and date range.
+- The connected LinkedIn identity lacks read access to the requested data.
+- Recent demographic data has not arrived yet.
+- Privacy thresholds removed all eligible demographic values.
+
+Confirm the account and role, run a broader non-demographic report, then widen the date range or wait for the demographic delay. Do not interpret missing rows as zero automatically.
+
+<Prompt description="Diagnose this empty LinkedIn Ads report without changing anything. First verify access to ad account 123456, then confirm the requested entity IDs belong to the selected level. Run a broad account-level performance report for the same dates, check whether the date range contains delivery, identify any incompatible metrics or pivots, and explain whether no activity, permissions, reporting delay, or privacy suppression is the most likely cause. Keep confirmed facts separate from possibilities." actions={["copy"]}>
+</Prompt>
+
+### The IDs do not match the level
+
+A campaign-group ID used with `level=ad_set`, or an ad-set ID used with `level=creative`, can return an error or no matching rows. Read the hierarchy first and preserve the account, parent, and child IDs in the report request.
+
+### The metric is unsupported
+
+Use exact LinkedIn field names. Derived measures such as CTR, CPC, CPM, conversion rate, and CPA should be calculated from raw metrics after retrieval.
+
+### The report is too granular
+
+Two or three pivots use LinkedIn's statistics reporting mode. More dimensions increase sparsity, and more than three pivots are rejected. Start with one pivot and add another only when it answers a specific follow-up question.
+
+### Old daily dates shift to month boundaries
+
+LinkedIn can round older `timeGranularity=ALL` ranges to month boundaries when the requested start or end falls outside its daily-granularity retention window. Read the returned `dateRange` instead of assuming it matches the request exactly.
+
+### The CSV link expired
+
+Rerun the same read-only report. Extending `export_ttl_minutes` changes only the temporary link lifetime, not LinkedIn's reporting retention or row cap.
+
+## Turn the report into decisions
+
+Use a consistent review sequence:
+
+1. Confirm account, currency, date range, and primary outcome.
+2. Read the account or campaign-group pulse.
+3. Isolate material movers at ad-set level.
+4. Review creative performance with delivery volume beside each rate.
+5. Add one professional-demographic view to test an audience hypothesis.
+6. Label findings as Act, Investigate, Monitor, or Insufficient data.
+7. Keep any proposed change separate from this read-only reporting workflow and require explicit review.
+
+For cross-platform diagnosis, compare LinkedIn's campaign evidence with consistently tagged GA4 traffic or CRM outcomes. Keep each platform's attribution and metric definitions visible; a LinkedIn conversion, a GA4 key event, and a CRM opportunity are not interchangeable.
+
+<Prompt description="For the previous 30 complete days ending yesterday, compare LinkedIn Ads landing-page clicks and website conversions for ad account 123456 with GA4 sessions, engaged sessions, and key events for traffic tagged as LinkedIn paid. State each system's date range and definitions, preserve both sets of raw values, identify material discrepancies, and propose verification steps. Do not merge unlike metrics and do not change either platform." actions={["copy"]}>
+</Prompt>
+
+## Access, plans, and credits
+
+LinkedIn Ads reporting is available on Free, Starter, Pro, and Agency. A report call uses 5 credits on credit-based plans; Agency includes unlimited credits. `profile_id` is optional for the default connection, while multiple named LinkedIn profiles require Agency.
+
+The LinkedIn identity still needs access to the ad account. Viewer access is sufficient for reporting. Write permissions are not required because this workflow does not change LinkedIn Ads.
+
+See [HireOtto pricing](https://hireotto.com/pricing) for current plan allowances and [LinkedIn's reporting documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/ads-reporting) for upstream retention, privacy, delay, and response restrictions.
