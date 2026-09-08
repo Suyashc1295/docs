@@ -1,0 +1,257 @@
+---
+title: "Discover LinkedIn Ads targeting and estimate audience size with HireOtto"
+description: "Resolve valid LinkedIn targeting entities, build inclusion and exclusion criteria, and check audience size before creating or updating an ad set."
+sidebarTitle: "Targeting discovery"
+---
+
+Use HireOtto to turn an audience hypothesis into valid LinkedIn targeting criteria before you create or edit an ad set.
+
+The safe sequence is:
+
+`Describe the audience → resolve entities → review matches → build criteria → estimate audience size → approve the targeting`
+
+This matters because LinkedIn targeting uses facets and exact entity URNs. A plausible company name, job title, or numeric ID is not enough. Resolve every value against LinkedIn, keep the returned URNs, and inspect ambiguous matches before the targeting is used.
+
+<Info>
+  Targeting discovery, criteria building, and audience estimation are read-only. They do not create or change a campaign. A successful targeting action uses 2 HireOtto credits.
+</Info>
+
+## Before you start
+
+You need:
+
+- The HireOtto LinkedIn Ads server connected to your AI client.
+- A linked LinkedIn identity with Campaign Manager access.
+- A clear audience hypothesis in business language.
+- The market, professional attributes, and exclusions you want to test.
+- A decision about whether interface language should be an explicit audience filter.
+
+If LinkedIn Ads is not connected yet, follow the [LinkedIn Ads quickstart](/linkedin-ads/quickstart). Use the [LinkedIn Ads tools reference](/linkedin-ads/tools-reference) for the complete tool schema.
+
+<Prompt description="List the LinkedIn Ads accounts available through my default profile. Show each account ID, name, status, currency, my role, and whether the connection can write. Refresh access from LinkedIn before returning the result. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+You do not need write access to research targeting or estimate an audience. You do need access to the connected LinkedIn identity and enough HireOtto credits for the request.
+
+## Understand facets and entities
+
+LinkedIn organizes targeting into:
+
+- **Facets:** categories such as locations, industries, job titles, job functions, seniorities, skills, or employers.
+- **Entities:** the exact LinkedIn values inside a facet, each represented by a URN.
+
+For example, `industries` is a facet. A specific industry returned by LinkedIn is an entity. HireOtto accepts marketer-friendly facet names, but targeting values should be the exact URNs returned by entity discovery.
+
+Common friendly facet keys include:
+
+| Audience idea | Friendly facet keys |
+| --- | --- |
+| Geography | `locations`, `profileLocations` |
+| Current company | `companies`, `employers` |
+| Industry | `industries` |
+| Current job title | `job_titles`, `titles` |
+| Job function | `job_functions`, `functions` |
+| Seniority | `seniorities` |
+| Skills | `skills` |
+| Company size | `company_sizes`, `staffCountRanges` |
+| Years of experience | `years_of_experience` |
+| Education | `degrees`, `fields_of_study`, `schools` |
+| LinkedIn groups | `groups` |
+| Interface language | `languages`, `interfaceLocales` |
+
+Start with the smallest set of facets that represents the buying context. More filters do not automatically create a better audience.
+
+<Prompt description="List the LinkedIn targeting facets available to my connected profile. Group the useful facets into geography, company, role, seniority, skills, education, and language. Explain what each facet controls and do not build criteria or change a campaign." actions={["copy"]}>
+</Prompt>
+
+## Resolve targeting entities
+
+Use `search_entities` to find valid values inside one facet. Supply a text query when you know the concept but not the URN. Supply `entity_urns` when you already have URNs and want to confirm their names and facets.
+
+The default result locale is English for the United States:
+
+- `locale_language`: `en`
+- `locale_country`: `US`
+
+These fields localize discovery results. They do not add geographic targeting. Use `locations` or `profileLocations` for geography.
+
+<Prompt description="Search LinkedIn targeting for United States geography, software industry, marketing and demand-generation job functions, and director-or-higher seniorities. Resolve one facet at a time. Return every plausible match with its name, facet, and complete URN. Explain ambiguous or missing matches and do not build or change a campaign." actions={["copy"]}>
+</Prompt>
+
+### Review matches before using them
+
+Do not select the first result only because its label resembles the brief. Check:
+
+- Whether the entity belongs to the intended facet.
+- Whether a company is the correct organization rather than a similarly named employer.
+- Whether a job title is the intended role rather than a nearby specialty.
+- Whether a location represents the intended market.
+- Whether a broad job function is being combined with a narrower title intentionally.
+- Whether every exclusion identifies the exact company, role, or category you intend to remove.
+
+If a search returns several plausible entities, keep them separate and ask the marketer to approve the intended match. Do not merge them or invent an ID.
+
+<Prompt description="Resolve the LinkedIn employer entity for ACME, the job-title entity for Head of Demand Generation, and the location entity for the United Kingdom. Show all plausible matches with names, facets, and URNs. Identify what information would disambiguate each match. Do not choose an ambiguous entity, estimate an audience, or change a campaign." actions={["copy"]}>
+</Prompt>
+
+For known URNs, use resolution as a preflight:
+
+<Prompt description="Resolve these existing LinkedIn targeting URNs and confirm the name and facet returned for each one: URN_1, URN_2, and URN_3. Flag any value that does not resolve or belongs to a different facet. Do not estimate an audience or change a campaign." actions={["copy"]}>
+</Prompt>
+
+<Warning>
+  Never convert a label into a guessed numeric ID or URN. If LinkedIn does not return a valid entity for the intended facet, leave that value unresolved and revise the targeting hypothesis.
+</Warning>
+
+## Build inclusion and exclusion criteria
+
+After you approve the entities, place their URNs into friendly include and exclude maps.
+
+```json
+{
+  "included_targeting": {
+    "locations": ["urn:li:geo:103644278"],
+    "industries": ["urn:li:industry:4"],
+    "job_functions": ["urn:li:function:15"],
+    "seniorities": ["urn:li:seniority:4"]
+  },
+  "excluded_targeting": {
+    "companies": ["urn:li:organization:123456"]
+  }
+}
+```
+
+Within one included facet, multiple values are alternatives. Different included facets narrow the audience together. Keep the final logic visible in plain language so the marketer can confirm what a member must match.
+
+`build_criteria` converts friendly include and exclude maps into LinkedIn targeting criteria locally. It does not contact LinkedIn to validate the values. Use it to inspect the structure, not as proof that every URN is valid.
+
+<Prompt description="Build LinkedIn targeting criteria from the approved URNs below. Include the selected locations, industries, job functions, and seniorities; exclude the selected companies. Show the friendly input map, the resulting criteria, and a plain-language explanation of the inclusion and exclusion logic. This is a local build only: do not estimate the audience or change a campaign. Approved URNs: PASTE_APPROVED_URNS_HERE." actions={["copy"]}>
+</Prompt>
+
+## Estimate audience size
+
+Use `audience_count` only after the selected entities have been reviewed. HireOtto resolves every included and excluded facet-and-URN pair before requesting an estimate. If any value is invalid, unresolved, or assigned to the wrong facet, the action fails before LinkedIn receives an audience-estimate request.
+
+The response can contain:
+
+- `total`: LinkedIn's rounded estimate of members who fit the criteria.
+- `active`: LinkedIn's estimate of members who are more likely to visit LinkedIn.
+- Targeting validation showing which supplied entities resolved.
+- The criteria used for the estimate.
+
+LinkedIn requires an audience of at least 300 members for a campaign to run. To protect privacy, `total` is returned as `0` when the audience is below 300. The total is approximate, and actual reach will be lower than the target audience size.
+
+<Prompt description="Using only the approved LinkedIn targeting URNs below, build the inclusion and exclusion criteria and estimate the audience size. Validate every included and excluded value before estimation. Return total and active audience counts, the resolved entity names and facets, the final targeting logic in plain language, and any ambiguity or privacy-threshold warning. Do not create or update a campaign. Approved URNs: PASTE_APPROVED_URNS_HERE." actions={["copy"]}>
+</Prompt>
+
+### Treat the estimate as a guardrail
+
+Audience size answers whether the targeting is plausibly eligible to deliver. It does not tell you whether the audience is commercially valuable, likely to convert, or large enough for your budget and learning goals.
+
+Do not:
+
+- Treat a larger estimate as a quality score.
+- Sum separate estimates; the audiences can overlap and LinkedIn rounds the totals.
+- Interpret `active=0` as an error or a campaign-status signal.
+- Interpret a valid exclusion as proof that members from that company or category were present.
+- Infer the exact number removed by an exclusion from the final rounded estimate.
+
+When exclusions are supplied, HireOtto confirms that each exclusion is a valid entity for its facet. LinkedIn does not return an unrounded per-exclusion match count or an exact excluded-audience delta in this workflow.
+
+<Prompt description="Compare two LinkedIn audience hypotheses using separate estimates. Keep the same locations and seniorities in both versions. Version A should use the approved job-function URNs; Version B should use the approved job-title URNs. Show the complete criteria and estimate for each version, explain overlap and rounding, and do not add the two estimates together. Do not create or update a campaign. Approved URNs: PASTE_APPROVED_URNS_HERE." actions={["copy"]}>
+</Prompt>
+
+## Use language and geography correctly
+
+`locale_language` and `locale_country` localize entity discovery and supply ad-set locale metadata during creation. The country suffix in a LinkedIn locale is not geographic targeting.
+
+For example:
+
+- `en_US` means the English interface locale.
+- It does not mean members located in the United States.
+- Use `locations` or `profileLocations` to target the United States.
+
+HireOtto adds interface-language targeting only when you explicitly supply `languages` or `interfaceLocales`. An explicit interface-language filter must contain exactly one supported value and match the normalized ad-set locale. Create separate ad sets when you need different interface languages.
+
+<Prompt description="Resolve valid LinkedIn targeting for people located in France who use the French LinkedIn interface. Keep geography and interface language as separate facets. Return the exact location and interface-locale URNs, explain the distinction, build the criteria, and estimate the audience after validating every value. Do not create or update a campaign." actions={["copy"]}>
+</Prompt>
+
+Some enumerated facets—including seniorities, job functions, company sizes, years-of-experience ranges, age ranges, genders, and interface locales—use finite lists rather than normal free-text typeahead. HireOtto can list these values and filter the returned enumeration when you provide a query.
+
+If a non-English job-title search returns no matches, retry with the English equivalent. The returned title URN is the targeting value; the search phrase itself is not added to the audience.
+
+## Parameters and defaults
+
+The targeting tool is `discover_linkedin_targeting`.
+
+| Parameter | Required | Default | Meaning |
+| --- | --- | --- | --- |
+| `action` | Yes | — | `list_facets`, `search_entities`, `build_criteria`, or `audience_count` |
+| `facet` | For `search_entities` | — | Friendly facet key or complete LinkedIn facet URN |
+| `query` | No | None | Text to search within the chosen facet |
+| `entity_urns` | No | None | Known URNs to resolve and verify |
+| `included_targeting` | For `audience_count` | — | Friendly map of facets to approved URNs |
+| `excluded_targeting` | No | Empty | Friendly map of exclusions |
+| `locale_language` | No | `en` | Discovery language and ad-set locale input |
+| `locale_country` | No | `US` | Discovery locale suffix and ad-set locale input; not geography |
+| `profile_id` | No | Default LinkedIn profile | Additional named profiles require Agency or enabled Enterprise access |
+
+The tool is available on the Free trial, Starter, Pro, and Agency plans. The normal credit or usage rules for the plan apply. Additional named LinkedIn profiles are reserved for Agency or enabled Enterprise access.
+
+## Common failure cases
+
+### An entity does not resolve
+
+The URN may be malformed, unavailable, or valid under a different facet. Search the intended facet again and choose one of the returned entities. HireOtto returns structured validation and does not send an audience estimate or campaign write when a supplied value remains unresolved.
+
+<Prompt description="Diagnose this failed LinkedIn targeting validation without changing anything. For each unresolved value, show the requested facet, supplied URN, failure reason, and any facet LinkedIn associates with that URN. Search the intended facet for valid replacements, but do not choose among ambiguous matches or estimate the audience until I approve the replacements. Failed targeting: PASTE_TARGETING_HERE." actions={["copy"]}>
+</Prompt>
+
+### The audience count is zero
+
+A zero can mean the audience falls below LinkedIn's 300-member privacy threshold. It can also mean the combined criteria are too restrictive. Confirm that every entity resolved, then remove or broaden one deliberate constraint at a time. Do not assume that the tool failed.
+
+### The audience is large but strategically weak
+
+Audience size measures eligibility, not intent or quality. Revisit the business brief, roles, industries, company attributes, exclusions, and offer. A broad audience can deliver while missing the actual buying committee.
+
+### An exclusion appears to have no effect
+
+The estimate is rounded and does not expose an exact per-exclusion delta. A valid exclusion confirms that LinkedIn recognizes the entity for that facet; it does not prove how many matching members were removed.
+
+### Interface language and locale do not match
+
+Use exactly one valid `interfaceLocales` URN that matches the normalized ad-set locale, or omit explicit language targeting. Use geography facets for location. HireOtto stops before estimation or creation when these values conflict.
+
+### Search returns no job-title matches
+
+Retry the title in English, especially when the discovery locale is not English. Keep the intended business role visible and review the returned title before using its URN.
+
+### Access or credits block the action
+
+Verify the LinkedIn connection and confirm that the connected identity can access Campaign Manager. Check the current HireOtto plan and remaining credits. Targeting discovery is read-only, so a Viewer role is sufficient when the account and connection are otherwise accessible.
+
+## Review checklist before campaign creation
+
+Before you attach targeting to an ad set, confirm:
+
+- Every included and excluded value was returned by LinkedIn for the intended facet.
+- Ambiguous companies, titles, schools, or locations were approved by a marketer.
+- The plain-language logic matches the brief.
+- Geography uses `locations` or `profileLocations`.
+- Interface language is included only when intentionally requested.
+- The audience estimate clears the eligibility threshold without becoming the quality criterion.
+- Separate estimates were not summed.
+- The target audience, exclusions, budget, offer, and measurement plan were reviewed together.
+- No campaign creation or update will run without an explicit approval step.
+
+<Prompt description="Review this approved LinkedIn targeting package before campaign creation. Confirm every entity name, facet, and URN; restate the inclusion and exclusion logic; verify geography and interface language are separate; run one final audience estimate; and flag any ambiguity, over-narrowing, or unsupported value. Return a review checklist and the exact criteria that would be used. Do not create or update a campaign. Targeting package: PASTE_TARGETING_HERE." actions={["copy"]}>
+</Prompt>
+
+## Related documentation
+
+- [Connect LinkedIn Ads](/linkedin-ads/quickstart)
+- [LinkedIn Ads MCP tools reference](/linkedin-ads/tools-reference)
+- [Analyze LinkedIn Ads performance and professional demographics](/linkedin-ads/reporting)
+- [HireOtto feature and entitlement matrix](/feature-entitlement-matrix)
+- [Troubleshoot HireOtto connections and permissions](/troubleshooting)
