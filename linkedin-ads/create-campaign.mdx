@@ -1,0 +1,292 @@
+---
+title: "Create a draft LinkedIn Ads campaign with HireOtto"
+description: "Validate targeting, upload an image, create a campaign group, ad set, and single-image ad as drafts, then inspect the saved result before activation."
+sidebarTitle: "Campaign creation"
+---
+
+Create a reviewable LinkedIn Ads campaign from your AI client without handing activation over to the model. HireOtto can validate a proposed campaign, create or reuse a campaign group, create an ad set, upload or reuse an image, and create a single-image Direct Sponsored Content ad.
+
+The safe sequence is:
+
+**verify access → resolve targeting → estimate audience size → prepare the image → validate the complete hierarchy → create as drafts → read back → preview in Campaign Manager → verify tracking → activate after approval**
+
+<Note>
+  HireOtto calls LinkedIn's campaign-group object a **campaign group** and LinkedIn's API campaign object an **ad set**. Keep the returned account, campaign-group, ad-set, creative, and image IDs with every review or follow-up request.
+</Note>
+
+## What this workflow can change
+
+This guide uses both read and write actions.
+
+| Step | Scope |
+| --- | --- |
+| Verify the connection, list accounts, read the hierarchy, discover targeting, estimate audience size, and validate a request | Read-only |
+| Upload an image | Creates an image asset in LinkedIn |
+| Create a campaign group, ad set, or creative | Writes to LinkedIn unless `validate_only=true` |
+| Update a campaign group, ad set, or creative | Writes to LinkedIn unless `validate_only=true` |
+| Delete an eligible draft ad set or creative | Deletes the selected draft object |
+| Preview rendering and review platform warnings | Completed in LinkedIn Campaign Manager |
+
+Creation defaults to draft behavior, but a LinkedIn draft is only a platform status. It is not a substitute for a human review of the objective, audience, budget, schedule, creative, destination, measurement, and Page identity.
+
+## Before you start
+
+You need:
+
+- An MCP-capable AI client connected to `https://linkedinads.hireotto.com/mcp`.
+- A LinkedIn identity with access to the intended Campaign Manager account.
+- A role with sufficient write permission. Viewer access is read-only.
+- Access to the LinkedIn Page or advertiser identity used by the ad when the workflow requires it.
+- An approved objective, audience, budget, schedule, landing page, copy, image, and tracking plan.
+- Enough HireOtto credits for validation, image upload, and creation.
+
+LinkedIn Ads is available on Free, Starter, Pro, and Agency. The default LinkedIn profile is available on every plan. Additional named profiles require Agency or enabled Enterprise access.
+
+<Prompt description="List the LinkedIn Ads accounts available to my default HireOtto profile. Refresh access from LinkedIn and include each account name, account ID, status, currency, my role, and whether the connection can write. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+Confirm the exact account ID and currency before preparing budgets. Do not select an account from its display name alone.
+
+## 1. Prepare a complete campaign brief
+
+Give the AI client the decisions it cannot safely infer:
+
+- Business objective and the one outcome the campaign should optimize for.
+- Offer and landing page.
+- Campaign group and ad-set names.
+- Included and excluded audience logic.
+- Daily or total budget, account currency, and schedule.
+- Ad format, bid approach, and optimization goal.
+- Introductory text, headline, call to action, alt text, and image.
+- The LinkedIn Page or advertiser identity that should appear.
+- The conversion action and how it will be tested.
+- The person who can approve activation.
+
+<Prompt description="Turn the campaign brief below into a LinkedIn Ads preflight checklist. Identify every missing or ambiguous decision, but do not invent targeting IDs, budget values, dates, Page identity, tracking status, or approval. Do not create or update anything." actions={["copy"]}>
+</Prompt>
+
+Do not ask HireOtto to choose the business objective or budget from account data alone. Reporting can inform those decisions, but it does not define the campaign's commercial job.
+
+## 2. Resolve targeting before creation
+
+Use targeting discovery to convert marketer-friendly audience ideas into valid LinkedIn entities. Review every match and keep the exact URNs returned by LinkedIn.
+
+Then estimate the combined audience with the intended inclusions and exclusions. Audience size is a delivery guardrail, not a quality score or reach forecast. LinkedIn can round counts, suppress details, and deliver to fewer members than the estimate.
+
+<Prompt description="Resolve valid LinkedIn targeting entities for the locations, industries, companies, functions, seniorities, and exclusions in the brief below. Show every match and URN, flag ambiguous matches, build the complete inclusion and exclusion criteria, and estimate the combined audience size. Do not create or update a campaign." actions={["copy"]}>
+</Prompt>
+
+Use locations or profile locations for geography. HireOtto adds interface-language targeting only when you explicitly provide `languages` or `interfaceLocales`. An explicit interface locale must contain exactly one value and must match the ad-set locale.
+
+## 3. Reuse or upload an image
+
+For the supported single-image path, the creative needs an image URN whose LinkedIn processing status is `AVAILABLE`.
+
+Start by listing recent active Media Library assets. Reuse an existing approved asset when possible.
+
+<Prompt description="List the 20 most recent active LinkedIn Media Library images for account ACCOUNT_ID. Include each image URN, name, creation time, and processing status. Read only." actions={["copy"]}>
+</Prompt>
+
+If the image is not already available, use the interactive upload tool in ChatGPT or Claude web or Desktop. It accepts JPG, PNG, and GIF files. The upload interface is not currently available in Claude Code CLI or the Claude Code VS Code extension.
+
+<Prompt description="Upload the attached LinkedIn ad image to account ACCOUNT_ID, register it in the Media Library, name it ASSET_NAME, and return the image URN and processing status. Do not create a creative, ad set, or campaign." actions={["copy"]}>
+</Prompt>
+
+Programmatic byte upload is available when the client can read and encode the original file. The decoded image must be no larger than 8 MiB, and only `image/jpeg`, `image/png`, and `image/gif` are accepted. Do not paste base64 into chat. If an upload times out, list recent assets before retrying so you do not create a duplicate.
+
+## 4. Choose the hierarchy workflow
+
+Use `create_linkedin_campaign` when you want to validate or create the campaign group, ad set, and optional creatives in order. You can either:
+
+- Reuse an existing campaign group by supplying its ID.
+- Create a new campaign group from settings you provide.
+
+Use `create_linkedin_ads_entities` when you need to create only one object or recover from a failure after a parent object already exists.
+
+### Campaign-group inputs
+
+| Input | Required | Default or behavior |
+| --- | --- | --- |
+| `name` | Yes for one-object creation | For a new group in the hierarchy workflow, HireOtto derives `<ad set name> Campaign` if no name is supplied. Supply an explicit approved name instead. |
+| `status` | No | `DRAFT` |
+| `start` | No | Approximately ten minutes after the request |
+| `end` | No | No end date |
+| `total_budget_amount` | No | None; requires `currency_code` when supplied |
+| `daily_budget_amount` | No | None; requires `currency_code` when supplied |
+| `objective_type` | No | None |
+| `budget_optimization_strategy` | No | None |
+| `bid_strategy` | No | None |
+
+### Ad-set inputs and defaults
+
+An ad set requires a parent campaign group, `name`, targeting, and at least one budget. For the current image-led path, use `SPONSORED_UPDATES` with the appropriate standard-update format.
+
+| Input | Required | Default or behavior |
+| --- | --- | --- |
+| `name` | Yes | None |
+| `status` | No | `DRAFT` |
+| `campaign_type` | No | `SPONSORED_UPDATES` |
+| `ad_format` | Required for a controlled build | No inferred format; select carefully because LinkedIn fixes formats such as standard update, single video, and carousel at creation |
+| `objective_type` | Recommended | None |
+| `cost_type` | No | `CPC` |
+| `bid_strategy` | No | None; supported choices include maximum delivery, manual, target cost, and cost cap where compatible |
+| `daily_budget_amount` / `total_budget_amount` | At least one | None; every supplied amount needs `currency_code` |
+| `start` | No | Approximately ten minutes after the request |
+| `end` | Conditional | Required when only a total budget is supplied |
+| `locale_language` | No | `en` |
+| `locale_country` | No | `US` |
+| `audience_expansion_enabled` | No | `false` |
+| `offsite_delivery_enabled` | No | `false` |
+| `connected_television_only` | No | `false` |
+| `political_intent` | No | `NOT_DECLARED` |
+
+Sponsored Content, Dynamic Ads, and Lead Generation require an associated advertiser entity. HireOtto normally resolves it from the selected ad account. If it cannot, verify the account's advertiser identity and your Page access instead of inventing an organization or person URN.
+
+Additional platform rules apply:
+
+- Dynamic Ads require both daily and total budgets plus an ad format.
+- Connected TV requires offsite delivery.
+- Lead Generation cannot enable offsite delivery.
+- Changing a fixed ad format requires a new ad set.
+
+### Single-image creative inputs and defaults
+
+The supported first-class path is a normal single-image Direct Sponsored Content ad.
+
+| Input | Required | Default or behavior |
+| --- | --- | --- |
+| `image_urn` | Yes | Must begin with `urn:li:image:` and be `AVAILABLE` |
+| `commentary` | Recommended | Empty text if omitted; provide approved introductory copy |
+| `headline` | No | None; maximum 400 characters |
+| `landing_page` | No | None; maximum 2,000 characters |
+| `cta_label` | No | `LEARN_MORE` when a landing page is supplied; a CTA requires a landing page |
+| `image_alt_text` | No | None |
+| `name` | No | None; internal creative name |
+| `intended_status` | No | `DRAFT` |
+
+Supported CTA labels include `APPLY`, `DOWNLOAD`, `VIEW_QUOTE`, `LEARN_MORE`, `SIGN_UP`, `SUBSCRIBE`, `REGISTER`, `JOIN`, `ATTEND`, `REQUEST_DEMO`, `SEE_MORE`, `UNLOCK_FULL_DOCUMENT`, `BUY_NOW`, and `SHOP_NOW`.
+
+This workflow does not create LinkedIn Lead Gen Forms and does not upload video or document ads. It also does not validate the final visual rendering.
+
+## 5. Validate the complete hierarchy
+
+Set `validate_only=true` before an unfamiliar create. Validation normalizes the proposed request and checks HireOtto's supported rules without sending a create request to LinkedIn. For an ad set, it also resolves the supplied targeting URNs. For the first-class image path, it confirms that the image is available.
+
+Validation does **not** reserve IDs or guarantee that a later write will pass. LinkedIn still checks permissions, Page access, budgets, dates, account state, and lifecycle rules when the real create runs.
+
+<Prompt description="Validate a new LinkedIn Ads campaign hierarchy for account ACCOUNT_ID using the approved campaign-group settings, ad-set objective, format, budget, currency, dates, resolved targeting URNs, landing page, available image URN, copy, call to action, and alt text below. Create nothing. Return the normalized configuration, every warning, and a checklist covering account, Page identity, audience size, budget, schedule, destination, creative, and tracking." actions={["copy"]}>
+</Prompt>
+
+Review the normalized output field by field. Pay particular attention to:
+
+- Account ID and currency.
+- Campaign-group and ad-set names.
+- Objective, format, cost type, bid strategy, and optimization goal.
+- Daily and total budget ownership.
+- Start and end dates.
+- Complete targeting inclusions and exclusions.
+- Locale and any explicit interface-language targeting.
+- Page identity, image status, destination, CTA, and alt text.
+- Draft statuses for every new object.
+
+## 6. Create the approved objects as drafts
+
+After approval, run the same reviewed configuration with `validate_only=false` and explicitly require draft statuses. The full hierarchy create costs 10 HireOtto credits after success. It can create a new campaign group or reuse an existing one, then create the ad set and creative in order.
+
+<Prompt description="Create the validated LinkedIn Ads hierarchy below in account ACCOUNT_ID. Create or reuse the approved campaign group, create the ad set as DRAFT, and create the single-image creative as DRAFT. Do not activate anything. Return every campaign-group, ad-set, creative, and image ID plus any LinkedIn warnings or partial-result details." actions={["copy"]}>
+</Prompt>
+
+For a single object, validation costs 1 credit and a successful create costs 5 credits. A successful image upload costs 5 credits. A full hierarchy validation costs 1 credit; a successful full hierarchy create costs 10 credits. Credits are deducted only after a successful charged action. Agency has unlimited credits, but LinkedIn permissions and lifecycle restrictions still apply.
+
+## 7. Inspect the saved hierarchy
+
+A success response is not verification. Read the saved objects back from LinkedIn and compare the live values with the approved configuration.
+
+<Prompt description="Read back the LinkedIn Ads hierarchy created in account ACCOUNT_ID using campaign-group ID CAMPAIGN_GROUP_ID, ad-set ID AD_SET_ID, and creative ID CREATIVE_ID. Compare every returned status, parent ID, objective, format, budget, currency, schedule, targeting rule, locale, destination, CTA, Page identity, and image reference with the approved configuration. Report mismatches only after showing the live value. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+Then open Campaign Manager to confirm:
+
+- The ad renders correctly on the intended Page identity.
+- The image crop, headline, introductory text, CTA, and destination are correct.
+- The account has no billing, policy, or serving warning.
+- The conversion action and Insight Tag plan are appropriate.
+
+Creating a creative does not install or test the LinkedIn Insight Tag, Google Tag Manager, or the landing page. Configuration inspection cannot prove that a tag fires in a browser. Test the real conversion path separately before activation.
+
+## Partial creation and recovery
+
+The full hierarchy workflow is not transactional. If an ad set or creative fails, a campaign group or ad set created earlier in the sequence remains in LinkedIn.
+
+Do not blindly rerun the full request. That can create duplicate parents.
+
+1. Save every ID in `partial_result`.
+2. Read the live hierarchy.
+3. Identify the first object that failed.
+4. Correct and validate only that object.
+5. Resume with `create_linkedin_ads_entities` using the existing parent ID.
+6. Read the new object back.
+
+<Prompt description="The LinkedIn Ads hierarchy create returned the partial result below. Read the live hierarchy for account ACCOUNT_ID, preserve every object that already exists, identify the first failed step, and prepare a validate-only request for only that missing child object using the existing parent ID. Do not rerun the full hierarchy and do not create anything yet." actions={["copy"]}>
+</Prompt>
+
+Eligible draft ad sets and creatives can be deleted deliberately. Non-draft objects may require a different lifecycle action. Always inspect the current status before requesting deletion.
+
+## Controlled updates and activation
+
+HireOtto supports selected updates to campaign groups, ad sets, and creatives, plus eligible draft deletion. Keep activation separate from budget, targeting, creative, date, and bid changes so every decision remains reviewable.
+
+For targeting, a partial friendly include or exclude map sent through a general ad-set update can replace the existing targeting. Use the additive-exclusion action when you only want to add exclusions. For any broader targeting change, read the complete current criteria, resolve new entities, estimate the revised audience, and review the full diff.
+
+<Prompt description="Prepare a validate-only activation plan for LinkedIn Ads account ACCOUNT_ID, campaign-group ID CAMPAIGN_GROUP_ID, ad-set ID AD_SET_ID, and creative ID CREATIVE_ID. Read every current status and schedule first, list the exact lifecycle changes required in order, identify any Page, billing, policy, creative, tracking, or stale-date blocker, and make no changes until I approve each exact status transition." actions={["copy"]}>
+</Prompt>
+
+LinkedIn can reject activation when the parent remains in draft, the schedule is stale, the account cannot serve, the creative is not eligible, or the connected role lacks permission. `validate_only=true` does not override those platform checks.
+
+## Common failures
+
+| Failure | Likely cause | Recovery |
+| --- | --- | --- |
+| No account appears | Wrong LinkedIn identity, no Campaign Manager access, or stale saved access | Confirm the login in Campaign Manager and list accounts again with refresh enabled |
+| Reads work but writes fail | Viewer role, insufficient ad-account role, missing Page access, account warning, or lifecycle restriction | Confirm role, `can_write`, Page access, billing, dates, parent status, and Campaign Manager warnings |
+| Targeting validation fails | An included or excluded value is not a valid LinkedIn URN | Search the failing facet again and rebuild the criteria from returned URNs |
+| Audience is below the eligible threshold | The combined criteria are too restrictive | Review the business requirement, overlapping filters, exclusions, and geography; do not broaden blindly |
+| Image cannot be used | Unsupported type, file too large, processing incomplete, wrong account ownership, or upload timeout | Use JPG, PNG, or GIF under 8 MiB, wait for `AVAILABLE`, and list recent assets before retrying |
+| Creative validation fails | Image unavailable, invalid CTA, CTA without destination, excessive headline or URL length, or unresolved advertiser identity | Correct the named field and verify the account's Page or advertiser context |
+| Ad-set creation fails | Missing budget or currency, invalid format/objective combination, total budget without end date, or incompatible delivery setting | Return to the validated configuration and change only the failing field |
+| Creation partially succeeds | A parent was created before a child failed | Preserve returned IDs and resume from the failed child only |
+| Update is rejected | Immutable format, invalid lifecycle transition, or incomplete targeting replacement | Read the current object, validate a smaller change, or create a new ad set when the format is fixed |
+
+## Current limits
+
+- The first-class creation path is a normal single-image Direct Sponsored Content ad.
+- Lead Gen Form creation is not supported.
+- Image upload does not imply video or document-ad upload support.
+- Fixed ad formats cannot be swapped after ad-set creation.
+- Campaign Manager remains the final source for rendering, Page identity, policy review, billing, serving warnings, and activation state.
+- Image processing, account permissions, lifecycle transitions, and LinkedIn-side validation can still fail after local validation.
+- Creating an ad does not prove that the destination or conversion tracking works.
+
+## Recommended review checklist
+
+- [ ] Correct ad account ID, name, currency, role, and write capability
+- [ ] Approved objective and campaign hierarchy
+- [ ] Valid targeting URNs and viable audience estimate
+- [ ] Correct budget owner, amount, currency, and schedule
+- [ ] Compatible format, bid strategy, cost type, and optimization goal
+- [ ] Available image and approved Page identity
+- [ ] Approved copy, headline, destination, CTA, and alt text
+- [ ] Every new object created as `DRAFT`
+- [ ] Returned IDs saved and live values read back
+- [ ] Creative previewed in Campaign Manager
+- [ ] Landing page and tracking tested separately
+- [ ] Named human approval recorded before activation
+
+## Related documentation
+
+- [Connect LinkedIn Ads](/linkedin-ads/quickstart)
+- [LinkedIn Ads MCP tools reference](/linkedin-ads/tools-reference)
+- [Discover LinkedIn Ads targeting and estimate audience size](/linkedin-ads/targeting)
+- [Analyze LinkedIn Ads performance and professional demographics](/linkedin-ads/reporting)
+- [HireOtto feature and entitlement matrix](/feature-entitlement-matrix)
+- [Troubleshoot HireOtto connections and permissions](/troubleshooting)
