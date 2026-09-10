@@ -1,62 +1,194 @@
 ---
 title: "HireOtto MCP servers for performance marketers"
-description: "Run advertising and measurement workflows from Claude, ChatGPT, Cursor, VS Code, Make, and other MCP-capable clients."
+description: "Connect Google Ads, LinkedIn Ads, Google Tag Manager, Search Console, and GA4 to your AI client, then start with the right reporting, analysis, or reviewable action."
 ---
 
-HireOtto is a remote Model Context Protocol (MCP) server that gives your AI assistant direct access to Google Ads. Instead of switching between tools, you can ask Claude, Cursor, or any MCP-enabled AI to create campaigns, adjust bids, pull performance reports, and manage keywords — all in plain English.
+HireOtto connects the advertising and measurement platforms you already use to Claude, ChatGPT, Cursor, VS Code, Make, and other remote MCP-capable clients.
+
+Choose a server below, complete the platform authorization, and begin with a small read request. Google Ads supports reporting and account changes; LinkedIn Ads supports reporting and selected draft-first actions; Tag Manager, Search Console, and GA4 are read-only in their current releases.<br />
 
 <CardGroup cols={2}>
-  <Card title="Quick Start" icon="rocket" href="/quickstart">
-    Connect HireOtto to your AI tool & run your first Google Ads query in minutes.
+  <Card title="Google Ads" icon="g" href="/quickstart">
+    Report, investigate, build, and make supported account changes.
   </Card>
 
-  <Card title="FAQs" icon="question" href="/faq">
-    Answers to common questions about HireOtto: tools, data privacy, billing, etc.
+  <Card title="LinkedIn Ads" icon="l" href="/linkedin-ads/quickstart">
+    Pull reports, resolve targeting, manage images, & prepare campaign changes.
   </Card>
 
-  <Card title="Connect Your AI Tool" icon="plug" href="/setup/connect-ai-tool">
+  <Card title="Google Tag Manager" icon="tools" href="/tag-manager/quickstart">
     Set up HireOtto with Claude, Cursor, Windsurf, or any MCP client.
   </Card>
 
-  <Card title="MCP Tools Reference" icon="terminal" href="/google-ads-mcp-tools">
+  <Card title="Google Analytics 4" icon="chart-column" href="/google-analytics/quickstart">
     Browse all available tools and their parameters.
   </Card>
 </CardGroup>
 
-## How it works
+## Choose the server for your job
 
-HireOtto runs as a remote MCP server — there's nothing to install locally. You configure your AI tool to connect to the HireOtto endpoint, authorize access to your Google Ads account, and start managing ads through conversation.
+| Your job | Server | Current scope | Start here |
+| --- | --- | --- | --- |
+| Analyze performance, inspect account structure, research keywords, create supported campaigns, or apply approved changes | Google Ads | Read and write | [Google Ads quickstart](/quickstart) |
+| Analyze Campaign Manager, research targeting, estimate audience size, or prepare supported image-led campaigns as drafts | LinkedIn Ads | Read and selected write actions | [LinkedIn Ads quickstart](/linkedin-ads/quickstart) |
+| Review a live container or workspace and trace tags to firing and blocking triggers | Google Tag Manager | Read-only | [Tag Manager quickstart](/tag-manager/quickstart) |
+| Analyze queries and pages, compare paid and organic search, inspect indexed URLs, or review sitemaps | Google Search Console | Read-only | [Search Console quickstart](/search-console/quickstart) |
+| Analyze acquisition, landing pages, events, conversions, and compatible realtime metrics | Google Analytics 4 | Read-only beta | [GA4 quickstart](/google-analytics/quickstart) |
 
-<Steps>
-  <Step title="Connect your AI tool">
-    Add the HireOtto MCP server URL to your AI assistant's MCP configuration. Works with Claude (Web, Desktop& Code), ChatGPT, Make.com, and any remote MCP-compatible client.
-  </Step>
-  <Step title="Authorize Google Ads">
-    Complete the OAuth flow to grant HireOtto read/write access to your Google Ads account. Your credentials are never stored on HireOtto servers.
-  </Step>
-  <Step title="Start managing ads">
-    Ask your AI assistant to list campaigns, create ad groups, pull performance metrics, or adjust budgets — using plain English.
-  </Step>
-</Steps>
+<Note>
+  Each platform keeps its own account, property, container, role, and permission model. Connecting HireOtto does not expand the access of the Google or LinkedIn identity you authorize.
+</Note>
 
-HireOtto also supports Google Search Console reporting in beta, so you can analyze organic queries, page performance, country/device breakdowns, CSV exports, and URL indexing from the same AI workflow.
+## Server endpoints
 
-## What you can do
+Add only the servers you need. Each endpoint is a separate remote MCP connection.
 
-<CardGroup cols={2}>
-  <Card title="Manage Campaigns" icon="bullhorn" href="/guides/create-a-google-ads-campaign-with-ai">
-    Create, pause, enable, and update Google Ads campaigns through conversation.
-  </Card>
+| Server | Endpoint | Platform authorization |
+| --- | --- | --- |
+| Google Ads and Search Console | `https://googleads.hireotto.com/mcp` | Google Ads and Search Console use separate Google permissions |
+| LinkedIn Ads | `https://linkedinads.hireotto.com/mcp` | LinkedIn identity with access to the intended Campaign Manager account |
+| Google Tag Manager | `https://tagmanager.hireotto.com/mcp` | Google login with access to the intended GTM accounts and containers |
+| Google Analytics 4 | `https://ga4.hireotto.com/mcp` | Google login with access to the intended GA4 properties |
 
-  <Card title="Keyword Research" icon="magnifying-glass" href="/guides/keyword-research-ai">
-    Add keywords, manage match types, and review search term reports.
-  </Card>
+You do not need your own Google Cloud project, LinkedIn developer application, API keys, JSON credentials, terminal, or local server. Your client must support remote MCP over HTTP and OAuth.
 
-  <Card title="Performance Reporting" icon="chart-line" href="/guides/reporting">
-    Pull clicks, impressions, cost, conversions, and ROAS for any date range.
-  </Card>
+## Connect in three steps
 
-  <Card title="Budget Optimization" icon="coins" href="/guides/google-ads-daily-optimization-with-ai">
-    Review spend pacing and adjust daily budgets across campaigns.
-  </Card>
-</CardGroup>
+### 1. Add the server to your AI client
+
+Open the client's Apps, Connectors, Tools, Integrations, or MCP settings. Add a remote HTTP connection with the endpoint for the platform you need, then complete the HireOtto sign-in.
+
+Client menus and workspace controls change over time. If the labels differ, look for the option to add a custom remote MCP server with OAuth. Do not configure HireOtto as a local command or `stdio` process.
+
+### 2. Authorize the marketing platform
+
+Connecting the MCP server and connecting the platform are two separate steps. After the HireOtto connection is active, ask the AI client to connect the relevant Google or LinkedIn service. Open the returned authorization link and choose an identity that already has access to the required accounts or properties.
+
+Never paste a Google or LinkedIn password, API key, access token, refresh token, or encoded credential into a prompt.
+
+### 3. Verify with a small read
+
+Start by listing the resources available to the connected identity. Confirm the returned account or property name and ID before running a longer report or requesting a write.
+
+<Prompt description="List the Google Ads accounts available through my default HireOtto profile. Include each account name, customer ID, manager status, currency, and time zone. Read only." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="List the LinkedIn Ads accounts available through my default HireOtto profile. Refresh access and include each account name, account ID, status, currency, my role, and whether the connection can write. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="List the Google Tag Manager accounts and web containers available through my default HireOtto profile. Include account IDs, container IDs, public IDs, names, and usage context. Read only." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="List the Google Search Console properties available through my default HireOtto profile. Include each property URL or domain, property type, and my permission level. Read only." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="List the Google Analytics accounts and GA4 properties available through my default HireOtto profile. Include account IDs, property IDs, names, time zones, and currencies where returned. Read only." actions={["copy"]}>
+</Prompt>
+
+## What each server can change
+
+### Google Ads
+
+Google Ads supports reporting, planning, account inspection, and supported write actions across campaigns and related entities. Some complex workflows, bulk changes, and audit tools have additional requirements. Read the live setting before a consequential change, review the proposed diff, apply one class of change at a time, and read the saved value back.
+
+[Browse Google Ads tools and parameters →](/google-ads-mcp-tools)
+
+### LinkedIn Ads
+
+LinkedIn Ads supports read-only account discovery, hierarchy inspection, targeting research, audience estimates, and reporting. It can also upload supported images, create supported campaign objects as drafts, apply selected updates, and delete eligible draft entities. Write capability depends on the connected ad-account role and, for some sponsored-content workflows, access to the associated LinkedIn Page.
+
+Campaign Manager remains the final place to preview rendering, review Page identity, check platform warnings, and activate deliberately.
+
+[Browse LinkedIn Ads tools and parameters →](/linkedin-ads/tools-reference)
+
+### Google Tag Manager
+
+The current GTM server is read-only. It can inspect live or workspace configuration, connect tags with firing and blocking triggers, export container inventory, and scan public HTML for tracking signals. It cannot create, edit, delete, or publish GTM changes, and configuration inspection does not prove that a tag fired in a browser.
+
+[Browse Tag Manager tools and parameters →](/tag-manager/tools-reference)
+
+### Google Search Console
+
+Search Console is read-only and uses a separate Google permission inside the Google Ads HireOtto connection. It can list properties and sitemaps, inspect Google's indexed information for a URL, and report organic performance by supported dimensions. It cannot change a site, sitemap, or indexing state, and URL inspection is not a live-page test.
+
+[Browse Search Console tools and parameters →](/search-console/tools-reference)
+
+### Google Analytics 4
+
+GA4 is a read-only beta. It supports account and property discovery, configuration inspection, metadata search, Core field-compatibility checks, standard reports, comparisons, basic realtime reporting, and CSV exports. It does not edit properties, events, key events, audiences, attribution settings, or reports saved in the GA4 interface.
+
+[Browse GA4 tools and parameters →](/google-analytics/tools-reference)
+
+## Start with a practical workflow
+
+After the connection check succeeds, ask for one job with a clearly defined scope.
+
+<Prompt description="For Google Ads account CUSTOMER_ID, compare campaign performance for the previous 30 complete days with the preceding 30 complete days. Include spend, impressions, clicks, conversions, conversion value, CPA, and ROAS where available. Keep raw values beside calculated rates, identify the campaigns behind the material changes, and separate actions from questions that need more evidence. Read only." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="For LinkedIn Ads account ACCOUNT_ID, compare ad-set performance for the previous 30 complete days with the preceding 30 complete days. Include impressions, clicks, landing-page clicks, spend, website conversions, and engagement. Keep the raw values visible, flag small samples, and return a review-ready decision queue. Read only." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="Review the live published Google Tag Manager container CONTAINER_ID. Inventory tags, firing and blocking triggers, variables, folders, paused state, and important parameters. Trace the conversion-related tag wiring, identify configuration gaps that need human review, and distinguish container evidence from browser-runtime evidence. Do not change the container." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="For Search Console property PROPERTY, return the top 50 organic queries for the previous 28 complete days ending yesterday. Include clicks, impressions, CTR, and average position, identify only evidence-backed opportunities, and do not change anything." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="For GA4 property PROPERTY_ID, compare sessions, engaged sessions, key events, and total revenue by session source, session medium, and session campaign for the previous 28 complete days with the preceding 28 complete days. Check field compatibility first, preserve raw values, explain material changes, and do not change GA4." actions={["copy"]}>
+</Prompt>
+
+## Plans, profiles, and usage
+
+Core access to Google Ads, LinkedIn Ads, Tag Manager, Search Console, and GA4 beta is available on Free, Starter, Pro, and Agency. Capabilities still vary by server.
+
+| Plan | Included usage | Best fit |
+| --- | --- | --- |
+| Free | 200 credits or 14 days, whichever comes first | Test supported core workflows |
+| Starter | 2,000 credits per month | Lighter in-house usage |
+| Pro | 5,000 credits per month | Higher individual usage |
+| Agency | Unlimited credits, two included seats, audits, multiple connected profiles, and team billing | Teams and multi-profile account work |
+
+The default profile is used when `profile_id` is omitted. Additional named profiles require Agency or enabled Enterprise access in the public workflow. A named profile represents a separately authorized Google or LinkedIn identity; renaming the same identity does not expand its platform access.
+
+Starter, Pro, and Agency do not impose a plan-based limit on supported platforms, ad accounts, or managed spend. More accounts, reports, and exports naturally use more credits on Starter and Pro. Audit tools are Agency-only. Tool-specific credit costs, row limits, output modes, pagination, and temporary export-link lifetimes are documented in each server's tools reference.
+
+[Review current plans and entitlements →](/credits-and-billing)
+
+## Common connection problems
+
+| Problem | What to check |
+| --- | --- |
+| No tools appear | Confirm the endpoint ends in `/mcp`, finish client OAuth, enable the connection, and refresh or reconnect the client's cached tool list |
+| The platform asks you to authenticate again | Run the relevant connect prompt, open the newest authorization link, and finish consent with the intended Google or LinkedIn identity |
+| No accounts, containers, or properties appear | Confirm that the same identity can open the resource directly in the platform and has the required role or permission |
+| Search Console is missing | Authorize Search Console separately inside the Google Ads HireOtto connection; Google Ads consent does not grant Search Console access |
+| A read works but a write fails | Confirm the platform role, parent-object state, account billing or policy warnings, Page permission where relevant, and whether the requested field is supported and mutable |
+| A report is empty or incomplete | Check the account or property ID, date range, filters, selected dimensions, pagination or row limit, data freshness, and privacy thresholds |
+| A CSV link expired | Rerun the same read-only request with a suitable supported export lifetime |
+| A tool is blocked | Check the trial or billing period, remaining credits, server entitlement, and whether the request uses an Agency-only audit or named profile |
+
+If the client does not support remote MCP or OAuth, it cannot complete the hosted HireOtto connection.
+
+## Keep the practitioner in control
+
+HireOtto gives the AI client structured access to the platform. It does not decide the business objective, budget, audience, creative standard, conversion definition, or acceptable risk for you.
+
+For consequential actions:
+
+1. Read the current account and entity.
+2. Show the exact proposed change, including IDs and current versus new values.
+3. Confirm the affected scope and required permissions.
+4. Wait for approval.
+5. Apply one class of change.
+6. Read the live value back.
+
+Access is not autonomy. The connected AI client calls tools only within the workflow you give it, and platform permissions still govern what those tools can read or change.
+
+## Next steps
+
+- [Learn what HireOtto is](/introduction)
+- [Connect a HireOtto server](/setup/connect-ai-tool)
+- [Review the feature and entitlement matrix](/feature-entitlement-matrix)
+- [Understand credits, billing, and plans](/credits-and-billing)
+- [Troubleshoot connections and permissions](/troubleshooting)
