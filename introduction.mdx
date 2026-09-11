@@ -1,122 +1,198 @@
 ---
-title: "What is HireOtto? MCP servers for performance marketers"
-description: "Connect AI clients to Google Ads, LinkedIn Ads, Google Tag Manager, Search Console, and GA4 through hosted MCP servers built for reporting, analysis, and reviewable marketing actions."
-sidebarTitle: "What Is HireOtto?"
+title: "What is HireOtto?"
+description: "Connect your AI client to advertising, analytics, tag management, and organic-search platforms through hosted MCP servers built for performance marketers."
 ---
 
-Instead of switching between your AI tool and the Google Ads UI, you describe what you want in plain language — and HireOtto handles the rest. There is nothing to install locally; you point your MCP client at the HireOtto endpoint and authenticate with your Google account.
+HireOtto is a set of hosted MCP servers for performance marketers. It gives an MCP-capable AI client structured, permission-bound access to Google Ads, LinkedIn Ads, Google Tag Manager, Google Search Console, and Google Analytics 4.
 
-**Built by a marketer, for marketers.**
+Use it to ask questions, investigate performance, inspect measurement configuration, and—where the connected server supports it—prepare or apply reviewable changes from the same conversation. You do not need to build a developer app, configure a cloud project, manage API credentials, or run a local server.
 
-I’m a solo builder - expect speed and opinionated defaults (with the occasional paper cut). If you hit one, don’t bounce - ping me and we’ll fix it together. 💪
+<Info>
+  HireOtto is an execution layer, not an autonomous media buyer. Your AI client can use the tools and data you authorize, but the marketer still owns the objective, business context, interpretation, and approval of consequential changes.
+</Info>
 
-# What this is (and why it’s different)
+## What HireOtto connects
 
-- **Remote Google Ads MCP server.** Unlike most MCP servers that run locally and expect you to fiddle with Google Cloud, edit MCP JSON, and babysit a process. HireOtto is fully hosted. You just paste a URL and go.
-- **Safer by design.** Local setups can accidentally expose files, tokens, or system permissions. HireOtto uses modern OAuth flows aligned with the **latest MCP auth spec** and scopes tokens to this server only.
-- **Built for marketers.** Opinionated defaults and prompts that map to how PPC is actually run - fast, consistent, low-friction.
-- **Search Console reporting in beta.** Alongside Google Ads workflows, HireOtto can now connect to Google Search Console so you can ask for organic query reports, page performance, country/device breakdowns, CSV exports, and URL indexing checks from your AI assistant.
+Each HireOtto server exposes a defined set of tools. Access is limited by the HireOtto plan, the marketing-platform identity you connect, and that identity's permissions.
 
-<Check>
-  Who it’s for: in-house marketers, agencies, and consultants who want speed without wrestling with setup.
-</Check>
+| Server | Availability | What it can do | Platform scope |
+| --- | --- | --- | --- |
+| Google Ads | Available | Report, analyze, research, audit, create, and update supported Google Ads entities | Read and supported writes |
+| LinkedIn Ads | Available | Inspect Campaign Manager, report performance and professional demographics, research targeting, manage supported images, create drafts, and make selected updates | Read and selected writes |
+| Google Tag Manager | Available | Inspect accounts, containers, workspaces, tags, triggers, variables, folders, and tag wiring; scan public pages for tracking signals | Read-only |
+| Google Search Console | Available | Discover properties, query organic performance, list sitemaps, and inspect Google's indexed information for URLs | Read-only |
+| Google Analytics 4 | Beta | Discover properties, inspect configuration and metadata, check field compatibility, and run standard or realtime reports | Read-only |
 
-## Prerequisites
+Google Ads and Search Console share one HireOtto endpoint, but Google treats them as separate services. Connecting Google Ads does not grant Search Console access; authorize Search Console separately when you need organic-search data.
 
-- A MCP client that supports **remote MCP servers** (Claude Web, Desktop, Claude Code, etc).
-- A Google account with access to the Google Ads accounts you’ll manage.
-- Optional: A Google account with access to the Google Search Console properties you want to analyze.
+<Warning>
+  A server's write capability is not permission to make every possible platform change. HireOtto supports specific actions, while Google Ads and LinkedIn still enforce account roles, object state, policy, validation, and other platform rules. Review the exact account, object, current value, and proposed value before approving a consequential edit.
+</Warning>
 
 ## How it works
 
-MCP (Model Context Protocol) is an open standard that lets AI assistants call external tools and services in a structured way. HireOtto implements MCP as a remote server, meaning the server runs in the cloud and your AI client connects to it over the network. 
+MCP, or Model Context Protocol, is a standard way for AI clients to use external tools and data. HireOtto runs the MCP server remotely and handles the platform connection.
 
-When you ask your assistant to "pause all underperforming keywords" or "show me last week's spend by campaign," it routes that request through HireOtto to the Google Ads API and returns the result directly in your conversation.
+The workflow has two authorization layers:
+
+1. **Connect the AI client to HireOtto.** Add the relevant remote MCP endpoint and complete the HireOtto sign-in.
+2. **Connect the marketing platform.** From the AI client, start the Google or LinkedIn authorization flow and approve access with an identity that can open the resources you need.
+3. **Verify the resource.** Run a small read request and confirm the returned account, property, container, role, currency, and other identifiers before deeper analysis or any write.
+4. **Ask for the job.** Describe the business question or task in normal marketing language. The AI client chooses an available HireOtto tool, supplies its parameters, and returns the result in the conversation.
+5. **Review the result.** Check the evidence and scope. For supported write workflows, inspect the proposed change and verify the saved state afterward.
+
+Your Google or LinkedIn password is never pasted into the conversation. OAuth grants HireOtto only the access approved during authorization, and the underlying platform continues to enforce that identity's permissions.
+
+## Server endpoints
+
+Add only the connections you need:
+
+| Connection | Remote MCP endpoint |
+| --- | --- |
+| Google Ads and Search Console | `https://googleads.hireotto.com/mcp` |
+| LinkedIn Ads | `https://linkedinads.hireotto.com/mcp` |
+| Google Tag Manager | `https://tagmanager.hireotto.com/mcp` |
+| Google Analytics 4 | `https://ga4.hireotto.com/mcp` |
+
+Your AI client must support remote MCP servers over HTTP and OAuth. HireOtto works with MCP-capable clients and workflows including Claude, ChatGPT, Cursor, VS Code, and Make. Menu names and workspace-level availability can differ by client.
+
+For client-specific steps, see [Connect HireOtto to an AI client](/setup/connect-ai-tool).
+
+## Start with a read request
+
+A small verification prompt confirms both the MCP connection and the platform authorization. It also helps prevent work in the wrong account or property.
+
+<Prompt description="List the Google Ads accounts I can access. Include each account name, customer ID, currency, time zone, and whether it is a manager account. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="List the LinkedIn Ads accounts I can access. Include each account ID, currency, my role, and whether that role allows supported writes. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="List the Google Tag Manager accounts and web containers I can access. Include account IDs, container IDs, public IDs, and container names. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="List the Google Search Console properties I can access. Show the exact property URL, property type, and my permission level. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="List the Google Analytics 4 accounts and properties I can access. Include account IDs, property IDs, display names, time zones, and currencies. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+If the expected resource is missing, check the connected platform identity before changing the prompt. HireOtto cannot discover an account, container, or property that the authorized identity cannot access.
+
+## From questions to reviewable work
+
+HireOtto is most useful when the prompt defines the decision you need, the scope to inspect, and the boundary on what may change.
+
+### Analyze one platform
+
+<Prompt description="For Google Ads customer 1234567890, compare the previous 28 complete days with the prior 28 days. Explain the material changes in spend, conversions, CPA, and conversion value by campaign. Separate evidence from interpretation, identify missing context, and do not change anything." actions={["copy"]}>
+</Prompt>
+
+### Inspect measurement configuration
+
+<Prompt description="Review the live published Google Tag Manager container for our website. Inventory conversion-related tags, their firing and blocking triggers, paused state, and important parameters. Flag ambiguous or missing wiring, but do not claim that a tag fired in the browser and do not change anything." actions={["copy"]}>
+</Prompt>
+
+### Combine evidence across servers
+
+Cross-platform analysis requires every relevant HireOtto server to be connected in the same AI workflow. Results from different platforms should stay clearly labelled because their metrics, attribution, scopes, and data freshness are not interchangeable.
+
+<Prompt description="Investigate the decline in paid conversions over the previous 28 complete days. Use Google Ads for campaign and conversion performance, GA4 for acquisition and on-site outcomes, and Google Tag Manager for the current published conversion-tag configuration. Keep each platform's evidence separate, state date and attribution differences, label confirmed versus possible causes, and do not change anything." actions={["copy"]}>
+</Prompt>
+
+### Prepare a controlled change
+
+For supported write workflows, separate investigation from execution. Ask the AI client to show the current value, proposed value, affected object, and expected scope before anything changes.
+
+<Prompt description="In Google Ads customer 1234567890, inspect campaign 987654321 and show its current daily budget, status, bidding strategy, and recent performance. Propose one budget change with the current and proposed values, explain the evidence, and wait for my explicit approval before applying anything." actions={["copy"]}>
+</Prompt>
+
+After an approved write, ask the AI client to read the live object again. A successful action response is not a substitute for verifying the saved state.
+
+## Plans, credits, and profiles
+
+All current plans include supported core access to Google Ads, LinkedIn Ads, Tag Manager, Search Console, and GA4 beta.
+
+| Plan | Usage | Best fit |
+| --- | --- | --- |
+| Free | 200 credits or 14 days, whichever comes first | Testing supported core tools |
+| Starter | 2,000 credits per month | Lighter individual or in-house usage |
+| Pro | 5,000 credits per month | Higher individual usage |
+| Agency | Unlimited credits; two seats included | Audits, multiple connected profiles, and team billing |
+
+Simple discovery requests generally use fewer credits than deeper reports, planning requests, or multi-step work. Agency-only audit tools combine several checks into one repeatable workflow. Starter, Pro, and Agency do not set plan-based limits on the number of supported platforms, ad accounts, or managed spend; usage on Starter and Pro still consumes credits.
+
+Each connection uses a default platform profile unless a profile is specified. Multiple connected profiles are an Agency capability. A profile represents a separate authorized login; assigning another label to the same login does not expand its platform access.
+
+See [Credits, billing, and plans](/credits-and-billing) and the [Feature and entitlement matrix](/feature-entitlement-matrix) for current details.
+
+## Defaults and limits
+
+HireOtto provides opinionated defaults so common marketing requests can start quickly, but there is no single date range, row limit, or output default shared by every server and tool. The selected tool determines its supported parameters, default reporting window, row limit, output modes, and credit cost.
+
+Before a high-stakes or large request:
+
+- State the exact account, property, container, campaign, or other resource identifier.
+- Use complete dates and name the comparison period.
+- Specify the business metric that should guide interpretation.
+- Request CSV output when the relevant tool supports exports and the complete row set matters.
+- Check the server's tools reference for tool-specific defaults, maximum ranges, row limits, and export expiry.
+- Split a large investigation into smaller requests if the AI client, platform API, or tool returns partial or truncated data.
+
+Platform limits still apply. Reporting can be delayed, estimated, sampled, thresholded, privacy-filtered, or unavailable for low-volume segments. Search Console and advertising platforms may omit data; GA4 dimensions and metrics are not always compatible; a GTM configuration inventory cannot prove browser runtime behavior; and an audience-size estimate is not a performance forecast.
+
+## Common failure cases
+
+| Symptom | Likely cause | What to do |
+| --- | --- | --- |
+| The server is connected, but no tools appear | The client has not refreshed the MCP connection, the endpoint is wrong, or the connector is disabled | Confirm the endpoint ends in `/mcp`, complete client authorization, enable the connector, and refresh the tool list |
+| A tool asks you to authenticate | The platform connection is missing, expired, or revoked | Run the relevant connection prompt and complete the newest OAuth link |
+| An expected resource is missing | The connected identity lacks access, the wrong profile is active, or a manager hierarchy is not discoverable from that login | Confirm access in the native platform, identify the active profile, and reconnect the correct identity |
+| A report is empty or incomplete | The date range, filters, data volume, privacy threshold, compatibility rules, or platform retention limit exclude rows | Broaden or correct the request, inspect the returned metadata, and avoid interpreting missing rows as zero activity |
+| A write is rejected | The server does not support that action, the connected role cannot write, the object is ineligible, or platform validation failed | Read the live object and permissions, narrow the change, correct the invalid setting, and retry only the failed step |
+| A multi-step creation stops partway through | A parent object succeeded before a child object failed | Keep the returned IDs, inspect what was created, and resume from the failed step instead of rerunning the entire workflow |
+| A tool is blocked | Credits are exhausted or the capability requires another plan | Check billing status, reduce unnecessary work, or move to the plan that includes the capability |
+
+## What HireOtto does not decide
+
+HireOtto can make platform data and supported actions available to an AI client. It does not know your sales feedback, lead quality, margin, legal constraints, creative standards, risk tolerance, or business priorities unless you provide them.
+
+Treat the AI client's output as a structured starting point:
+
+- Evidence should remain distinguishable from interpretation.
+- Recommendations should name the account and entity they affect.
+- Low-volume results should be labelled as uncertain.
+- Cross-platform comparisons should preserve each platform's definitions.
+- Consequential changes should have an explicit approval boundary.
+- Every applied write should be read back from the platform.
+
+## Choose your next step
 
 <CardGroup cols={2}>
-  <Card title="No local install" icon="cloud">
-    HireOtto runs remotely. Add the endpoint URL to your AI tool config and you're connected — no packages, no CLIs, no setup scripts.
+  <Card title="Connect a server" icon="plug" href="/setup/connect-ai-tool">
+    Add the right endpoint, authorize the platform, and verify your first resource.
   </Card>
 
-  <Card title="Natural language control" icon="a">
-    Manage campaigns, budgets, and keywords by describing what you want. HireOtto translates your intent into Google Ads API calls.
+  <Card title="Google Ads quickstart" icon="google" href="/quickstart">
+    Connect Google Ads and run a safe first account request.
   </Card>
 
-  <Card title="Works where you already work" icon="laptop-mobile">
-    Use HireOtto from Claude Desktop, Cursor, Windsurf, or any MCP-compatible client. No context switching required.
+  <Card title="LinkedIn Ads quickstart" icon="linkedin" href="/linkedin-ads/quickstart">
+    Verify Campaign Manager access, role, and write capability.
   </Card>
 
-  <Card title="Secure OAuth access" icon="shield">
-    HireOtto accesses your Google Ads account through OAuth2. You authorize it once through Google's consent flow; HireOtto never sees your password.
+  <Card title="Tag Manager quickstart" icon="tag" href="/tag-manager/quickstart">
+    Inspect containers and tag wiring without changing GTM.
+  </Card>
+
+  <Card title="Search Console quickstart" icon="magnifying-glass" href="/search-console/quickstart">
+    Authorize organic-search access and verify properties.
+  </Card>
+
+  <Card title="GA4 quickstart" icon="chart-line" href="/google-analytics/quickstart">
+    Connect the read-only GA4 beta and verify properties.
   </Card>
 </CardGroup>
-
-For Search Console workflows, connect Google Search Console separately after connecting HireOtto. Google Ads and Search Console use different Google permissions, so authorizing one does not automatically authorize the other.
-
-## What you can do
-
-Once connected, you can ask your AI assistant to perform any of the following directly in conversation:
-
-- **List campaigns** — retrieve all campaigns with their status, budget, and performance metrics
-- **Create campaigns** — set up new Search campaigns with custom budgets and targeting
-- **Update budgets** — raise or lower daily budgets across one or multiple campaigns
-- **Manage keywords** — add, pause, or remove keywords and adjust match types or bids
-- **Pull performance reports** — get impressions, clicks, cost, conversions, and ROAS for any date range
-- **Pause or enable ads** — change the status of individual ads or entire ad groups
-
-For practical examples, start with:
-
-- [Google Ads Account Audit with AI](/guides/google-ads-account-audit-with-ai)
-- [Analyze Google Ads performance reports with AI](/guides/reporting)
-- [How to Create a Google Ads Campaign with AI](/guides/create-a-google-ads-campaign-with-ai)
-- [Manage Negative Keywords in Google Ads with AI](/guides/manage-negative-keywords-in-google-ads-with-ai)
-
-<Note>
-  HireOtto operates on whichever Google Ads accounts you authorize during setup. If you add more accounts, you can refresh accessible accounts.
-</Note>
-
-## Supported AI tools
-
-HireOtto works with any MCP-compatible client. The following tools are tested and supported out of the box:
-
-| AI tool | Notes |
-| --- | --- |
-| **Claude** | Full support; configure via `connectors` |
-| **Cursor** | Full support; configure via `.cursor/mcp.json` |
-| **Windsurf** | Full support; configure via Windsurf MCP settings |
-| **Any MCP client** | Any tool that supports remote MCP servers |
-
-## Why MCP matters for Google Ads
-
-Google Ads is a rich platform, but routine tasks — checking budgets, adjusting bids, generating reports — require navigating multiple screens. MCP closes the gap between your AI assistant and the tools it needs to act. Rather than describing a change and then making it yourself, your assistant can execute the change in the same step. HireOtto makes this possible for Google Ads without any infrastructure on your side.
-
-<Info>
-  MCP is an open protocol published by Anthropic. HireOtto's remote server is compatible with any client that implements the MCP specification, not just Anthropic's products.
-</Info>
-
-## Privacy & security
-
-- **Stored:** encrypted OAuth tokens required to call the Google Ads API on your behalf.
-- **Not stored long‑term:** your Google Ads data; it’s processed to answer your request and not retained.
-- **You’re in control:** revoke anytime from your Google Account → Security → Third‑party access.
-
-> ✅ Remote server = no local file exposure, no system‑wide permissions.
-
-## FAQ
-
-> **Which clients are supported?** Any MCP client that supports **remote MCP servers** should work. HireOtto is tested with Claude Web, ChatGPT (dev mode), [Make.com](http://Make.com) and Claude Desktop. If you run into issues with any client, email [**suyash@hireotto.com**](mailto:suyash@hireotto.com).
-
-CSV exports work best in clients that can fetch URLs (Claude Web/Desktop, [Make.com](http://Make.com) scenarios).
-
-> **Do I need Google Cloud or JSON editing?** No. Paste the URL, connect, authenticate, use.
-
-> **Pricing?** Live at: [https://www.hireotto.com/pricing](https://www.hireotto.com/pricing)
-
-> **Will HireOtto change my campaigns automatically?** Only when you ask for edits (e.g., creating/updating). Reports are read‑only.
-
-## Next step
-
-If you’re new to HireOtto, start with [Connect Google Ads MCP](/quickstart). If you already use Claude, ChatGPT, or Make, follow the client-specific setup guide: [Connect HireOtto to Claude, ChatGPT, and Make](/setup/connect-ai-tool).
 
 ## Get started
 
