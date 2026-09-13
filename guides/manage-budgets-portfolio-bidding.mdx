@@ -1,0 +1,279 @@
+---
+title: "Manage shared budgets and portfolio bidding strategies"
+sidebarTitle: "Shared Budgets & Portfolio Bidding"
+description: "Inspect, create, align, attach, split, and safely clean up Google Ads shared budgets and portfolio bidding strategies with HireOtto."
+icon: "scale-balanced"
+---
+
+Use HireOtto to manage the account-level budget and bidding objects that several Google Ads campaigns can share. You can inspect every relationship first, apply an approved change, and verify the saved campaign settings without switching between multiple Google Ads screens.
+
+This guide covers two related resources:
+
+- A **shared budget** sets one average daily budget across multiple eligible campaigns.
+- A **portfolio bidding strategy** applies one automated bidding strategy across multiple eligible campaigns.
+
+They are independent by default. Google Ads can also explicitly align a shared budget with a portfolio strategy. When that relationship exists, update the budget and bidding assignment together so the campaign never passes through an invalid intermediate state.
+
+<Note>
+  HireOtto can read and change supported Google Ads budget and bidding settings. It does not decide how much you should spend or which bidding target is commercially appropriate. Review the affected campaigns, current values, proposed values, and expected scope before approving a write.
+</Note>
+
+## Before you begin
+
+You need:
+
+- The HireOtto Google Ads MCP server connected at `https://googleads.hireotto.com/mcp`.
+- A Google Ads login with access to the customer account.
+- Sufficient Google Ads permissions for any create, update, assignment, alignment, or removal action.
+- The customer ID, campaign IDs, budget IDs, and bidding strategy IDs involved in the change.
+
+Use the customer ID without hyphens when a tool asks for `customer_id`.
+
+These workflows are live core Google Ads tools on Free, Starter, Pro, and Agency. Free, Starter, and Pro use plan credits; Agency includes unlimited credits. Multiple connected Google profiles are available on Agency. A listing action costs 1 credit and a write action costs 2 credits.
+
+Start with an inventory instead of guessing from names:
+
+<Prompt description="For Google Ads customer [CUSTOMER_ID], list every campaign budget and show its ID, name, amount, period, whether it is explicitly shared, status, assigned campaign count, and assigned campaigns. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="For Google Ads customer [CUSTOMER_ID], list every portfolio bidding strategy and show its ID, name, type, status, targets, aligned shared budget if present, assigned campaign count, and assigned campaigns. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## Choose the right operation
+
+| Your job | Preferred workflow |
+| --- | --- |
+| Change how much an existing campaign or shared group can spend | Update the current budget amount. |
+| Give several campaigns one spending pool | Create or identify an explicitly shared daily budget, then attach the campaigns. |
+| Give one campaign its own budget | Create and attach a new non-shared daily budget. |
+| Apply one bidding strategy across campaigns | Create or identify a portfolio strategy, then attach eligible campaigns. |
+| Use a shared budget and portfolio strategy as an aligned pair | Ensure both resources cover the same campaign set, link them, then attach campaigns to both together. |
+| Split one campaign out of an aligned shared setup | Create a dedicated budget and set standard campaign-level bidding in one atomic operation. |
+| Clean up an unused resource | Confirm that no campaigns use it, then remove it explicitly. |
+
+<Warning>
+  Replacing a campaign's budget can change spend and overdelivery behavior because the new budget has different history and associations. If your only goal is to change spend, update the current budget amount instead.
+</Warning>
+
+## Campaign budget parameters and defaults
+
+HireOtto exposes budget workflows through `manage_campaign_budgets`.
+
+| Parameter | Required | Default | Use |
+| --- | --: | --- | --- |
+| `action` | Yes | — | Choose the budget operation. |
+| `customer_id` | Yes | — | Google Ads customer ID, without hyphens. |
+| `campaign_id` | For attach actions | — | Campaign to move to a budget. |
+| `budget_id` | For usage, update, attach, and removal actions | — | Existing budget ID. |
+| `amount` | For daily-budget creation; optional on update | — | Average daily amount in the account currency. |
+| `name` | For standalone creation | Generated for create-and-attach when omitted | Budget name. |
+| `explicitly_shared` | No | `false` when creating | `true` creates a shared budget; `false` creates a standalone budget. |
+| `period` | No | `DAILY` | `DAILY` or `CUSTOM_PERIOD` for standalone creation. |
+| `total_amount` | For a custom-period total budget | — | Total amount for the campaign duration, in account currency. |
+| `include_campaigns` | No | `true` | Include campaigns in a budget inventory. |
+| `include_budget` | No | `true` | Include budget metadata when listing campaigns that use one budget. |
+| `allow_removal_if_assigned` | No | `false` | Safety override for removal. Leave false unless the user explicitly approves the risk. |
+
+Supported budget actions:
+
+| Action | Scope |
+| --- | --- |
+| `list_campaign_budgets` | Read |
+| `list_campaigns_using_budget` | Read |
+| `create_campaign_budget` | Write |
+| `update_campaign_budget` | Write |
+| `attach_campaign_budget` | Write |
+| `create_and_attach_campaign_budget` | Write |
+| `remove_campaign_budget` | Write |
+
+### Create and use a shared budget
+
+A shared budget must use the `DAILY` period. Creating the budget does not attach campaigns automatically.
+
+<Prompt description="For Google Ads customer [CUSTOMER_ID], create an explicitly shared daily budget named [BUDGET_NAME] with an average daily amount of [AMOUNT] in the account currency. Return the new budget ID and saved settings. Do not attach any campaigns yet." actions={["copy"]}>
+</Prompt>
+
+After creation, review the eligible campaigns and attach them one at a time unless you have an aligned budget–portfolio setup.
+
+<Prompt description="For Google Ads customer [CUSTOMER_ID], show campaign [CAMPAIGN_ID]'s current budget and the complete current usage of budget [BUDGET_ID]. Then move the campaign to that budget, verify the saved campaign setting, and report whether the previous budget became unused. Do not remove any budget." actions={["copy"]}>
+</Prompt>
+
+### Split a campaign into a dedicated budget
+
+For a campaign that is not in an explicitly aligned budget–portfolio setup, create and attach a new non-shared daily budget in one operation.
+
+<Prompt description="For Google Ads customer [CUSTOMER_ID], show campaign [CAMPAIGN_ID]'s current budget and bidding setup. Then create a new non-shared daily budget named [BUDGET_NAME] with an average daily amount of [AMOUNT] in the account currency, attach it to the campaign, and verify the saved budget ID and amount. Do not remove the previous budget." actions={["copy"]}>
+</Prompt>
+
+### Update a budget
+
+An update can change the daily amount, make an eligible non-shared budget explicitly shared, or do both. Budget names are not editable through this workflow.
+
+<Prompt description="For Google Ads customer [CUSTOMER_ID], inspect budget [BUDGET_ID] and every campaign that uses it. Show the current daily amount and the proposed amount of [AMOUNT] in the account currency, wait for my approval, then update only the amount and verify the saved value." actions={["copy"]}>
+</Prompt>
+
+Once a budget is explicitly shared, Google Ads does not allow it to become non-shared again. To isolate one campaign, move that campaign to a new dedicated budget instead.
+
+## Portfolio bidding parameters and defaults
+
+HireOtto exposes standard, portfolio, and aligned workflows through `manage_bidding_strategies`.
+
+| Parameter | Required | Default | Use |
+| --- | --: | --- | --- |
+| `action` | Yes | — | Choose the bidding operation. |
+| `customer_id` | Yes | — | Google Ads customer ID, without hyphens. |
+| `campaign_id` | For campaign assignment or standard-bidding actions | — | Campaign to update. |
+| `bidding_strategy_id` | For usage, attach, alignment, and removal actions | — | Existing portfolio strategy ID. |
+| `budget_id` | For aligned workflows | — | Existing shared budget ID. |
+| `name` | For portfolio creation or a new dedicated budget | — | Resource name. |
+| `strategy_type` | For creation and standard-bidding actions | — | Supported bidding strategy type. |
+| `target_cpa` | When used by the chosen strategy | — | Target CPA in account currency. |
+| `target_roas` | When used by the chosen strategy | — | ROAS ratio; `3.5` means 350%. |
+| `cpc_bid_ceiling` | When supported | — | Maximum CPC in account currency. |
+| `enhanced_cpc_enabled` | Manual CPC standard bidding only | Unchanged when omitted | Enable or disable enhanced CPC where supported. |
+| `location` | Target impression share only | — | `ABSOLUTE_TOP_OF_PAGE`, `TOP_OF_PAGE`, or `ANYWHERE_ON_PAGE`. |
+| `location_fraction` | Target impression share only | — | Share target expressed as 0–1 or 0–100. |
+| `include_campaigns` | No | `true` | Include assigned campaigns in a strategy inventory. |
+| `include_bidding_strategy` | No | `true` | Include strategy metadata when listing campaigns that use it. |
+| `allow_removal_if_assigned` | No | `false` | Safety override for removal. |
+
+Portfolio creation supports:
+
+- `TARGET_SPEND` with an optional CPC ceiling.
+- `TARGET_CPA` with an optional CPA target.
+- `TARGET_ROAS` with an optional ROAS target.
+- `MAXIMIZE_CONVERSIONS` with an optional CPA target.
+- `MAXIMIZE_CONVERSION_VALUE` with an optional ROAS target.
+- `TARGET_IMPRESSION_SHARE` with a location, share target, and CPC ceiling.
+
+Standard campaign-level bidding supports `MANUAL_CPC`, `TARGET_SPEND`, `MAXIMIZE_CONVERSIONS`, `MAXIMIZE_CONVERSION_VALUE`, and `TARGET_IMPRESSION_SHARE`. Not every strategy is eligible for every campaign type, and automated strategies may have data or configuration requirements.
+
+### Create and attach a portfolio strategy
+
+Creating a portfolio strategy does not attach it to any campaign.
+
+<Prompt description="For Google Ads customer [CUSTOMER_ID], create a portfolio Maximize Conversions bidding strategy named [STRATEGY_NAME] with a target CPA of [TARGET_CPA] in the account currency. Return the new strategy ID and saved settings. Do not attach any campaigns yet." actions={["copy"]}>
+</Prompt>
+
+Before attaching it, compare the strategy's campaign eligibility and current assignments with the campaign you intend to move.
+
+<Prompt description="For Google Ads customer [CUSTOMER_ID], inspect campaign [CAMPAIGN_ID]'s current budget and bidding settings and portfolio strategy [BIDDING_STRATEGY_ID]'s current settings and assigned campaigns. Show the exact change, wait for my approval, then attach the campaign to the portfolio strategy and verify the saved bidding resource. Do not remove the previous strategy." actions={["copy"]}>
+</Prompt>
+
+When a portfolio strategy is attached, its settings become the active bidding surface. Campaign-level standard bidding fields no longer control the campaign.
+
+## Align a shared budget and portfolio strategy
+
+Alignment is an explicit relationship between two existing account-level resources. It is not created merely because the same campaigns use both resources.
+
+Before linking:
+
+1. Confirm the budget is explicitly shared.
+2. Confirm both resources exist in the same customer account.
+3. Compare their assigned campaign sets.
+4. Make the campaign sets identical, or ensure both resources are unused.
+5. Check whether either resource is already aligned to a different partner.
+
+<Prompt description="For Google Ads customer [CUSTOMER_ID], inspect shared budget [BUDGET_ID] and portfolio bidding strategy [BIDDING_STRATEGY_ID]. Compare their complete assigned campaign sets and existing alignment fields. If the sets are identical and neither resource is aligned elsewhere, show the proposed relationship, wait for my approval, link them, and verify both saved alignment fields. Otherwise stop and explain the mismatch without changing anything." actions={["copy"]}>
+</Prompt>
+
+After the pair is linked, attach a campaign to both resources in one update:
+
+<Prompt description="For Google Ads customer [CUSTOMER_ID], inspect campaign [CAMPAIGN_ID], shared budget [BUDGET_ID], and portfolio bidding strategy [BIDDING_STRATEGY_ID]. Confirm the budget and strategy are aligned to each other and compatible with the campaign. Show the complete before-and-after settings, wait for my approval, then attach the campaign to both resources in one update and verify the saved budget and bidding IDs." actions={["copy"]}>
+</Prompt>
+
+<Warning>
+  Do not attach only the budget or only the strategy when Google Ads expects an aligned pair. A one-sided update can fail because it would break the alignment relationship.
+</Warning>
+
+## Move a campaign out of an aligned setup
+
+To split one campaign out of an aligned shared budget and portfolio strategy, use the combined workflow. It creates a new non-shared daily budget, moves the campaign to it, clears the portfolio assignment, and applies standard campaign-level bidding in one operation.
+
+<Prompt description="For Google Ads customer [CUSTOMER_ID], inspect campaign [CAMPAIGN_ID]'s current shared budget, portfolio strategy, and both resources' assigned campaigns. Show the proposed move to a new non-shared daily budget named [BUDGET_NAME] with an amount of [AMOUNT] in the account currency and standard Maximize Conversions bidding with a target CPA of [TARGET_CPA]. Wait for my approval, apply the budget and bidding changes together, verify the saved campaign settings, and report any now-unused resources without removing them." actions={["copy"]}>
+</Prompt>
+
+This combined update avoids a temporary state in which the campaign points to only one side of the previous alignment.
+
+## Remove unused resources safely
+
+HireOtto never removes the previous budget or portfolio strategy automatically after a campaign moves. That behavior prevents a cleanup step from deleting a resource still needed by another campaign.
+
+Use a two-step cleanup:
+
+1. List the resource and its current campaign assignments.
+2. Remove it only when the assigned campaign count is zero and you have confirmed the ID.
+
+<Prompt description="For Google Ads customer [CUSTOMER_ID], inspect budget [BUDGET_ID] and portfolio bidding strategy [BIDDING_STRATEGY_ID]. Confirm that both assigned campaign counts are zero and show their names, types, statuses, and alignment fields. If either resource is still assigned or aligned, stop without changing anything. If both are unused and unaligned, wait for my approval, remove only these two resources, and return the removal results." actions={["copy"]}>
+</Prompt>
+
+The removal safety override defaults to `false`. Keep it that way for normal cleanup. A budget associated with active or paused campaigns cannot be removed, and forcing an assigned-resource removal is not a substitute for moving campaigns first.
+
+## Read and write scope
+
+Read-only actions can:
+
+- List all current budgets or portfolio strategies.
+- Show the campaigns assigned to one resource.
+- Return budget amounts, periods, shareability, statuses, bidding types, targets, and alignment metadata.
+
+Write actions can:
+
+- Create daily or eligible campaign-total budgets.
+- Change a daily budget amount or make an eligible standalone budget shared.
+- Replace a campaign's current budget.
+- Create and attach portfolio bidding strategies.
+- Move a campaign back to supported standard bidding.
+- Link an eligible shared budget and portfolio strategy.
+- Attach a campaign to an aligned pair in one update.
+- Split a campaign out of an aligned setup in one update.
+- Remove eligible unused resources.
+
+HireOtto does not activate a future workflow automatically or decide that a budget, target CPA, target ROAS, or campaign grouping is appropriate. Each write occurs only when the connected AI client calls the action.
+
+## Limits and failure cases
+
+### Budget restrictions
+
+- A campaign must always have a budget. Replacing the budget is the supported way to detach the old one.
+- A `CUSTOM_PERIOD` campaign-total budget cannot be shared.
+- Eligible campaign-total budgets require supported campaign and bidding configurations, including start and end dates where Google requires them.
+- A non-shared budget can become shared in eligible cases, but a shared budget cannot become non-shared.
+- Campaign experiments require their own non-shared budgets.
+- Google Ads limits the number of budget resources in an account.
+- A budget still used by an active or paused campaign cannot be removed.
+
+### Bidding and alignment restrictions
+
+- The requested strategy may be incompatible with the campaign type or its current configuration.
+- An automated strategy may not be eligible when conversion history, goals, or required targets are missing.
+- A shared budget and portfolio strategy cannot be linked when their assigned campaign sets differ.
+- A budget or strategy already aligned to a different partner cannot be silently realigned.
+- An aligned campaign move can fail when only the budget or only the strategy is updated.
+- Creating a resource does not make it active; it remains unused until attached.
+
+### Access and request failures
+
+- The connected Google login can see the account but lacks permission to edit it.
+- A customer, campaign, budget, or strategy ID belongs to a different account or no longer exists.
+- A required value is missing, has the wrong unit, or uses an unsupported strategy name.
+- A write succeeds for a new resource but a later, separate assignment fails, leaving the new object unused. Prefer the combined workflows when they match the job.
+- Google Ads rejects the request because of account limits, eligibility rules, policy state, or a temporary API error.
+
+When a request fails, keep the returned IDs, inspect the live account state, and resume from the failed step. Do not rerun an entire creation sequence blindly, because that can create duplicate unused resources.
+
+## Verification checklist
+
+After every approved write, confirm:
+
+- The customer and campaign IDs match the intended account.
+- The campaign points to the intended budget ID.
+- The saved budget amount is in the account currency.
+- The budget's shareability and period match the plan.
+- The campaign points to the intended portfolio strategy, or to standard bidding when that was the goal.
+- Target CPA, target ROAS, CPC ceiling, or impression-share fields match the approved values.
+- Both sides of an explicit budget–strategy alignment reference each other.
+- The assigned campaign sets are correct.
+- Any previous budget or strategy reported as unused remains in the account until separately reviewed and removed.
+
+For broader capability details, see the [Google Ads tools reference](/google-ads-mcp-tools), [Google Ads quickstart](/quickstart), and [credits, billing, and plans](/credits-and-billing).
