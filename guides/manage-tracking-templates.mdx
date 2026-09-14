@@ -1,0 +1,235 @@
+---
+title: "Manage Google Ads tracking templates and URL suffixes"
+description: "Set, clear, and verify Google Ads URL tracking at the correct account, campaign, ad-group, or ad level with HireOtto."
+sidebarTitle: "Tracking templates & URL suffix"
+---
+
+Use HireOtto to manage Google Ads tracking templates, final URL suffixes, and custom parameters without editing your website or Google Tag Manager container.
+
+The safest workflow is to identify where a tracking rule should live, review the affected scope, make one explicit change, and verify the resulting click URL in Google Ads.
+
+<Warning>
+  URL tracking changes can affect every click beneath the level you edit. A valid-looking template can still send traffic to the wrong URL or strip required parameters. Review the exact account and entity IDs, test the resulting URL in Google Ads, and check a real landing page before relying on the change.
+</Warning>
+
+## Before you begin
+
+You need:
+
+- A connected Google Ads account in HireOtto.
+- The Google Ads customer ID without hyphens.
+- Standard access to a HireOtto plan. URL tracking uses the core Google Ads tools available on Free, Starter, Pro, and Agency.
+- Sufficient Google Ads permission to edit the selected account or entity. Read-only account access cannot save changes.
+- The campaign, ad-group, or ad ID when you want a lower-level override.
+
+Connect the Google Ads server at:
+
+```text
+https://googleads.hireotto.com/mcp
+```
+
+If more than one Google login is connected, named profiles require the Agency plan.
+
+## Choose the right field
+
+| Field | Use it for | Example |
+| --- | --- | --- |
+| Tracking template | Build the click-tracking URL, including a third-party tracker or ValueTrack parameters. Account-, campaign-, and ad-group-level templates must include a landing-page insertion parameter such as `{lpurl}`. | `{lpurl}?utm_source=google&utm_campaign={campaignid}` |
+| Final URL suffix | Append tracking parameters to the landing-page URL. Do not include a leading `?`. | `utm_source=google&utm_medium=cpc` |
+| Custom parameters | Define reusable advertiser values that a tracking template or suffix can reference. Pass keys without the leading underscore, then reference them as `{_key}`. | Set `campaign` to `brand`, then use `{_campaign}` |
+
+Google Ads uses the most specific tracking template available. An ad-level template overrides an ad-group template, which overrides a campaign template, which overrides the account template. Custom parameters with the same name follow the same most-specific rule.
+
+<Tip>
+  If you only need standard UTM parameters and no redirect or third-party tracker, a final URL suffix is usually easier to maintain than a tracking template.
+</Tip>
+
+## Supported scope
+
+| Level | Tracking template | Final URL suffix | Custom parameters | Notes |
+| --- | --: | --: | --: | --- |
+| Account | Update | Update | Not supported | The account values become defaults for lower levels that do not override them. Confirm the current value in Google Ads before writing. |
+| Search campaign | Update | Update | Replace | Up to 8 custom parameters. Confirm the current value in Google Ads before writing. |
+| Demand Gen campaign | Read and update | Read and update | Not supported by the HireOtto campaign update | Campaign updates can also affect other settings, so request URL tracking fields only. |
+| Search ad group | Update | Update | Replace | A lower-level value can override the campaign or account value. Confirm the current value in Google Ads before writing. |
+| Supported Search ad | Read and update | Read and update | Read and replace | HireOtto can also update the final and mobile final URLs when explicitly requested. |
+| Demand Gen ad | Read and update | Read and update | Read and replace | The direct update affects the ad's top-level URL settings and preserves the ad ID. It does not change carousel-card URLs. |
+
+HireOtto does not edit your website, analytics property, or GTM container as part of this workflow. It reads Google Ads configuration and writes only the URL fields you explicitly approve.
+
+## Inspect the current setup
+
+Start with the account and campaign that own the rule. Include lower levels when you suspect an override.
+
+<Prompt description="For Google Ads customer 1234567890, review the current URL tracking setup for campaign 111222333. Include the account, campaign, ad-group, and ad levels wherever available. Show tracking templates, final URL suffixes, custom parameters, final URLs, inherited values, and the exact entity IDs. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+For a single ad, request its URL fields directly:
+
+<Prompt description="For Google Ads customer 1234567890, inspect ad 444555666 and show its campaign ID, ad-group ID, ad type, final URLs, tracking template, final URL suffix, and custom parameters. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+If a requested level is not returned, verify that value in Google Ads before approving a write. Do not treat a missing field in a response as proof that Google Ads has no inherited setting.
+
+## Set account-level defaults
+
+Account-level tracking applies broadly. Use it only when the same rule should be the default across campaigns.
+
+You can update:
+
+- `tracking_url_template`
+- `final_url_suffix`
+
+Account-level custom parameters are not supported by Google Ads.
+
+<Prompt description="For Google Ads customer 1234567890, set the account tracking template to {lpurl}?utm_source=google&utm_medium=cpc&utm_campaign={campaignid} and leave the final URL suffix unchanged. Show the exact proposed change and wait for my approval before saving it." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="For Google Ads customer 1234567890, set the account final URL suffix to utm_source=google&utm_medium=cpc and leave the tracking template unchanged. Show the exact proposed change and wait for my approval before saving it." actions={["copy"]}>
+</Prompt>
+
+The account update requires at least one of the two fields. Omitting a field leaves it unchanged.
+
+## Set campaign-level tracking
+
+Use the campaign level when the campaign needs its own naming convention or tracker while its ad groups and ads can inherit the same rule.
+
+<Prompt description="For Google Ads customer 1234567890 and Search campaign 111222333, set the tracking template to {lpurl}?utm_source=google&utm_medium=cpc&utm_campaign={_campaign}, set the final URL suffix to utm_content={creative}, and replace the campaign custom parameters with campaign=brand_search. Leave every non-URL campaign setting unchanged. Show the exact diff and wait for my approval before saving it." actions={["copy"]}>
+</Prompt>
+
+Campaign custom parameters accept either an object or a list of key-value objects. The object form is easiest to review:
+
+```json
+{
+  "campaign": "brand_search",
+  "source": "google"
+}
+```
+
+Custom parameter updates replace the complete set on that entity. Include every key you want to keep.
+
+## Set ad-group tracking
+
+Use an ad-group override only when that ad group needs a different value from its campaign.
+
+<Prompt description="For Google Ads customer 1234567890, campaign 111222333, and ad group 222333444, set the final URL suffix to utm_source=google&utm_medium=cpc&utm_campaign={campaignid}&utm_adgroup={adgroupid}. Leave the tracking template and custom parameters unchanged. Show the exact diff and wait for my approval before saving it." actions={["copy"]}>
+</Prompt>
+
+HireOtto requires the customer, campaign, and ad-group IDs for this update. Omitting a URL field leaves it unchanged.
+
+## Update a Search or Demand Gen ad
+
+An ad-level value is the most specific override. Use it sparingly because it is easier for account-wide conventions to drift.
+
+<Prompt description="For Google Ads customer 1234567890 and ad 444555666, set the final URL suffix to utm_source=google&utm_medium=cpc&utm_campaign={campaignid}&utm_content={creative}. Leave the final URL, mobile final URL, tracking template, custom parameters, headlines, descriptions, paths, and status unchanged. Show the exact proposed change and wait for my approval before saving it." actions={["copy"]}>
+</Prompt>
+
+For a Demand Gen ad, the same direct URL update preserves the existing ad resource and creative. It changes the top-level ad destination or tracking fields only. Carousel-card URLs are separate and are not updated by this action.
+
+<Prompt description="For Google Ads customer 1234567890, inspect Demand Gen ad 444555666 and prepare a direct update that changes only its top-level final URL suffix to utm_source=google&utm_medium=cpc&utm_campaign={campaignid}. Preserve the ad ID, creative, status, top-level final URL, mobile final URL, tracking template, and custom parameters. Do not change carousel-card URLs. Show the exact diff and wait for my approval." actions={["copy"]}>
+</Prompt>
+
+## Clear a value
+
+Clearing and omitting are different:
+
+| Input | Result |
+| --- | --- |
+| Omit a field | Leave the current value unchanged. |
+| Empty string for a tracking template | Clear the template at that level. |
+| Empty string for a final URL suffix | Clear the suffix at that level. |
+| Empty object or list for custom parameters | Remove all custom parameters at that level. |
+
+After clearing a lower-level value, Google Ads may use a value inherited from a higher level.
+
+<Prompt description="For Google Ads customer 1234567890 and campaign 111222333, clear the campaign tracking template and final URL suffix. Leave its custom parameters and every other campaign setting unchanged. Explain what higher-level values may apply afterward, show the exact diff, and wait for my approval before saving it." actions={["copy"]}>
+</Prompt>
+
+<Prompt description="For Google Ads customer 1234567890, campaign 111222333, and ad group 222333444, remove all custom parameters from this ad group. Leave its tracking template, final URL suffix, status, name, bid, and all other settings unchanged. Show the exact diff and wait for my approval before saving it." actions={["copy"]}>
+</Prompt>
+
+## Custom parameter limits
+
+HireOtto validates custom parameters before sending the change to Google Ads:
+
+- Maximum 8 custom parameters per supported entity.
+- Keys must contain letters and numbers only.
+- Pass the key without the leading underscore.
+- A key can be at most 16 UTF-8 bytes.
+- A value can be at most 200 UTF-8 bytes.
+- Keys must be unique regardless of capitalization.
+- An update replaces the full existing set; it is not a partial merge.
+
+For example, pass this object:
+
+```json
+{
+  "campaign": "summer_sale",
+  "source": "google"
+}
+```
+
+Then reference the values as `{_campaign}` and `{_source}` in the tracking template or suffix.
+
+## Credits and access
+
+- Reading Google Ads entities uses 1 credit per tool call.
+- Search campaign, account-tracking, Search ad-group, and ad URL updates use 2 credits per tool call.
+- A Demand Gen campaign update uses 3 credits per tool call.
+- Free, Starter, Pro, and Agency plans include the core Google Ads tools, subject to the plan's credit allowance and access period.
+- Accounts connected through an additional Google login require Agency.
+
+A failed Google Ads validation can still consume a tool call. Inspect IDs and prepare the full intended state before requesting a write.
+
+## Verify every change
+
+A successful update response confirms that Google Ads accepted the request. It does not prove that the final click route is correct.
+
+After a write:
+
+1. Read the affected entity again where the field is available.
+2. Confirm the account, campaign, ad-group, or ad ID.
+3. Confirm only the intended URL fields changed.
+4. Use the **Test** action in Google Ads URL options.
+5. Open a real landing page and confirm the final host, path, redirects, and query parameters.
+6. Check that analytics and third-party tracking receive the expected values.
+
+<Prompt description="Verify the URL tracking change for Google Ads customer 1234567890 and campaign 111222333. Read the affected campaign and its ads, restate the saved tracking template, final URL suffix, and custom parameters wherever available, identify inherited or overriding values, and flag anything that differs from the approved change. Do not make another change." actions={["copy"]}>
+</Prompt>
+
+## Common failures
+
+### The landing page breaks
+
+Account-, campaign-, and ad-group-level tracking templates must insert the final URL with a supported ValueTrack parameter such as `{lpurl}`. A missing or invalid insertion parameter can produce a broken click URL.
+
+### Google rejects the suffix
+
+Pass the suffix as query parameters without a leading `?`. Check separators, unsupported ValueTrack parameters, and malformed percent encoding.
+
+### A custom parameter disappears
+
+Custom parameter updates replace the full set. If you submit only a new key, existing keys at the same level are removed. Inspect the current set and include every key you want to retain.
+
+### The new value does not appear on a click
+
+A more specific setting may override the value you changed. Inspect the ad, ad group, campaign, and account in that order.
+
+### A Demand Gen card still uses the old URL
+
+The direct ad update changes the top-level URL fields, not individual carousel-card destinations. Review each card separately before activation.
+
+### The update is rejected for permissions
+
+The connected Google user may be able to read the account without having edit access. Reconnect an authorized user or ask an account administrator to grant the required Google Ads role.
+
+### The response confirms an update, but the click path is wrong
+
+API acceptance is not runtime verification. Test the URL in Google Ads and follow a real click path before considering the work complete.
+
+## Related pages
+
+- [Connect a HireOtto server to your AI client](/setup/connect-ai-tool)
+- [Google Ads MCP tools reference](/google-ads-mcp-tools)
+- [Manage Demand Gen campaigns](/guides/demand-gen)
+- [Credits, billing, and plans](/billing-and-pricing)
