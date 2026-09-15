@@ -68,7 +68,8 @@
             "pages": [
               "tag-manager/quickstart",
               "tag-manager/tools-reference",
-              "tag-manager/container-inventory"
+              "tag-manager/container-inventory",
+              "tag-manager/scan-website"
             ]
           },
           {

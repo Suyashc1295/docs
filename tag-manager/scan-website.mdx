@@ -1,0 +1,157 @@
+---
+title: "Scan a website for tracking signals"
+description: "Find GTM, GA4, Google Ads, forms, consent signals, and likely conversion pages in a website's public HTML."
+sidebarTitle: "Scan website"
+---
+
+Use HireOtto to scan up to 10 public pages and build a fast tracking inventory before a deeper browser test. The scan can find Google Tag Manager containers, Google Analytics 4 measurement IDs, Google Ads conversion IDs, forms, phone and email links, booking embeds, consent tools, and likely implementation gaps.
+
+The scan is read-only. It fetches public HTML and does not change the website, Google Tag Manager, Google Analytics, or Google Ads.
+
+<Warning>
+  A website scan is not proof that a tag fires correctly. HireOtto reads the initial HTML returned by the server; it does not execute JavaScript, accept a consent banner, click buttons, submit forms, or inspect browser network requests. Finish important tracking checks in Google Tag Manager Preview or Tag Assistant on the real user journey.
+</Warning>
+
+## Before you start
+
+You need:
+
+- A connected AI client with the HireOtto Google Tag Manager server at `https://tagmanager.hireotto.com/mcp`
+- A public `http://` or `https://` website URL
+- An eligible HireOtto plan with enough credits for the pages you want to scan
+
+The website scan is available on Free, Starter, Pro, and Agency. It does not require access to the site's GTM account because it inspects public pages rather than a Google Tag Manager container. Other GTM tools still require Google authorization.
+
+<Prompt description="Scan https://example.com for tracking signals. Discover the most important pages automatically, scan the default number of pages, and summarize the GTM, GA4, Google Ads, forms, booking, consent, and JavaScript-framework signals you find. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## How page discovery works
+
+Start with the site's homepage or another public base URL. If you omit the scheme, HireOtto treats the URL as HTTPS.
+
+HireOtto looks for page URLs in declared sitemaps first. If it cannot find usable sitemap URLs, it falls back to links on the homepage. It keeps same-domain web pages and prioritizes shallow, conversion-relevant paths such as contact, booking, appointment, quote, pricing, demo, checkout, confirmation, consultation, signup, trial, and product pages. Blog, news, press, and similar content sections are deprioritized.
+
+The base URL is always included in the automatically selected set. Discovery is a convenience, not a complete crawl: unlinked pages, pages omitted from sitemaps, protected journeys, and JavaScript-generated links can be missed.
+
+Use `additional_urls` to force known pages into the scan—for example, a thank-you page that is not linked publicly. Automatically discovered pages are added first, then additional URLs, and the final deduplicated list is capped at 10. If you need room for forced URLs, set `max_pages` below 10.
+
+<Prompt description="Scan https://example.com and force-include https://example.com/contact and https://example.com/thank-you. Scan no more than 8 pages in total, summarize tracking coverage by page, and do not change anything." actions={["copy"]}>
+</Prompt>
+
+## Parameters and defaults
+
+| Parameter | Required | Default | Accepted values | What it controls |
+| --- | --- | --- | --- | --- |
+| `url` | Yes | — | A public HTTP or HTTPS URL | The base page and domain used for discovery. A missing scheme is treated as HTTPS. |
+| `max_pages` | No | `6` | Integer from `1` to `10` | Maximum number of pages selected automatically, including the base URL. |
+| `additional_urls` | No | None | A list of page URLs | Pages to add after discovery. The final deduplicated scan still cannot exceed 10 URLs. |
+| `timeout_seconds` | No | `10` | Integer from `3` to `30` | Per-request timeout for sitemap, discovery, and page fetches. |
+
+The scan costs one HireOtto credit per URL in the final deduplicated list. A six-page scan normally costs six credits; a ten-page scan costs ten. Agency includes unlimited usage subject to fair-use limits.
+
+<Prompt description="Scan https://example.com across up to 10 automatically discovered pages. Allow up to 20 seconds for each request. Return a page-by-page tracking inventory and a cross-page summary. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## What the scan returns
+
+For each successfully fetched page, HireOtto reports:
+
+- Requested URL, final URL after redirects, and HTTP status
+- GTM container IDs and evidence of script and `noscript` installation
+- A warning when the same GTM loader or `noscript` iframe appears more than once
+- GA4 measurement IDs, Google Ads conversion IDs, and legacy Universal Analytics IDs
+- Whether a Google tag (`gtag.js`) is present
+- HTML forms and their action, method, ID, and classes
+- `tel:` and `mailto:` links
+- Iframes and recognized booking or form providers
+- Recognized form-platform, consent-management, and JavaScript-framework signals
+
+The summary groups GTM, GA4, and Google Ads IDs by page. It also flags missing GTM coverage, different GTM IDs across pages, suspected duplicate installs, legacy Universal Analytics, and websites where client-side rendering may hide important elements from a static scan.
+
+Treat detected IDs as inventory evidence. Treat warnings as investigation queues, not automatic diagnoses.
+
+<Prompt description="Scan https://example.com and organize the result into Confirmed, Investigate, and Cannot verify from static HTML. Show which GTM, GA4, and Google Ads IDs appear on each page, flag inconsistent or duplicate GTM installations, and do not change anything." actions={["copy"]}>
+</Prompt>
+
+## Interpret common findings
+
+### No GTM container detected
+
+This means no matching GTM container ID appeared in the fetched HTML. It does not prove GTM is absent. A consent tool, client-side application, tag loader, proxy, or access restriction may prevent the container from appearing in the initial response.
+
+Open the page in a browser and use Tag Assistant or GTM Preview before concluding that tracking is missing.
+
+### Different GTM IDs across pages
+
+Different container IDs can be intentional—for example, across products or regional sites—but they can also indicate an inconsistent deployment. Confirm the intended container for each hostname and page group before changing anything.
+
+### Possible duplicate installation
+
+HireOtto flags repeated executable GTM loader or `noscript` installation signals. Serialized framework data is excluded from this check where possible, but the result is still a heuristic. Use browser developer tools and Tag Assistant to confirm whether the container actually loads more than once.
+
+### GA4 or Google Ads ID found without GTM
+
+The Google tag may be installed directly or by another platform. This is not automatically an error. Review the expected implementation and verify which events and conversions are sent at runtime.
+
+### JavaScript framework detected
+
+Signals for frameworks such as Next.js, React, Angular, Nuxt, or Vue increase the chance that forms and tracking code appear only after JavaScript runs. A sparse static result on these sites should lead to browser testing, not a missing-tag verdict.
+
+### Form or booking provider found
+
+A detected form or iframe identifies a likely conversion surface. It does not show that a successful submission is tracked. Test the complete journey, including validation errors, success messages, redirects, embedded cross-domain flows, and consent states.
+
+<Prompt description="Scan https://example.com for forms, phone links, email links, booking embeds, and likely confirmation pages. Map each conversion surface to the GTM, GA4, and Google Ads IDs visible in static HTML, then list the browser tests still required. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## Compare the website with a GTM container
+
+The website scan and GTM inventory answer different questions:
+
+| Check | Website scan | GTM inventory |
+| --- | --- | --- |
+| Reads public page HTML | Yes | No |
+| Requires Google Tag Manager access | No | Yes |
+| Shows IDs served on selected pages | Yes | No |
+| Shows tags, triggers, variables, and folders in a container | No | Yes |
+| Proves browser-side firing | No | No |
+| Changes the website or container | No | No |
+
+Use both read-only tools to compare what is configured with what appears in public HTML. Then use browser testing to verify runtime behavior.
+
+<Prompt description="Scan https://example.com for tracking signals, then inspect the connected live GTM container. Compare the IDs and conversion surfaces found on the website with the relevant tags and triggers in the container. Separate confirmed matches, possible gaps, and items that require GTM Preview. Do not create, edit, or publish anything." actions={["copy"]}>
+</Prompt>
+
+## Limits and failure cases
+
+- **Ten-page cap:** The final deduplicated list cannot exceed 10 URLs. Use representative pages rather than treating this as a full-site crawl.
+- **Static HTML only:** Client-rendered tags, forms, consent-dependent scripts, user interactions, `dataLayer` events, and network requests are outside the scan's scope.
+- **Public URLs only:** Localhost, private, loopback, link-local, reserved, and otherwise unsafe addresses are rejected.
+- **Same-domain discovery:** Automatic discovery keeps pages on the base URL's domain. Add other public URLs explicitly when they belong in the review, subject to the final cap.
+- **Sitemap and link coverage:** Discovery can miss unlinked, protected, canonicalized, or dynamically generated pages.
+- **Fetch failures:** Timeouts, DNS failures, blocks, authentication walls, and other request errors can prevent a page from being read. Successful pages can still be returned alongside failed ones.
+- **HTTP responses:** A fetched error page can still contain HTML. Check each page's HTTP status and final URL before interpreting detected signals.
+- **Heuristic detection:** Provider, framework, consent, and duplicate-install signals are evidence for review, not definitive implementation diagnoses.
+- **Credits:** Credits are charged for URLs in the final scan list, including pages that later fail to fetch.
+
+<Prompt description="Scan https://example.com with the default settings. For every URL, show the HTTP status, final URL, whether the fetch succeeded, and the tracking signals found. Keep failed or redirected pages visible and explain how each one affects confidence. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## A practical tracking review
+
+1. Scan the default six pages to establish a baseline.
+2. Check whether discovery included the main lead, purchase, booking, and confirmation paths.
+3. Add missed conversion pages explicitly and rerun within the ten-page cap.
+4. Compare IDs and coverage across pages.
+5. Inspect the connected GTM container when you need configuration context.
+6. Test the real journey in GTM Preview or Tag Assistant under relevant consent states.
+7. Record confirmed gaps separately from items that the static scan cannot verify.
+
+<Prompt description="Run a read-only tracking review for https://example.com. Start with the default website scan, identify missing high-value page types, and tell me which additional URLs I should provide. Organize the result into page coverage, ID consistency, conversion surfaces, likely gaps, and browser-verification steps. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## Next steps
+
+- [Connect Google Tag Manager](/tag-manager/quickstart)
+- [Google Tag Manager MCP tools reference](/tag-manager/tools-reference)
+- [Review a GTM container inventory and tag wiring](/tag-manager/container-inventory)
