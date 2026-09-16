@@ -77,7 +77,8 @@
             "pages": [
               "google-analytics/quickstart",
               "google-analytics/tools-reference",
-              "google-analytics/custom-reporting"
+              "google-analytics/custom-reporting",
+              "google-analytics/realtime-reporting"
             ]
           },
           {

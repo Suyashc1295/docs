@@ -1,0 +1,263 @@
+---
+title: "Run GA4 realtime reports with HireOtto"
+description: "Check recent users, events, devices, locations, and streams from your AI client without treating a live snapshot as historical analysis."
+sidebarTitle: "Realtime reporting"
+---
+
+Use HireOtto's GA4 realtime reporting when you need to see what has happened in the last 30 minutes—for example, after a campaign launch, website release, event deployment, or live promotion. You can break recent activity down by supported dimensions such as country, device category, event name, stream, or minutes ago.
+
+Realtime reporting is read-only. It does not create events, edit GA4, change advertising accounts, or validate browser-side tracking by itself.
+
+<Note>
+  Use realtime for a recent-activity check. Use a standard GA4 report for yesterday, last week, month-over-month comparisons, attribution analysis, or any other historical question.
+</Note>
+
+## Before you start
+
+You need:
+
+- The HireOtto GA4 server connected at `https://ga4.hireotto.com/mcp`
+- A completed read-only Google Analytics authorization
+- The numeric ID of a GA4 property that the connected Google login can access
+- Available HireOtto usage on a plan that includes GA4 beta
+
+If you have not selected a property yet, list the accounts and properties available to your connected profile. Use the GA4 property ID—not the account ID or a web stream's `G-...` measurement ID—in reporting requests.
+
+<Prompt description="Using the default GA4 profile, list every accessible account and property with its account name, account ID, property name, and property ID. Do not run a report yet." actions={["copy"]}>
+</Prompt>
+
+## Run a first realtime report
+
+Start with a small request that asks a specific live question. If you omit `minuteRanges`, GA4 uses the most recent 30-minute window.
+
+<Prompt description="For GA4 property `PROPERTY_ID`, show active users by country and device category from the last 30 minutes. Sort by active users descending, keep the property ID and reporting window visible, and do not change anything." actions={["copy"]}>
+</Prompt>
+
+Replace `PROPERTY_ID` with the numeric property ID returned by discovery. A successful result is a changing snapshot: new activity can enter the window while older activity leaves it.
+
+## Realtime window and minute ranges
+
+Without a custom range, realtime covers the present moment through 29 minutes ago—a 30-minute window. Google Analytics 360 properties can query up to a 60-minute window.
+
+Use `minuteRanges` when you need a narrower slice or two separate recent intervals:
+
+- `startMinutesAgo` is the older boundary.
+- `endMinutesAgo` is the newer boundary and defaults to `0`.
+- GA4 accepts up to two minute ranges in one realtime request.
+- A standard property can stay within the latest 30 minutes; an Analytics 360 property can extend to the latest 60 minutes.
+- When two ranges are requested, GA4 adds a range-identifying dimension to the response so the rows can be separated.
+
+For example, compare the most recent five minutes with minutes 25–29 of the same realtime window:
+
+<Prompt description="For GA4 property `PROPERTY_ID`, compare active users for minutes 0–4 ago with minutes 25–29 ago. Name both ranges, return the raw counts for each range, and do not interpret the result as a historical trend. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+The corresponding request shape is:
+
+```json
+{
+  "property_id": "PROPERTY_ID",
+  "request_json": {
+    "metrics": [{ "name": "activeUsers" }],
+    "minuteRanges": [
+      {
+        "name": "0-4 minutes ago",
+        "startMinutesAgo": 4,
+        "endMinutesAgo": 0
+      },
+      {
+        "name": "25-29 minutes ago",
+        "startMinutesAgo": 29,
+        "endMinutesAgo": 25
+      }
+    ]
+  }
+}
+```
+
+Do not send `dateRanges` to realtime reporting. Use a standard GA4 report when the request contains calendar dates or relative dates such as `yesterday` or `7daysAgo`.
+
+## Parameters and defaults
+
+| Parameter | Required | Default | Limit or behavior |
+| --- | --- | --- | --- |
+| `property_id` | Yes | None | Numeric GA4 property ID or `properties/PROPERTY_ID` |
+| `request_json` | Yes | None | A JSON object containing the realtime request |
+| `profile_id` | No | `default` | Saved Google Analytics connection; named profiles require Agency or enabled Enterprise access |
+| `output_mode` | No | `summary` | `summary`, `summary_and_csv`, or `csv_only` |
+| `inline_limit` | No | `500` | Rows shown in the conversation; clamped to 1–5,000 |
+| `export_limit` | No | `10000` | Rows included in a realtime CSV; clamped to 1–10,000 |
+| `export_ttl_minutes` | No | `30` | Signed export-link lifetime; clamped to 1–1,440 minutes |
+
+Realtime reporting has no outer `max_rows` parameter and does not automatically collect additional result pages. Use `request_json.limit` to control the response requested from Google. If omitted, Google defaults to 10,000 rows. The HireOtto realtime CSV cap remains 10,000 rows.
+
+Each realtime report uses 5 HireOtto credits. Agency includes unlimited usage subject to fair-use limits.
+
+## Supported request shape
+
+Use camelCase inside `request_json` and snake_case for the outer HireOtto parameters.
+
+| Request field | Purpose |
+| --- | --- |
+| `dimensions` | The realtime breakdowns to return, each specified with a `name` |
+| `metrics` | The realtime measurements to return, each specified with a `name` |
+| `dimensionFilter` | Restricts rows using supported realtime dimensions |
+| `metricFilter` | Restricts rows using supported realtime metrics |
+| `orderBys` | Defines deterministic result ordering |
+| `limit` | Limits the number of rows requested from Google |
+| `metricAggregations` | Requests supported totals, minimums, or maximums |
+| `minuteRanges` | Selects one or two recent time intervals |
+| `returnPropertyQuota` | Requests Google property-quota information; HireOtto uses `true` when omitted |
+
+The outer `property_id` determines the property. A `property` value inside `request_json` does not override it.
+
+## Choose realtime fields
+
+Realtime and Core historical reporting use different field sets. A field that works in a standard report may be unavailable in realtime, and the Core compatibility checker does not validate realtime requests.
+
+Common realtime dimensions include:
+
+- `country`
+- `deviceCategory`
+- `eventName`
+- `minutesAgo`
+- `streamId`
+- `unifiedScreenName`
+
+Common realtime metrics include:
+
+- `activeUsers`
+- `eventCount`
+- `keyEvents`
+- `screenPageViews`
+
+Use Google's realtime schema when choosing fields. Registered user-scoped custom dimensions can be available; event-scoped custom dimensions and custom metrics are not supported in realtime reporting.
+
+<Prompt description="For GA4 property `PROPERTY_ID`, show event count and key events by event name and stream ID for the last 30 minutes. Sort by event count descending, return the top 100 rows inline, and state the reporting window and coverage counts. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## Useful realtime workflows
+
+### Check a campaign or launch
+
+Use realtime to see whether expected traffic and events are appearing immediately after a launch. Keep the request narrow enough to identify the relevant stream, device mix, or geography.
+
+<Prompt description="For GA4 property `PROPERTY_ID`, show active users and event count by country, device category, and stream ID for the last 30 minutes. Highlight activity that may relate to the launch I am monitoring, but keep observation separate from diagnosis. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+### Check whether an event is arriving
+
+A realtime row can confirm that GA4 received an event name during the selected window. It does not prove that the event fires only when intended, includes the correct parameters, avoids duplicates, or qualifies as a useful key event.
+
+<Prompt description="For GA4 property `PROPERTY_ID`, filter the realtime report to event name `generate_lead`. Show event count and key events by stream ID and minutes ago for the last 30 minutes. If no row appears, list the checks needed before concluding that tracking is broken. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+### Separate web and app activity
+
+Use `streamId` to keep activity from different data streams visible. Confirm the stream IDs in the property's configuration before interpreting them.
+
+<Prompt description="For GA4 property `PROPERTY_ID`, show active users and event count by stream ID and event name for the last 30 minutes. Label each stream using the property's current stream configuration when possible, and keep unknown stream IDs visible. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+### Inspect minute-by-minute movement
+
+Use `minutesAgo` for a more granular recent sequence. Remember that repeated runs change as the rolling window advances.
+
+<Prompt description="For GA4 property `PROPERTY_ID`, return active users and event count by minutes ago for the last 30 minutes, ordered from the present backwards. Keep zero or missing intervals distinct and do not describe the snapshot as a stable time series. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## Read the result correctly
+
+HireOtto returns:
+
+- `row_count`: matching rows reported by GA4
+- `returned_rows`: rows received for this call
+- `inline_row_count`: rows included in the conversation
+- `rows`: normalized inline dimension and metric values
+- Dimension and metric headers
+- Requested totals, minimums, or maximums when supplied
+- The selected property and request
+- A realtime-window note
+- Google property-quota information when returned
+
+Realtime does not return the Core report's `truncated` flag. Compare `row_count`, `returned_rows`, `inline_row_count`, and the CSV row count yourself. A small inline preview is not proof that the report contained only those rows.
+
+Metric values may arrive as strings. Convert them to numbers before calculating ratios or differences.
+
+## Output modes and exports
+
+| Mode | Inline rows | CSV |
+| --- | --- | --- |
+| `summary` | Up to `inline_limit` | Not requested |
+| `summary_and_csv` | Up to `inline_limit` | Requested from returned rows, up to `export_limit` |
+| `csv_only` | None | Requested from returned rows, up to `export_limit` |
+
+No CSV is created when no rows were returned. In `csv_only` mode, an empty inline `rows` list is expected even when the export succeeded. Download signed links before they expire.
+
+<Prompt description="For GA4 property `PROPERTY_ID`, report event count by event name, stream ID, country, and device category for the last 30 minutes. Return a concise inline summary plus a CSV, limit the Google response to 10,000 rows, and keep row and export coverage counts visible. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## What realtime cannot tell you
+
+Realtime reporting does not by itself prove:
+
+- That a browser or app sent an event exactly once
+- That consent behavior is correct in every state
+- That event parameters and user properties are complete
+- That the event represents the intended business outcome
+- That Google Ads, a CRM, and GA4 will report the same conversion totals
+- That a short-lived spike will persist in finalized historical reporting
+- That missing activity means the implementation is broken
+
+For tracking QA, combine realtime evidence with GTM Preview, Tag Assistant, browser developer tools, or app debugging on the real conversion path. Use standard GA4 reports after processing when you need historical analysis.
+
+## Common failures
+
+### Realtime request contains dates
+
+Remove `dateRanges` and use `minuteRanges`, or move the request to a standard GA4 report.
+
+### A dimension or metric is rejected
+
+Confirm that it is in the realtime schema rather than only the Core reporting schema. Reduce the request to one known realtime dimension and metric, then add fields back deliberately.
+
+### No rows are returned
+
+Check the property ID, connected Google login, stream, event name, filters, and whether activity occurred during the rolling window. No rows can be a valid result; it is not proof that the server or tracking implementation failed.
+
+### Fewer rows are visible than expected
+
+Compare matching, returned, inline, and exported row counts. Check `request_json.limit`, `inline_limit`, and `export_limit` independently.
+
+### The export is missing or expired
+
+No export is created when the report returned no rows. An export can also fail independently of the GA4 report. Inspect the inline result, retry with a smaller request if needed, and rerun deliberately to create a new signed link.
+
+### The request is blocked
+
+Reconnect the selected GA4 profile after a revoked or expired authorization. Check the property's Google permissions, current HireOtto plan, trial period, credits, and Google Analytics API quota. Named profiles require Agency or enabled Enterprise access.
+
+<Prompt description="For GA4 property `PROPERTY_ID`, run a minimal realtime check with `country` and `activeUsers` for the last 30 minutes. If it fails or returns no rows, preserve the exact error or empty result and diagnose property access, field compatibility, filters, quota, and recent activity separately. Do not change anything." actions={["copy"]}>
+</Prompt>
+
+## Plans, beta status, and scope
+
+GA4 reporting is currently available in beta on the Free trial, Starter, Pro, and Agency plans. Free includes 200 credits or 14 days, Starter includes 2,000 monthly credits, Pro includes 5,000, and Agency includes unlimited usage plus multiple connected profiles.
+
+The GA4 server is read-only on every plan. It can discover properties, inspect configuration, and run standard or realtime reports. It cannot create or edit properties, streams, events, key events, links, custom definitions, attribution settings, retention settings, or reporting identity.
+
+## Recommended operating pattern
+
+1. List accessible properties and confirm the production property ID.
+2. Inspect data streams when stream identity matters.
+3. Start with one supported dimension and metric.
+4. Use the default 30-minute window unless a narrower question requires minute ranges.
+5. Keep the window, fields, filters, and coverage counts with the result.
+6. Expand the breakdown or request an export only after the small report is correct.
+7. Use browser testing for implementation QA and a standard report for historical conclusions.
+
+## Next steps
+
+- [Connect Google Analytics 4](/google-analytics/quickstart)
+- [Google Analytics 4 MCP tools reference](/google-analytics/tools-reference)
+- [Build custom GA4 reports](/google-analytics/custom-reporting)
