@@ -25,7 +25,7 @@ Use the free trial to connect your accounts and test supported core workflows be
 
 ## Starter
 
-Choose Starter for lighter individual or in-house usage. It includes 2,000 credits per month and access to supported core tools across Google Ads, Tag Manager, Search Console, and the Google Analytics beta.
+Choose Starter for lighter individual or in-house usage. It includes 2,000 credits per month and access to supported core tools across Google Ads, LinkedIn Ads (beta), Google Tag Manager, Search Console, and Google Analytics 4 (beta).
 
 ## Pro
 
@@ -43,12 +43,13 @@ Monthly and yearly billing are available on the pricing page. Yearly billing is 
 
 Core access is available on the free trial, Starter, Pro, and Agency. The scope differs by server:
 
-- Google Ads: read performance data, export reports, and use supported account actions. HireOtto acts only when your connected AI client calls a tool; review important or bulk changes before applying them.
-- Google Tag Manager: inspect accounts, containers, workspaces, tags, triggers, variables, folders, and tag wiring. The current server is read-only and does not publish container changes.
-- Google Search Console: analyze query and page performance, inspect properties, sitemaps, and URL indexing, and export supported reports. Connect a Google account that can access the property you need.
-- Google Analytics: run property discovery, standard reports, date comparisons, and basic realtime reporting. Google Analytics access is currently in beta and requires the relevant Google permission.
+- **Google Ads**: read performance data, export reports, and use supported account actions. HireOtto acts only when your connected AI client calls a tool; review important or bulk changes before applying them.
+- **Google Tag Manager**: inspect accounts, containers, workspaces, tags, triggers, variables, folders, and tag wiring. The current server is read-only and does not publish container changes.
+- **Google Search Console**: analyze query and page performance, inspect properties, sitemaps, and URL indexing, and export supported reports. Connect a Google account that can access the property you need.
+- **Google Analytics**: run property discovery, standard reports, date comparisons, and basic realtime reporting. Google Analytics access is currently in beta and requires the relevant Google permission.
+- **LinkedIn Ads:** Analyze performance, explore targeting, manage supported image assets, create campaign objects as drafts, and make supported changes. Available in beta, subject to your connected LinkedIn account and Page permissions.
 
-Audit workflows and multiple connected Google profiles require Agency. Starter and Pro do not include audits. LinkedIn Ads is not included in the current plans and remains on the roadmap.
+Audit workflows and multiple connected Google profiles require Agency. Starter and Pro do not include audits. LinkedIn Ads beta is included in all current plans, subject to the same credit limits and applicable platform permissions.
 
 ---
 
@@ -123,7 +124,7 @@ If the new plan does not appear, refresh or reconnect your HireOtto server and c
 
 **Filter before you pull.** Most report actions accept a `campaign_id` or `adgroup_id` filter. If you only need one campaign's keyword data, pass the campaign ID — it limits what gets fetched and keeps responses manageable.
 
-**Listing is cheap; reporting isn't.** `list_campaigns` costs 1 credit. `get_campaign_performance` costs 5. If you just need to see which campaigns exist (not their metrics), use the listing action.
+**Listing is cheaper than reporting.** Listing campaigns using `list_search_ads_entities` with `action="list_campaigns"` costs 1 credit, while retrieving campaign performance using `get_performance_report` with `action="get_campaign_performance"` costs 5 credits. If you only need campaign names or IDs, use the listing action rather than a performance report.
 
 ---
 
