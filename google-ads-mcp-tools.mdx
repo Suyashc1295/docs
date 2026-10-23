@@ -38,7 +38,7 @@ Refresh accounts for `xyz@gmail.com`.
 
 ## Account hygiene
 
-Four point-in-time checks you can run on any account. Good first step whenever you take on a new account or do a quarterly review.
+Five point-in-time checks you can run on any account. Good first step whenever you take on a new account or do a quarterly review.
 
 **What you can check**
 
@@ -46,6 +46,7 @@ Four point-in-time checks you can run on any account. Good first step whenever y
 - **Auto-apply recommendations** — which Google recommendations are set to apply automatically. HireOtto can disable them.
 - **Disapproved ads** — any ads currently disapproved, with disapproval reasons.
 - **Negative keywords** — negative keywords at the campaign and ad group level. Optionally filtered to a specific campaign.
+- **Conversion tracking setup** — review conversion tracking status, conversion ownership, linked GA4 property evidence, and GA4 key events that have been imported or may be available to import into Google Ads. This is a read-only check; it does not create conversion actions or install tracking tags.
 
 **Options**
 
@@ -72,6 +73,10 @@ Show me all disapproved ads.
 Review negative keywords for campaign [CAMPAIGN_ID].
 ```
 
+```text
+Review the conversion tracking setup for Google Ads account [CUSTOMER_ID]. Check conversion ownership, existing conversion actions, GA4 links, and available GA4 key events. Highlight potential setup gaps without making changes.
+```
+
 ---
 
 ## Discovery & listing
@@ -91,6 +96,10 @@ Browse the structure of any account — campaigns, ad groups, keywords, ads, and
 - Demand Gen campaign settings — goal, bidding, devices, geo targeting
 - Demand Gen ad group settings — channel controls, locations, languages, audiences
 - Demand Gen ads and creative asset references
+- Dynamic Search Ads (DSA) webpage targets — positive and negative targets, targeting conditions, status, bids, and URL tracking settings.
+- DSA domain categories — Google-generated categories for the domain configured on a DSA-enabled Search campaign.
+- DSA page feeds — existing page-feed asset sets, linked campaigns, page URLs, custom labels, and asset IDs.
+- Ad customizers — attributes, scoped values, responsive search ad references, inline fallbacks, and potential inconsistencies.
 
 **Example prompts**
 
@@ -141,6 +150,8 @@ _Common reports_
 - Ad performance
 - Keyword performance
 - Search terms report
+- DSA search terms report — search queries that triggered Dynamic Search Ads, including Google's generated headlines and selected landing pages.
+- DSA page-feed performance — performance broken down by supplied page URLs and custom labels, optionally filtered to a specific page feed.
 - Geographic performance
 - Device performance
 - Impression share (competitive visibility)
@@ -209,6 +220,14 @@ Show campaign-level sitelink performance for campaign [CAMPAIGN_ID] over the las
 
 ```text
 Show customer-level call asset performance for account [CUSTOMER_ID] this month.
+```
+
+```text
+Show Dynamic Search Ads search terms for campaign [CAMPAIGN_ID] over the last 30 days. Include search queries, generated headlines, landing pages, spend, clicks, and conversions.
+```
+
+```text
+Compare page-feed performance for campaign [CAMPAIGN_ID] over the last 30 days. Break down results by page URL and custom label, and highlight the strongest and weakest performers.
 ```
 
 → For a practical workflow, see [Analyze Google Ads performance reports with AI](/guides/reporting).
@@ -318,6 +337,57 @@ Pause ad [AD_ID].
 Update the headlines on ad [AD_ID] — replace "[OLD_HEADLINE]" with "[NEW_HEADLINE]".
 ```
 
+#### Ad customizers
+
+Ad customizers let responsive search ads display different values without rewriting every ad. For example, a headline can reference a stored price, rate, number, or text value.
+
+Example headline:
+
+`Auto Loans From {CUSTOMIZER.AutoAPR:6.49%}`
+
+Here, `AutoAPR` is the customizer attribute and `6.49%` is the inline fallback used when no applicable stored value is available.
+
+**What you can do**
+
+Use `manage_ad_customizers` to:
+
+- `create_attributes` — create customizer attributes of type TEXT, NUMBER, PRICE, or PERCENT.
+- `set_values` — assign values at the account, campaign, ad group, or keyword level.
+- `remove_values` — remove specific values without deleting the attribute.
+- `remove_attribute` — remove an attribute after reviewing its current usage and confirming the removal.
+
+Use `list_search_ads_entities` with `action="review_ad_customizers"` to inspect existing attributes, values, RSA references, and inline fallbacks.
+
+**Value inheritance**
+
+HireOtto supports increasingly specific values in this order:
+
+1. Keyword
+2. Ad group
+3. Campaign
+4. Account
+5. Inline fallback
+
+The most specific available value takes precedence.
+
+For example, the same headline could display 6.49% by default, 5.99% in one campaign, and 5.49% for a particular ad group.
+
+**Important behavior**
+
+- Attribute names and types cannot be changed after creation.
+- Updating an existing scoped value replaces its previous association.
+- `validate_only=true` checks a proposed operation without intentionally changing the account. Some replacements cannot be fully validated while an existing value occupies the same resource; review the returned validation notes.
+- Removing an attribute requires a preview and confirmation. If active ads still reference it, review their inline fallbacks before approving removal.
+- To edit the RSA headline or description containing a customizer reference, use the existing Search Ads creation or update tools.
+
+**Example prompts**
+
+> Review all ad customizers in account [CUSTOMER_ID]. Include their types, scoped values, responsive search ad references, and inline fallbacks. Do not make changes.
+
+> Create a PERCENT customizer attribute called "AutoAPR". Set its account-level value to 6.49% and campaign [CAMPAIGN_ID] value to 5.99%. Validate the changes first.
+
+> Find all responsive search ads using the "AutoAPR" customizer. Show their existing inline fallbacks and current values before proposing any updates.
+
 #### Keywords
 
 Add positive (targeted) keywords to an ad group, or manage negative keywords at the campaign level.
@@ -373,6 +443,59 @@ Pause ad group [ADGROUP_ID].
 
 ---
 
+### Dynamic Search Ads
+
+Dynamic Search Ads (DSA) let Google generate headlines and choose landing pages based on website content or explicitly supplied URLs. HireOtto supports DSA campaign configuration, dynamic ad groups, ads, webpage targets, and page feeds.
+
+#### What you can do
+
+- Configure DSA settings on an existing Search campaign, including domain, language, and whether to use only supplied URLs.
+- Create dynamic ad groups and Dynamic Search Ads.
+- Create positive or negative webpage targets using URL, category, page title, page content, or custom label conditions.
+- Discover Google's suggested domain categories.
+- Create and manage page feeds containing URLs and custom labels.
+- Attach or detach page feeds from DSA-enabled Search campaigns.
+- Review DSA search terms and page-feed performance.
+
+#### DSA page feeds
+
+Use `manage_dsa_page_feeds` to control which landing pages are supplied to Google.
+
+Supported actions:
+
+- `create_feed` — create a page feed with 1–100 URLs and optional labels. Optionally link it to a campaign.
+- `add_pages` — add new URLs to an existing feed.
+- `replace_pages` — replace URLs or labels on existing page assets.
+- `remove_pages` — unlink selected pages from a feed.
+- `rename_feed` — change the feed name.
+- `attach_feed` — link an existing feed to a campaign.
+- `detach_feed` — unlink a feed from a campaign.
+- `delete_feed` — remove a feed after detaching it from all campaigns.
+
+Each page must have a unique URL within its feed. Page URLs and labels cannot be edited directly on an existing asset. HireOtto replaces the asset and updates its feed membership instead. Removing or replacing a page does not delete the underlying asset from Google Ads.
+
+#### Dynamic ads and webpage targets
+
+Use `create_search_ads_entities` to create dynamic ad groups, ads, and webpage targets.
+
+- `create_dynamic_adgroup` — requires a campaign ID and ad group name. Defaults to paused.
+- `create_dynamic_search_ad` — requires an ad group ID and description. A second description is optional. Google generates the headline and landing page. Defaults to paused.
+- `create_dynamic_target` — creates a positive or negative webpage target. Supports up to three conditions combined with AND logic. Positive targets default to paused; negative targets default to enabled.
+
+Use `update_search_ads_entities` to update or replace existing dynamic targets. Existing DSA creative cannot be edited in place. To change an ad's descriptions, create a replacement ad and review it before removing the old one.
+
+#### Example prompts
+
+> Configure campaign [CAMPAIGN_ID] for Dynamic Search Ads using [example.com](http://example.com) and English. Show the current and proposed settings before making changes.
+
+> Create a DSA page feed called "Service Pages" containing these URLs: [URL_1], [URL_2], [URL_3]. Apply the custom label "Services" and attach it to campaign [CAMPAIGN_ID].
+
+> Create a paused dynamic ad group in campaign [CAMPAIGN_ID]. Add a positive webpage target for the "Services" custom label, then create a paused Dynamic Search Ad with these descriptions: [DESCRIPTION_1] and [DESCRIPTION_2].
+
+**Important:** When using `use_supplied_urls_only=true`, a page feed must be attached. Before detaching a feed configured this way, change that campaign setting to false.
+
+---
+
 ### Performance Max campaigns
 
 Create a full PMax campaign with budget, asset group, and initial assets in one step.
@@ -391,6 +514,7 @@ Create campaigns to drive app installs, in-app actions, or pre-registrations.
 - `in_app_actions` — drive specific in-app events
 - `in_app_action_value` — optimize for conversion value
 - `engagement_in_app_actions` — re-engage existing users
+- `engagement_in_app_action_value` — re-engage users while optimizing for conversion value.
 - `pre_registration` — pre-launch registrations
 
 **Example prompt**
@@ -398,6 +522,40 @@ Create campaigns to drive app installs, in-app actions, or pre-registrations.
 ```text
 Create an App Installs campaign called "[CAMPAIGN_NAME]" for app ID [APP_ID] on Google Play, $[BUDGET]/day budget, targeting [LOCATION].
 ```
+
+#### App ad groups and ads
+
+HireOtto can also create ad groups and ads within existing App campaigns using `create_app_ad_entities`.
+
+#### Create App ad groups
+
+Use `action="create_app_ad_group"` with a campaign ID and ad group name.
+
+- Standard App campaigns do not support audience list targeting through this action.
+- App campaigns for engagement typically require eligible user lists.
+- Pre-registration campaigns do not support user-list targeting through this action.
+- Engagement ad groups may support a target CPA.
+
+Use `list_search_ads_entities` with `action="list_user_lists_for_app_engagement"` to discover potentially eligible audience lists before creating an engagement ad group.
+
+#### Create App ads
+
+Use `action="create_app_ad"` with an ad group ID and:
+
+- 1–5 headlines, up to 30 characters each.
+- 1–5 descriptions, up to 90 characters each.
+- Optional existing image, YouTube video, or HTML5 media bundle asset resource names.
+- An app URL when required by the campaign subtype.
+
+For App campaigns for engagement, a valid app URL or deep link is required.
+
+**Important:** New App ads default to `ENABLED` unless `status="PAUSED"` is supplied. Specify PAUSED when you want to review the ad before activation. Non-text assets must already exist in Google Ads.
+
+#### Example prompts
+
+> Create an ad group called "Returning Users" in App engagement campaign [CAMPAIGN_ID]. First identify eligible user lists and show the proposed targeting before creating it.
+
+> Create a paused App ad in ad group [ADGROUP_ID] using these headlines: [HEADLINES] and descriptions: [DESCRIPTIONS]. Include existing image asset [ASSET_RESOURCE_NAME] and return the new ad ID.
 
 → For a practical workflow, see [Google Ads campaign management with AI](/guides/create-a-google-ads-campaign-with-ai).
 
@@ -714,7 +872,7 @@ Common failures
 
 ---
 
-## Campaign budgets, bidding strategies, and conversion actions
+## Campaign budgets, bidding strategies, and conversions
 
 Manage advanced optimization settings for existing Google Ads campaigns.
 
@@ -877,6 +1035,82 @@ Use primary status – not the legacy include-in-conversions field – to contro
 - The requested field is not editable for that action type or origin.
 - The connected Google user lacks permission to make the change.
 - The tag or offline upload pipeline has not been implemented; creating the action alone does not solve measurement.
+
+### Conversion goals
+
+Conversion goals determine which conversion outcomes Google Ads campaigns optimize toward. HireOtto can inspect and manage account-default goals, campaign-specific standard goals, and custom conversion goals.
+
+Unlike conversion actions, which define the measured events, conversion goals control which outcomes are used for optimization.
+
+#### What you can do
+
+Use `manage_conversion_goals` for the following operations.
+
+**Inspect existing goals**
+
+- `inspect` — show account conversion goals, conversion actions, and optionally a campaign's effective optimization goals.
+- `list_customer_goals` — list account-default conversion goals and their biddable settings.
+- `list_campaign_goals` — list standard conversion goals for a specific campaign.
+- `list_custom_goals` — list custom goals and their associated conversion actions.
+
+**Manage custom goals**
+
+- `create_custom_goal` — create a custom goal from existing enabled conversion actions.
+- `update_custom_goal` — rename a custom goal or replace its conversion action membership.
+- `assign_custom_goal` — assign a custom goal to a campaign.
+- `remove_custom_goal` — remove a custom goal after checking assignments and confirming removal.
+
+**Manage standard and account-default goals**
+
+- `set_campaign_goal_biddable` — enable or disable a standard conversion goal for a campaign.
+- `set_customer_goal_biddable` — change an account-default conversion goal.
+- `reset_campaign_goals` — return a campaign to its account-default conversion goals.
+
+Standard goals are identified by category and origin, such as `PURCHASE / WEBSITE` or `SUBMIT_LEAD_FORM / WEBSITE`.
+
+#### How assignment and validation work
+
+- `validate_only=true` validates a proposed mutation without applying it. The default is false.
+- When assigning a custom goal, `exclusive=true` is the default. It disables the campaign's standard conversion goals so only the custom goal remains biddable.
+- Use `exclusive=false` to preserve existing standard goal biddability alongside the custom goal.
+- Updating a custom goal's `conversion_action_ids` replaces the entire action list, not just the specified members.
+- Changes to account-default goals may affect multiple campaigns.
+- Removing a custom goal requires `confirm_removal=true` and a review of existing campaign assignments.
+
+HireOtto automatically resolves the conversion-tracking owner where possible. You generally do not need to provide `conversion_customer_id` manually.
+
+#### Recommended workflow
+
+1. Inspect the current account or campaign conversion goals.
+2. Identify the exact goals and conversion actions involved.
+3. Validate the proposed changes using `validate_only=true`.
+4. Review the current and proposed configuration.
+5. Approve and apply the change.
+6. Read the live configuration back to confirm the result.
+
+A successful validation is not an applied change. Verify the final state after execution.
+
+#### Example prompts
+
+> Inspect the conversion goals for campaign [CAMPAIGN_ID]. Show the current account-default goals, campaign-specific goals, and custom goals. Do not make changes.
+
+> Create a custom conversion goal called "Qualified Leads" using conversion actions [ACTION_ID_1] and [ACTION_ID_2]. Validate it first, then show what will be created without applying the change.
+
+> Validate assigning custom goal [GOAL_ID] exclusively to campaign [CAMPAIGN_ID]. Compare the current and proposed optimization goals without changing the bidding strategy.
+
+> Enable the standard PURCHASE / WEBSITE conversion goal for campaign [CAMPAIGN_ID]. Preserve its existing custom goal and other enabled goals. Validate first and show the proposed change.
+
+> Reset campaign [CAMPAIGN_ID] to account-default conversion goals. Validate first, then apply only after approval and verify the result.
+
+#### Important limitations
+
+- Custom goals can include secondary conversion actions, which may then participate in bidding through that custom goal.
+- Changing conversion goals does not automatically change a campaign's bidding strategy.
+- Creating a custom goal does not create conversion events, install tracking tags, or upload offline conversions.
+- Customer-acquisition lifecycle goals are not managed by this tool.
+- A custom goal should be checked for active campaign assignments before removal.
+
+For creating or modifying the underlying measured events, see [Conversion action management](https://docs.hireotto.com/google-ads/conversion-actions).
 
 ---
 
