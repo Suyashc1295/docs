@@ -1,0 +1,156 @@
+---
+title: "Manage Google Ads Ad Customizers with AI"
+sidebarTitle: "Manage Ad Customizers"
+---
+
+Ad customizers let responsive search ads display different values depending on the account, campaign, ad group, or keyword — without requiring a separate ad for every variation.
+
+With HireOtto, you can create customizer attributes, update their values, inspect where they are used, and review existing ads before making changes.
+
+## How ad customizers work
+
+Consider a responsive search ad with the following headline:
+
+`Save {CUSTOMIZER.Discount:10%} Today`
+
+Here:
+
+- `Discount` is the customizer attribute.
+- `10%` is the inline fallback.
+- Google Ads uses the most specific applicable stored value when one is available.
+
+You could set a 10% account-level discount, 15% for a particular campaign, and 20% for a specific ad group.
+
+The same ad can then display different values based on its applicable configuration.
+
+HireOtto supports four customizer attribute types: TEXT, NUMBER, PRICE, and PERCENT.
+
+## Before you begin
+
+Connect the [HireOtto Google Ads server](https://docs.hireotto.com/quickstart) and identify the account and ads you want to manage.
+
+Before creating new attributes, review existing customizers to avoid duplicates.
+
+**Example prompt**
+
+> Review all ad customizers in my Google Ads account. List their names, types, existing values, and responsive search ads that reference them. Identify unused attributes and potential inconsistencies. Do not change anything.
+
+HireOtto uses `list_search_ads_entities` with `action="review_ad_customizers"`.
+
+## Step 1: Create an attribute
+
+Attributes define the type of value an ad can display.
+
+**Example prompt**
+
+> Check whether a PERCENT ad customizer called "Discount" already exists. If not, prepare its creation. Validate the operation first and wait for my approval.
+
+HireOtto uses `manage_ad_customizers` with `action="create_attributes"`.
+
+Attributes can be created individually or in batches. Names are case-insensitively unique, and an attribute's name and type cannot be edited after creation.
+
+## Step 2: Set the default and campaign-level values
+
+Customizer values can be assigned at four levels:
+
+1. Account
+2. Campaign
+3. Ad group
+4. Keyword
+
+The most specific applicable value takes precedence.
+
+For example:
+
+| Level | Discount value |
+| :-- | :-- |
+| Account | 10% |
+| Campaign — Summer Sale | 15% |
+| Ad group — Clearance | 20% |
+
+**Example prompt**
+
+> Set the account-level Discount customizer to 10%, override it to 15% in my "Summer Sale" campaign, and override it to 20% in the "Clearance" ad group. Validate the proposed values first and show the affected scopes before applying.
+
+HireOtto uses `manage_ad_customizers` with `action="set_values"`.
+
+For keyword-level overrides, the relevant ad group ID and keyword criterion ID are required. The assistant can retrieve these using the account listing tools.
+
+## Step 3: Add the customizer to a responsive search ad
+
+Creating and configuring a customizer does not automatically insert it into your ads.
+
+Use `create_search_ads_entities` to create an RSA containing the reference, or `update_search_ads_entities` to edit an existing RSA.
+
+**Example prompt**
+
+> Find the responsive search ads in my "Summer Sale" ad group. Propose adding the headline "Save \{CUSTOMIZER.Discount:10%\} Today" to the appropriate ad. Preserve the existing headlines, descriptions, and pinning unless I approve changes. Show the full proposed ad before updating it.
+
+The attribute name in the RSA must match the stored customizer.
+
+When updating RSA creative, review the complete proposed headlines and descriptions because the creative lists are replaced rather than partially patched.
+
+## Step 4: Review values and inline fallbacks
+
+Inline fallbacks matter, particularly for prices, discounts, rates, and other values that must remain accurate.
+
+**Example prompt**
+
+> Review every responsive search ad referencing the "Discount" customizer. Show the configured values at each scope, the inline fallbacks, and any mismatches with the currently approved promotional values. Do not make changes.
+
+HireOtto's `review_ad_customizers` action can inspect RSA references, scoped values, and inline fallbacks. It can also compare fallbacks against expected values you provide.
+
+If a specific scoped value is removed, Google Ads may use a broader value or the RSA's inline fallback.
+
+## Step 5: Update or remove customizer values
+
+You can change values without creating new responsive search ads.
+
+**Example prompt**
+
+> Update the campaign-level Discount customizer for "Summer Sale" from 15% to 12%. Show the existing value, validate the replacement where possible, and verify the stored value after applying.
+
+Google Ads represents scoped customizer values as resources that are created and removed rather than edited directly. HireOtto handles replacement operations and attempts to restore the previous value if the replacement fails.
+
+Some replacements cannot be fully validated without first removing the existing value. Review any validation notes before proceeding.
+
+### Removing values or attributes
+
+Removing a scoped value is different from deleting the attribute itself.
+
+- `remove_values` removes selected account, campaign, ad group, or keyword values.
+- `remove_attribute` removes the customizer attribute after additional safety checks.
+
+**Example prompt**
+
+> Preview removing the "Discount" customizer attribute. List every stored value, active responsive search ad reference, and inline fallback. Do not delete anything.
+
+Attribute removal uses a preview-and-confirm workflow. HireOtto returns a preview hash that must match when the removal is confirmed.
+
+If active ads still reference the attribute, explicitly review their fallbacks before approving removal.
+
+## Recommended workflow
+
+1. Review existing attributes and references.
+2. Create any missing attributes.
+3. Configure an account-level value where appropriate.
+4. Add more specific campaign, ad group, or keyword overrides.
+5. Add customizer references to the relevant RSAs.
+6. Review effective values and inline fallbacks.
+7. Verify subsequent updates against the approved values.
+
+## Limitations and important behavior
+
+- Only TEXT, NUMBER, PRICE, and PERCENT attribute types are supported.
+- Attribute names and types are immutable after creation.
+- The most specific applicable value overrides broader values.
+- Removing a scoped value can cause a broader value or inline fallback to be used.
+- Some replacement operations have limited validate-only support.
+- Customizer management does not automatically rewrite RSA creative.
+- Google Ads still controls ad eligibility, rendering, and serving.
+
+## Related documentation
+
+- [Google Ads Tools Reference](https://docs.hireotto.com/google-ads-mcp-tools)
+- [Create a Google Ads Campaign with AI](https://docs.hireotto.com/guides/create-a-google-ads-campaign-with-ai)
+- [Manage Google Ads Extension Assets](https://docs.hireotto.com/guides/extension-assets)

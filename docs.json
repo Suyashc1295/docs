@@ -33,6 +33,8 @@
               "guides/google-ads-account-audit-with-ai",
               "guides/keyword-research-ai",
               "guides/create-a-google-ads-campaign-with-ai",
+              "guides/manage-dynamic-search-ads",
+              "guides/manage-google-ads-ad-customizers",
               "guides/manage-negative-keywords-in-google-ads-with-ai",
               "guides/google-ads-daily-optimization-with-ai",
               "guides/manage-performance-max-campaigns",
@@ -41,6 +43,7 @@
               "guides/weekly-google-ads-optimization-audit",
               "guides/google-ads-account-health-audit",
               "guides/manage-google-ads-conversion-actions",
+              "guides/manage-google-ads-conversion-goals",
               "guides/manage-budgets-portfolio-bidding",
               "guides/manage-tracking-templates"
             ]

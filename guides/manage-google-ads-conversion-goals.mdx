@@ -1,0 +1,129 @@
+---
+title: "Manage Google Ads Conversion Goals with AI"
+sidebarTitle: "Manage Conversion Goals"
+---
+
+Control which conversions your campaigns optimize for without navigating through multiple Google Ads settings screens. With HireOtto, you can inspect existing goals, create custom conversion goals, change campaign-level optimization settings, and verify the results from your AI assistant.
+
+## Conversion actions vs. conversion goals
+
+A **conversion action** defines what is measured, such as a form submission, purchase, or booked demo.
+
+A **conversion goal** determines which of those outcomes Google Ads uses for campaign optimization.
+
+For example, an account might measure both newsletter signups and qualified demo requests, but you may want a particular campaign to optimize only for qualified demo requests.
+
+HireOtto supports three types of goal configuration:
+
+- **Account-default goals:** Standard conversion goals inherited by campaigns using account defaults.
+- **Campaign-specific standard goals:** Category-and-origin goals enabled or disabled for an individual campaign.
+- **Custom conversion goals:** Groups of specific conversion actions assigned to campaigns.
+
+Creating a custom goal does not create a new conversion event or install conversion tracking.
+
+## Before you begin
+
+Connect the [HireOtto Google Ads server](https://docs.hireotto.com/quickstart) and ensure your Google login has sufficient access to the account.
+
+You should have existing conversion actions configured in Google Ads. New custom goals can reference only conversion actions that are enabled.
+
+You don't need to manually look up every identifier. HireOtto can discover accessible accounts, resolve campaign IDs from campaign names, and reuse conversion action or goal IDs returned by earlier tool calls.
+
+## Step 1: Inspect your existing conversion goals
+
+Start with a read-only review of the account or campaign.
+
+**Example prompt**
+
+> Inspect the conversion goals for my Google Ads account. Show account-default goals, existing custom goals, and the conversion actions associated with them. Identify which are currently used for bidding. Do not change anything.
+
+For a specific campaign:
+
+> Show the conversion goals for my Brand Search campaign. Explain which goals it currently optimizes for, whether it inherits account defaults, and whether any custom goals are assigned. Do not change anything.
+
+HireOtto uses `manage_conversion_goals` with `action="inspect"`.
+
+The inspection can help distinguish inherited goals from campaign-specific configuration. Review both the conversion goal and its underlying actions before changing optimization settings.
+
+## Step 2: Create and assign a custom conversion goal
+
+Suppose your account tracks several lead events, but one Search campaign should optimize specifically for qualified leads.
+
+You can create a custom goal from the appropriate existing conversion actions.
+
+**Example prompt**
+
+> Find the existing conversion actions for qualified demo requests and sales-qualified leads. Prepare a custom conversion goal called "Qualified Leads" using those actions. Validate the creation first and show me exactly which actions it will include. Do not apply the change yet.
+
+After reviewing and approving the creation, assign the goal to the intended campaign.
+
+**Example prompt**
+
+> Assign the "Qualified Leads" custom goal exclusively to my Non-Brand Search campaign. First inspect its existing goals and validate the proposed change. Show which goals will stop being used for bidding, and wait for my approval before applying.
+
+### Exclusive vs. non-exclusive assignment
+
+When assigning a custom goal, HireOtto uses `exclusive=true` by default.
+
+- `exclusive=true` disables the campaign's standard conversion goals for bidding, leaving the custom goal as its optimization goal.
+- `exclusive=false` preserves existing standard goal biddability alongside the custom goal.
+
+If you want a custom goal alongside existing standard goals, explicitly request a non-exclusive assignment.
+
+Custom conversion goals can include actions marked as secondary (`primary_for_goal=false`). Those actions can still participate in bidding through the custom goal, so review action membership carefully.
+
+## Step 3: Enable or disable standard conversion goals
+
+You don't always need a custom goal.
+
+For example, a campaign may need to optimize for website purchases rather than app purchases. Standard goals are identified by their conversion category and origin, such as `PURCHASE / WEBSITE` or `PURCHASE / APP`.
+
+**Example prompt**
+
+> Inspect the standard conversion goals for my Shopping Search campaign. I want to enable PURCHASE / WEBSITE for bidding. Preserve all unrelated goals and existing custom-goal assignments. Validate the proposed change before applying it.
+
+HireOtto uses `set_campaign_goal_biddable` to change the selected category-and-origin combination for that campaign.
+
+For account-wide defaults, it uses `set_customer_goal_biddable`.
+
+**Be careful with account-default changes:** Campaigns inheriting account goals may be affected. Inspect the account and confirm the intended scope before applying those changes.
+
+## Step 4: Reset a campaign to account defaults
+
+If a campaign has accumulated custom goal settings or overrides, you can restore its account-default conversion goal configuration.
+
+**Example prompt**
+
+> Inspect the current conversion goals for my Brand Search campaign. Compare them with the account defaults, then validate resetting the campaign to account-default goals. Wait for approval before applying, and verify the final configuration afterward.
+
+HireOtto uses `reset_campaign_goals` for this operation.
+
+Resetting the conversion goals does not automatically modify the campaign's bidding strategy.
+
+## Step 5: Verify the changes
+
+For consequential changes, use this sequence:
+
+1. Inspect the current configuration.
+2. Identify the exact account, campaign, goals, and conversion actions.
+3. Validate the mutation using `validate_only=true`.
+4. Review the proposed operation and approve it.
+5. Apply the change.
+6. Inspect the configuration again and compare it with the intended result.
+
+A validated request is not an applied change. Check the final result and verification status before treating the operation as complete.
+
+## Limitations and important behavior
+
+- Creating a goal does not create conversion events, implement tracking tags, or upload offline conversions.
+- Changing conversion goals does not automatically change the campaign's bidding strategy.
+- Replacing the conversion action list of a custom goal replaces its entire membership, not just individual members.
+- Removing a custom goal requires explicit confirmation and checking whether campaigns currently use it.
+- Customer-acquisition lifecycle goals are not managed by this tool.
+- Google Ads permissions and conversion-tracking ownership still apply.
+
+## Related documentation
+
+- [Google Ads Tools Reference](https://docs.hireotto.com/google-ads-mcp-tools)
+- [Manage Google Ads conversion actions](https://docs.hireotto.com/guides/manage-google-ads-conversion-actions)
+- [Manage shared budgets and portfolio bidding strategies](https://docs.hireotto.com/guides/manage-budgets-portfolio-bidding)

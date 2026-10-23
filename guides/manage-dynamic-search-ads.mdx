@@ -1,0 +1,144 @@
+---
+title: "Create and Manage Dynamic Search Ads with AI"
+sidebarTitle: "Create & Manage DSAs"
+---
+
+Dynamic Search Ads (DSA) help Google Ads match searches to relevant website pages and generate headlines based on those pages.
+
+With HireOtto, you can configure Dynamic Search Ads, create dynamic ad groups and ads, manage page feeds and webpage targets, and review performance from your AI assistant.
+
+## How Dynamic Search Ads work
+
+Unlike a standard Search ad, where you supply the headline and final URL, a Dynamic Search Ad uses your website content and targeting configuration to determine relevant landing pages and generate headlines.
+
+You still provide the ad descriptions and control which pages are eligible to serve.
+
+There are two main approaches:
+
+- **Website-based targeting:** Allow Google to identify relevant pages using domain categories, URLs, page titles, or page content.
+- **Page-feed targeting:** Supply specific landing-page URLs and optional custom labels, giving you more control over eligible content.
+
+A page feed alone does not replace the need for a properly configured DSA-enabled campaign, ad group, ad, and applicable webpage targets.
+
+## Before you begin
+
+Connect the [HireOtto Google Ads server](https://docs.hireotto.com/quickstart) and choose the intended account.
+
+You should have:
+
+- A website with accessible, relevant landing pages.
+- A Search campaign that can be configured for Dynamic Search Ads.
+- A clear idea of which pages should be eligible or excluded.
+- Descriptions and a review process ready for the new ads.
+
+Prefer creating new ad groups and ads in a paused state until you have reviewed their configuration.
+
+## Step 1: Configure the Search campaign
+
+Start by inspecting the campaign's existing settings.
+
+**Example prompt**
+
+> Review my Search campaign called "Services Search". Show its current DSA configuration, domain, language, URL targeting settings, and status. Do not make changes.
+
+Then request the relevant settings.
+
+**Example prompt**
+
+> Prepare an update to enable Dynamic Search Ads for [example.com](http://example.com) in English on the "Services Search" campaign. Show the required settings and any conflicts with the current configuration before making changes.
+
+HireOtto uses `update_search_campaign` to configure the DSA domain, language, and supplied-URL behavior.
+
+If `use_supplied_urls_only=true` is selected, the campaign must have a page feed attached.
+
+## Step 2: Decide which pages to target
+
+For website-based targeting, HireOtto can inspect Google's available domain categories and existing webpage targets.
+
+**Example prompt**
+
+> Show the available Dynamic Search Ads categories for my "Services Search" campaign. Also list its existing positive and negative webpage targets. Do not modify anything.
+
+For more explicit URL control, use a page feed.
+
+**Example prompt**
+
+> Create a DSA page feed called "Core Services" using the following URLs: [URL_1], [URL_2], and [URL_3]. Apply the custom label "Core Services" to these pages. Show the proposed feed before creating it.
+
+HireOtto uses `manage_dsa_page_feeds`.
+
+Each feed page contains a URL and optional labels. The same URL cannot appear twice within one feed.
+
+You can attach the feed during creation or attach an existing feed to a DSA-enabled Search campaign later.
+
+## Step 3: Create the dynamic ad group and ad
+
+Next, create a dynamic ad group within the campaign.
+
+**Example prompt**
+
+> Create a paused dynamic ad group called "Core Services DSA" in the "Services Search" campaign. Add a positive webpage target for the "Core Services" custom label from the attached feed. Show the resulting IDs and targeting configuration.
+
+Webpage targets can use URL, CATEGORY, PAGE_TITLE, PAGE_CONTENT, or CUSTOM_LABEL conditions. Up to three conditions can be combined using AND logic.
+
+Now create the Dynamic Search Ad.
+
+**Example prompt**
+
+> Create a paused Dynamic Search Ad in the "Core Services DSA" ad group using these descriptions: "Explore solutions tailored to your needs" and "Speak with our team to learn more". Return the ad ID and saved status.
+
+HireOtto uses `create_search_ads_entities` for these operations.
+
+Google generates the ad's headline and final landing-page selection. Do not supply a fixed RSA-style headline or final URL to the DSA creation action.
+
+## Step 4: Review and manage page feeds
+
+Page feeds can change as your website evolves.
+
+HireOtto supports adding pages, replacing pages, removing pages, renaming feeds, attaching or detaching feeds, and deleting feeds.
+
+**Example prompt**
+
+> List all pages in my "Core Services" feed, including URLs, labels, and asset IDs. Identify pages that are no longer relevant to the campaign. Do not make changes.
+
+**Example prompt**
+
+> Replace the outdated URL [OLD_URL] in my "Core Services" feed with [NEW_URL], preserving its custom labels. Show the exact replacement and affected asset before applying it.
+
+Page URL and label fields are immutable on existing Google Ads page assets. Replacements create new assets and update feed membership. Old assets remain in the Google Ads account.
+
+Deleting a feed requires detaching it from all campaigns first. If a campaign uses only supplied URLs, its setting must be adjusted before detaching the feed.
+
+## Step 5: Analyze Dynamic Search Ads performance
+
+HireOtto provides dedicated DSA reporting actions.
+
+The DSA search terms report helps you inspect the queries, generated headlines, and landing pages associated with traffic.
+
+The page-feed performance report helps you compare supplied URLs and custom-label groups.
+
+**Example prompt**
+
+> Analyze DSA search terms for my "Services Search" campaign over the last 30 days. Show search queries, generated headlines, landing pages, cost, clicks, and conversions. Identify irrelevant queries and possible negative keyword opportunities. Do not make changes.
+
+**Example prompt**
+
+> Compare DSA page-feed performance over the last 30 days. Break down results by page URL and custom label, and identify pages with meaningful spend but weak conversion performance.
+
+Use the evidence to review targeting and exclusions rather than automatically removing every page with limited conversions.
+
+## Limitations and important behavior
+
+- Dynamic Search Ads are part of supported Search campaign workflows, not a separate campaign type.
+- DSA headlines and landing pages are generated dynamically by Google.
+- Existing DSA creative cannot be edited in place; create a replacement ad when descriptions or ad-level tracking overrides need to change.
+- Positive webpage targets default to paused, while negative targets default to enabled.
+- Page feed asset removal does not delete the underlying Google Ads assets.
+- Google Ads determines final serving and eligibility. Creating a page feed or ad does not guarantee impressions.
+
+## Related documentation
+
+- [Google Ads Tools Reference](https://docs.hireotto.com/google-ads-mcp-tools)
+- [Create a Google Ads Campaign with AI](https://docs.hireotto.com/guides/create-a-google-ads-campaign-with-ai)
+- [Manage Google Ads Negative Keywords](https://docs.hireotto.com/guides/manage-negative-keywords-in-google-ads-with-ai)
+- [Analyze Google Ads performance reports](https://docs.hireotto.com/guides/reporting)
