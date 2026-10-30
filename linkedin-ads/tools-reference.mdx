@@ -33,17 +33,17 @@ The default connection is available on every plan. Additional named LinkedIn pro
 | Start or replace LinkedIn authorization | `authenticate_linkedin_ads` | Saves a LinkedIn connection in HireOtto; does not change ads |
 | Check token and account access | `verify_linkedin_ads_connection` | Read-only |
 | Find accessible ad accounts and roles | `list_linkedin_ad_accounts` | Read-only; `refresh=true` refreshes saved account access |
-| Read one account, campaign group, ad set, or creative | `list_linkedin_ads_entities` | Read-only |
+| Read one account, campaign group, ad set, or creative | `get_linkedin_ad_account`, `list_linkedin_campaign_groups`, `get_linkedin_campaign_group`, `list_linkedin_ad_sets`, `get_linkedin_ad_set`, `list_linkedin_creatives`, `get_linkedin_creative` | Read-only |
 | Map the complete account hierarchy | `get_linkedin_ads_hierarchy` | Read-only |
-| Find valid targeting values or estimate audience size | `discover_linkedin_targeting` | Read-only; criteria building is local |
+| Find valid targeting values or estimate audience size | `list_linkedin_targeting_facets`, `search_linkedin_targeting_entities`, `estimate_linkedin_audience_size`, `build_linkedin_targeting_criteria` | Read-only; criteria building is local |
 | Run performance or professional-demographic reporting | `get_linkedin_ads_report` | Read-only; may create a temporary CSV export |
 | Select and upload an image interactively | `upload_linkedin_image` | Creates an image asset |
 | Upload image bytes from a capable client | `upload_linkedin_image_bytes` | Creates an image asset |
 | Find or inspect Media Library images | `list_linkedin_image_assets`, `get_linkedin_image_asset` | Read-only |
 | Archive or restore a Media Library image | `update_linkedin_image_asset` | Write |
-| Create one campaign group, ad set, or creative | `create_linkedin_ads_entities` | Write unless `validate_only=true` |
+| Create one campaign group, ad set, or creative | `create_linkedin_campaign_group`, `create_linkedin_ad_set`, `create_linkedin_creative` | Write unless `validate_only=true` |
 | Create a campaign hierarchy in order | `create_linkedin_campaign` | Write unless `validate_only=true` |
-| Update campaign entities or delete eligible drafts | `update_linkedin_ads_entities` | Write unless `validate_only=true` |
+| Update campaign entities or delete eligible drafts | `update_linkedin_campaign_group`, `update_linkedin_ad_set`, `update_linkedin_creative`, `add_linkedin_targeting_exclusions`, `batch_update_linkedin_ad_sets`, `batch_update_linkedin_creatives`, `update_linkedin_campaign_hierarchy`, `delete_linkedin_draft_ad_set`, `delete_linkedin_draft_creative` | Write unless `validate_only=true` |
 | Check HireOtto access and usage | `get_billing_status` | Read-only |
 
 HireOtto uses **campaign group** for LinkedIn's campaign-group object and **ad set** for the object that LinkedIn's API calls a campaign. Keep the returned IDs with every recommendation or proposed change.
@@ -411,25 +411,6 @@ The current plan model is:
 - Agency: unlimited credits, two included seats, and multiple connected profiles
 
 LinkedIn Ads is included on every tier. When a tool is blocked, check for expired trial or billing periods, inactive billing, exhausted credits, a disabled LinkedIn entitlement, or an Agency-only profile request.
-
-## Credit costs
-
-| Successful action | Credits |
-| --- | --: |
-| Focused entity read | 2 |
-| Full hierarchy read | 5 |
-| Targeting discovery, criteria building, or audience count | 2 |
-| LinkedIn Ads report | 5 |
-| List or get one image asset | 1 |
-| Upload an image | 5 |
-| Validate an image archive or restore | 1 |
-| Archive or restore an image | 5 |
-| Validate one entity create or update | 1 |
-| Create or update one entity | 5 |
-| Validate a full campaign hierarchy | 1 |
-| Create a full campaign hierarchy | 10 |
-
-Authorization, connection verification, account discovery, and billing-status checks are not separately charged in the current workflow. Credits are deducted only after a successful charged action. Agency has unlimited credits, but platform permissions and lifecycle constraints still apply.
 
 ## Common failures and recovery
 

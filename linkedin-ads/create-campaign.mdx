@@ -101,7 +101,7 @@ Use `create_linkedin_campaign` when you want to validate or create the campaign 
 - Reuse an existing campaign group by supplying its ID.
 - Create a new campaign group from settings you provide.
 
-Use `create_linkedin_ads_entities` when you need to create only one object or recover from a failure after a parent object already exists.
+Use `create_linkedin_campaign_group`, `create_linkedin_ad_set`, or `create_linkedin_creative` when creating one object or recovering from a partially completed hierarchy. Each tool accepts its own required parent ID and a structured `fields` object. Unknown fields are rejected.
 
 ### Campaign-group inputs
 
@@ -191,12 +191,10 @@ Review the normalized output field by field. Pay particular attention to:
 
 ## 6. Create the approved objects as drafts
 
-After approval, run the same reviewed configuration with `validate_only=false` and explicitly require draft statuses. The full hierarchy create costs 10 HireOtto credits after success. It can create a new campaign group or reuse an existing one, then create the ad set and creative in order.
+After approval, run the same reviewed configuration with `validate_only=false` and explicitly require draft statuses. It can create a new campaign group or reuse an existing one, then create the ad set and creative in order.
 
 <Prompt description="Create the validated LinkedIn Ads hierarchy below in account ACCOUNT_ID. Create or reuse the approved campaign group, create the ad set as DRAFT, and create the single-image creative as DRAFT. Do not activate anything. Return every campaign-group, ad-set, creative, and image ID plus any LinkedIn warnings or partial-result details." actions={["copy"]}>
 </Prompt>
-
-For a single object, validation costs 1 credit and a successful create costs 5 credits. A successful image upload costs 5 credits. A full hierarchy validation costs 1 credit; a successful full hierarchy create costs 10 credits. Credits are deducted only after a successful charged action. Agency has unlimited credits, but LinkedIn permissions and lifecycle restrictions still apply.
 
 ## 7. Inspect the saved hierarchy
 
@@ -224,7 +222,7 @@ Do not blindly rerun the full request. That can create duplicate parents.
 2. Read the live hierarchy.
 3. Identify the first object that failed.
 4. Correct and validate only that object.
-5. Resume with `create_linkedin_ads_entities` using the existing parent ID.
+5. Resume with the relevant dedicated creation tool using the existing parent ID.
 6. Read the new object back.
 
 <Prompt description="The LinkedIn Ads hierarchy create returned the partial result below. Read the live hierarchy for account ACCOUNT_ID, preserve every object that already exists, identify the first failed step, and prepare a validate-only request for only that missing child object using the existing parent ID. Do not rerun the full hierarchy and do not create anything yet." actions={["copy"]}>

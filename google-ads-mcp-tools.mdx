@@ -45,6 +45,7 @@ Five point-in-time checks you can run on any account. Good first step whenever y
 - **Auto-tagging** — whether auto-tagging is enabled. HireOtto can also turn it on if it's off.
 - **Auto-apply recommendations** — which Google recommendations are set to apply automatically. HireOtto can disable them.
 - **Disapproved ads** — any ads currently disapproved, with disapproval reasons.
+  - Disapproved-ad review excludes removed ads, ad groups, and campaigns by default, while including paused entities. Set `include_removed=true` to include removed entities or `include_paused=false` to exclude paused entities at every level. Results include ad, ad-group, and campaign statuses for easier cleanup decisions.
 - **Negative keywords** — negative keywords at the campaign and ad group level. Optionally filtered to a specific campaign.
 - **Conversion tracking setup** — review conversion tracking status, conversion ownership, linked GA4 property evidence, and GA4 key events that have been imported or may be available to import into Google Ads. This is a read-only check; it does not create conversion actions or install tracking tags.
 
@@ -322,6 +323,7 @@ Create new RSAs or update existing ones.
 
 - Change headlines, descriptions, or display URL paths on an existing ad
 - Change ad status (enable, pause, remove)
+- `update_ad_status` supports ENABLED, PAUSED, and REMOVED. Removal uses Google Ads' remove operation and cannot be undone. Use PAUSED when you may want to reactivate the ad later. Failed API mutations are returned as errors rather than reported as successful changes.
 
 **Example prompts**
 

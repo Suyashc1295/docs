@@ -13,7 +13,7 @@ The safe sequence is:
 This matters because LinkedIn targeting uses facets and exact entity URNs. A plausible company name, job title, or numeric ID is not enough. Resolve every value against LinkedIn, keep the returned URNs, and inspect ambiguous matches before the targeting is used.
 
 <Info>
-  Targeting discovery, criteria building, and audience estimation are read-only. They do not create or change a campaign. A successful targeting action uses 2 HireOtto credits.
+  Targeting discovery, criteria building, and audience estimation are read-only. They do not create or change a campaign.
 </Info>
 
 ## Before you start
@@ -182,21 +182,12 @@ If a non-English job-title search returns no matches, retry with the English equ
 
 ## Parameters and defaults
 
-The targeting tool is `discover_linkedin_targeting`.
+HireOtto exposes four targeting tools. 
 
-| Parameter | Required | Default | Meaning |
-| --- | --- | --- | --- |
-| `action` | Yes | — | `list_facets`, `search_entities`, `build_criteria`, or `audience_count` |
-| `facet` | For `search_entities` | — | Friendly facet key or complete LinkedIn facet URN |
-| `query` | No | None | Text to search within the chosen facet |
-| `entity_urns` | No | None | Known URNs to resolve and verify |
-| `included_targeting` | For `audience_count` | — | Friendly map of facets to approved URNs |
-| `excluded_targeting` | No | Empty | Friendly map of exclusions |
-| `locale_language` | No | `en` | Discovery language and ad-set locale input |
-| `locale_country` | No | `US` | Discovery locale suffix and ad-set locale input; not geography |
-| `profile_id` | No | Default LinkedIn profile | Additional named profiles require Agency or enabled Enterprise access |
-
-The tool is available on the Free trial, Starter, Pro, and Agency plans. The normal credit or usage rules for the plan apply. Additional named LinkedIn profiles are reserved for Agency or enabled Enterprise access.
+- Use `list_linkedin_targeting_facets` to discover available facets,
+- `search_linkedin_targeting_entities` to resolve exact LinkedIn values,
+- `build_linkedin_targeting_criteria` to construct inclusion and exclusion criteria, 
+- and `estimate_linkedin_audience_size` to validate targeting values and estimate audience size. The audience estimator requires a non-empty inclusion map. Criteria construction alone does not validate entity URNs.
 
 ## Common failure cases
 
