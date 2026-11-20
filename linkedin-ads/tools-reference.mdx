@@ -111,83 +111,158 @@ Viewer access is read-only. Write actions require a sufficient ad-account role, 
 
 ## Read account and campaign structure
 
-### `list_linkedin_ads_entities`
+HireOtto provides dedicated tools for exploring LinkedIn ad accounts, campaign groups, ad sets, and creatives. Use these tools to discover IDs, inspect existing settings, and understand campaign structure before reporting or making changes.
 
-Use this for a focused account or hierarchy read.
+### Available tools
 
-| Parameter | Required | Default | Notes |
-| --- | --- | --- | --- |
-| `action` | Yes | None | `get_ad_account`, `list_campaign_groups`, `get_campaign_group`, `list_ad_sets`, `get_ad_set`, `list_creatives`, or `get_creative` |
-| `ad_account_id` | Yes | None | Sponsored-account ID |
-| `campaign_group_ids` | No | None | Filter groups or ad sets; exactly one ID for `get_campaign_group` |
-| `ad_set_ids` | No | None | Filter ad sets or creatives; exactly one ID for `get_ad_set` |
-| `creative_ids` | No | None | Filter creatives; exactly one ID for `get_creative` |
-| `statuses` | No | None | Common group/ad-set values include `DRAFT`, `ACTIVE`, and `PAUSED` |
-| `names` | No | None | Name filter where supported |
-| `intended_statuses` | No | None | Creative status filter |
-| `profile_id` | No | `default` | Saved LinkedIn connection |
-| `include_raw` | No | `false` | Include raw LinkedIn fields |
-| `page_size` | No | `100` | Clamped by LinkedIn's endpoint: up to 1,000 ad sets and up to 100 creatives per page |
-| `page_token` | No | None | Continue a paged list when LinkedIn returns a token |
+| Tool | What it does |
+| :-- | :-- |
+| `list_linkedin_ad_accounts` | List accessible ad accounts, account roles, and connection status. |
+| `get_linkedin_ad_account` | Retrieve details for a specific ad account. |
+| `list_linkedin_campaign_groups` | List campaign groups, with optional filters for IDs, names, or status. |
+| `get_linkedin_campaign_group` | Retrieve a specific campaign group by ID or URN. |
+| `list_linkedin_ad_sets` | List ad sets, optionally filtered by parent campaign group, IDs, names, or status. |
+| `get_linkedin_ad_set` | Retrieve an ad set's configuration, including targeting. |
+| `list_linkedin_creatives` | List creatives, with optional ad-set, creative-ID, and intended-status filters. |
+| `get_linkedin_creative` | Retrieve a creative's content references, lifecycle, and serving information. |
+| `get_linkedin_ads_hierarchy` | Retrieve an account-level snapshot of campaign groups, ad sets, and creatives. |
 
-The tool uses 2 HireOtto credits after a successful call. ID-based reads can return per-ID errors or statuses; inspect them instead of assuming that every requested entity was found.
+### Parameters and filters
 
-<Prompt description="For LinkedIn Ads account ACCOUNT_ID, list campaign groups, then list the ad sets in each group and the creatives in each ad set. Include names, IDs, statuses, parent IDs, schedules, budgets, and ad formats where returned. Read only." actions={["copy"]}>
-</Prompt>
+Most entity tools require `ad_account_id`. Individual getters additionally require the corresponding `campaign_group_id`, `ad_set_id`, or `creative_id`.
 
-### `get_linkedin_ads_hierarchy`
+Listing tools support relevant combinations of:
 
-Returns the account, campaign groups, ad sets, and creatives as one tree. Use it for orientation or reconciliation; use the focused entity tool when you need one object or a paged list.
+- `campaign_group_ids`, `ad_set_ids`, or `creative_ids` — filter by existing entity IDs.
+- `statuses` or `intended_statuses` — filter by lifecycle status.
+- `names` — filter by entity name where supported.
+- `page_size` and `page_token` — navigate paginated results.
+- `include_raw` — include underlying LinkedIn API data where supported.
+- `profile_id` — select a connected LinkedIn profile; omit for the default connection.
 
-| Parameter | Required | Default | Notes |
-| --- | --- | --- | --- |
-| `ad_account_id` | Yes | None | Sponsored-account ID |
-| `profile_id` | No | `default` | Saved LinkedIn connection |
-| `include_archived` | No | `false` | Adds archived entities to the normal active, paused, and draft view |
-| `include_raw` | No | `false` | Includes raw LinkedIn payloads |
+Not every parameter applies to every tool. For example, `list_linkedin_creatives` uses `intended_statuses`, while campaign-group and ad-set listings use `statuses`.
 
-The hierarchy call uses 5 credits. It retrieves up to 100 creatives per ad set in the current workflow; use focused creative listing and pagination when an ad set can exceed that coverage.
+ID-filtered results may be returned as objects keyed by ID rather than arrays.
 
-## Discover targeting and estimate audience size
+### Full hierarchy vs. focused reads
 
-### `discover_linkedin_targeting`
+Use `get_linkedin_ads_hierarchy` when you want a broad overview of an account's structure or need to identify related parent and child entities.
 
-This tool turns marketer-friendly audience ideas into valid LinkedIn targeting values before campaign creation.
+The hierarchy snapshot is bounded and may not include every entity in very large accounts. Use the dedicated listing tools with pagination when completeness matters.
 
-| Parameter | Required | Default | Notes |
-| --- | --- | --- | --- |
-| `action` | Yes | None | `list_facets`, `search_entities`, `audience_count`, or `build_criteria` |
-| `facet` | For entity search | None | Targeting category to search |
-| `query` | No | None | Text search within the selected facet |
-| `entity_urns` | No | None | Resolve known URNs |
-| `included_targeting` | For audience count | None | Friendly include map or targeting object |
-| `excluded_targeting` | No | None | Friendly exclusion map or targeting object |
-| `locale_language` | No | `en` | Localizes discovery results and supplies ad-set locale metadata |
-| `locale_country` | No | `US` | Localizes discovery results and supplies ad-set locale metadata |
-| `profile_id` | No | `default` | Saved LinkedIn connection |
+For a single campaign group, ad set, or creative, prefer the corresponding getter rather than retrieving the entire hierarchy.
 
-Friendly facet keys include `locations`, `companies` or `employers`, `industries`, `job_titles`, `job_functions`, `seniorities`, `skills`, `company_sizes`, `schools`, `groups`, and `languages`.
+### Important behavior
 
-```json
+- These tools read advertising entities without changing their campaign settings or creative content.
+- `list_linkedin_ad_accounts` can refresh saved account information and permissions using `refresh=true`.
+- LinkedIn ad sets correspond to `adCampaign` entities in LinkedIn's API; campaign groups correspond to `adCampaignGroup` entities.
+- `include_raw=true` can expose additional account, member, advertiser, or creative metadata.
+- Results depend on the access granted to the connected LinkedIn identity.
+
+### Example prompts
+
+> List my LinkedIn ad accounts and show which ones I have permission to manage.
+
+> Show all active and paused campaign groups in my LinkedIn Ads account, including their IDs, names, budgets, and statuses.
+
+> Retrieve the full campaign hierarchy for account [ACCOUNT_ID]. Show each campaign group's ad sets and creatives.
+
+> Inspect ad set [AD_SET_ID]. Show its current targeting, budget, objective, schedule, and lifecycle status. Do not make changes.
+
+## Discover targeting
+
+HireOtto helps you discover LinkedIn targeting options, resolve valid targeting entities, build audience criteria, and estimate audience size before creating or updating campaigns.
+
+Targeting discovery is read-only. Building criteria or estimating an audience does not apply targeting to an existing ad set.
+
+### Available tools
+
+| Tool | What it does |
+| :-- | :-- |
+| `list_linkedin_targeting_facets` | List available targeting dimensions and their definitions. |
+| `search_linkedin_targeting_entities` | Find targeting entities by text or resolve known LinkedIn URNs. |
+| `build_linkedin_targeting_criteria` | Construct a LinkedIn-compatible targeting criteria object from inclusion and exclusion maps. |
+| `estimate_linkedin_audience_size` | Validate targeting values and request an estimated audience size. |
+
+### 1. Discover available targeting facets
+
+Use `list_linkedin_targeting_facets` to explore the dimensions supported by LinkedIn.
+
+These can include locations, companies, job titles, seniorities, and other professional targeting attributes.
+
+The tool does not require an ad account ID. An optional `profile_id` selects the connected LinkedIn profile.
+
+### 2. Find targeting entities
+
+Use `search_linkedin_targeting_entities` to resolve audience attributes into LinkedIn targeting identifiers.
+
+**Parameters:**
+
+- `facet` — required targeting dimension.
+- `query` — optional search text.
+- `entity_urns` — optional list of known LinkedIn URNs to resolve.
+- `locale_language` — defaults to `en`.
+- `locale_country` — defaults to `US`.
+- `profile_id` — optional connected profile.
+
+For example, you can search for a company, location, or job title and use the resulting URNs when constructing targeting criteria.
+
+Locale parameters control how entities are searched and localized. They do not automatically add a language restriction to the target audience.
+
+### 3. Build targeting criteria
+
+Use `build_linkedin_targeting_criteria` to construct the targeting object required by LinkedIn ad sets.
+
+The tool accepts:
+
+- `included_targeting` — a map of facets and included values.
+- `excluded_targeting` — a map of facets and excluded values.
+- `locale_language` and `locale_country` — optional locale settings.
+- `profile_id` — optional connected profile.
+
+Example inclusion map:
+
+```text
 {
-  "included_targeting": {
-    "locations": ["urn:li:geo:103644278"],
-    "seniorities": ["urn:li:seniority:4"]
-  },
-  "excluded_targeting": {
-    "companies": ["urn:li:organization:123456"]
-  }
+  "locations": ["urn:li:geo:103644278"],
+  "companies": ["urn:li:organization:123456"]
 }
 ```
 
-`build_criteria` only converts a friendly map into targeting criteria; it does not validate entities with LinkedIn. `audience_count` validates every included and excluded facet and URN before requesting an estimate. Audience size is a delivery guardrail, not a quality score or reach forecast. LinkedIn requires a minimum eligible audience, while actual reach can be lower.
+The example identifiers are illustrative; use URNs returned by LinkedIn discovery rather than inventing IDs.
 
-The tool uses 2 credits after a successful action.
+**Important:** Criteria construction does not validate whether the URNs are valid or eligible. Its response explicitly identifies targeting validation as not performed.
 
-<Prompt description="Resolve valid LinkedIn targeting entities for the United States, the software industry, marketing and demand-generation functions, and director-or-higher seniorities. Show every match and URN, build the inclusion criteria, estimate audience size, and explain any ambiguous matches. Do not create or update a campaign." actions={["copy"]}>
-</Prompt>
+### 4. Validate and estimate audience size
 
-HireOtto adds interface-language targeting only when you explicitly supply `languages` or `interfaceLocales`. An explicit interface locale must contain exactly one value and match the normalized ad-set locale. Use `locations` or `profileLocations` for geography.
+Use `estimate_linkedin_audience_size` before applying targeting.
+
+The tool requires a non-empty `included_targeting` map and optionally accepts `excluded_targeting`, locale settings, and `profile_id`.
+
+HireOtto resolves the supplied targeting values, validates the facets and URNs, and requests an audience estimate from LinkedIn.
+
+Invalid targeting values return validation errors that can help identify the problematic criteria.
+
+Audience estimates are directional and are not guarantees of reach, delivery, or campaign performance.
+
+### Recommended workflow
+
+1. Discover the appropriate targeting facets.
+2. Search for and resolve the targeting entities.
+3. Build the inclusion and exclusion criteria.
+4. Validate the values and estimate audience size.
+5. Review the proposed audience before creating or updating an ad set.
+
+### Example prompts
+
+> Show the LinkedIn targeting facets available for B2B campaigns, particularly company, job title, seniority, and location.
+
+> Find the LinkedIn targeting entities for marketing directors in the United States. Return the relevant facets and URNs.
+
+> Build targeting criteria for senior marketing professionals in the United States, excluding employees of [COMPANY]. Show the inclusion and exclusion logic without applying it.
+
+> Validate this proposed audience and estimate its size. Identify invalid targeting values or potential restrictions before I use it in an ad set.
 
 ## Run LinkedIn Ads reports
 
@@ -215,7 +290,7 @@ Default metrics include `impressions`, `clicks`, `landingPageClicks`, `costInLoc
 
 Common pivots include `ACCOUNT`, `CAMPAIGN_GROUP`, `CAMPAIGN`, `CREATIVE`, `OBJECTIVE_TYPE`, `SERVING_LOCATION`, `IMPRESSION_DEVICE_TYPE`, and professional-demographic pivots such as `MEMBER_COMPANY`, `MEMBER_INDUSTRY`, `MEMBER_JOB_TITLE`, `MEMBER_JOB_FUNCTION`, `MEMBER_SENIORITY`, `MEMBER_COUNTRY_V2`, and `MEMBER_REGION_V2`.
 
-The report uses 5 credits after a successful call. LinkedIn Ad Analytics does not provide pagination for this workflow. The export and inline limits cap the rows HireOtto returns; they do not create additional rows when LinkedIn returns less data.
+LinkedIn Ad Analytics does not provide pagination for this workflow. The export and inline limits cap the rows HireOtto returns; they do not create additional rows when LinkedIn returns less data.
 
 <Prompt description="For LinkedIn Ads account ACCOUNT_ID, compare ad-set performance for the previous 30 complete days with the preceding 30 complete days. Include impressions, clicks, landing-page clicks, spend, website conversions, likes, shares, and total engagements. Keep raw values beside calculated CTR, cost per landing-page click, and CPA. Flag small samples and return both an inline decision summary and CSV. Read only." actions={["copy"]}>
 </Prompt>
@@ -263,7 +338,7 @@ Uploads image bytes without opening a UI. Use it only when the client can read, 
 
 The decoded file limit is 8 MiB. Base64 adds roughly one-third to the payload, and client or model-context limits can be smaller. Do not ask a user to paste base64 into chat, print it, invent it, or split it across calls. If a timed-out upload might have completed, list recent images before retrying to avoid duplicates.
 
-An image upload uses 5 credits after success. It creates an image asset, not a creative, ad set, or campaign.
+It creates an image asset, not a creative, ad set, or campaign.
 
 ### `list_linkedin_image_assets` and `get_linkedin_image_asset`
 
@@ -273,8 +348,6 @@ Use listing when the user refers to a recent upload or when an upload result is 
 | --- | --- | --- |
 | `list_linkedin_image_assets` | `ad_account_id`, `count`, `start`, `media_library_status`, `profile_id` | `count=10`, clamped to 1-1,000; `start=0`; status `ACTIVE`; use `ARCHIVED` or `null` to recover other assets |
 | `get_linkedin_image_asset` | `ad_account_id`, `image_urn`, `profile_id` | Exact image URN required |
-
-Listing and getting an image each use 1 credit after success.
 
 ### `update_linkedin_image_asset`
 
@@ -288,114 +361,260 @@ Sets `media_library_status` to `ARCHIVED` or `ACTIVE`. Archiving removes the ite
 | `profile_id` | No | `default` |
 | `validate_only` | No | `false` |
 
-Validation uses 1 credit; the actual archive or restore uses 5. Local validation does not prove the asset belongs to the account or that its processing state permits the change.
+Local validation does not prove the asset belongs to the account or that its processing state permits the change.
 
 ## Create campaign entities
 
-### `create_linkedin_ads_entities`
+HireOtto supports creating LinkedIn campaign groups, ad sets, and creatives through dedicated tools. You can create individual objects or use the combined campaign creation workflow.
 
-Creates one campaign group, ad set, or creative.
+The default creation status is `DRAFT` where supported, allowing you to review the setup before activating delivery.
 
-| Parameter | Required | Default | Notes |
-| --- | --- | --- | --- |
-| `action` | Yes | None | `create_campaign_group`, `create_ad_set`, or `create_creative` |
-| `ad_account_id` | Yes | None | Sponsored-account ID |
-| `fields` | Yes | None | Settings for the selected action |
-| `campaign_group_id` | For ad-set creation | None | Existing parent group |
-| `ad_set_id` | For creative creation | None | Existing parent ad set |
-| `profile_id` | No | `default` | Saved LinkedIn connection |
-| `validate_only` | No | `false` | Validate without creating the object |
+### Available tools
 
-Validation uses 1 credit; a successful create uses 5.
+| Tool | What it does |
+| :-- | :-- |
+| `create_linkedin_campaign_group` | Create a campaign group in an ad account. |
+| `create_linkedin_ad_set` | Create an ad set under an existing campaign group. |
+| `create_linkedin_creative` | Create a creative under an existing ad set. |
+| `create_linkedin_campaign` | Create a campaign hierarchy using a combined workflow. |
 
-#### Campaign-group fields
+### Create a campaign group
 
-`name` is required. Common fields include `status`, `start`, `end`, daily or total budget, `currency_code`, `objective_type`, budget-optimization strategy, and bid strategy. New workflows should normally use `DRAFT` until review is complete.
+Use `create_linkedin_campaign_group`.
 
-#### Ad-set fields
+**Required parameters:**
 
-An ad set requires a parent campaign group, `name`, targeting, and a budget. Common fields include campaign type, ad format, objective, cost type, bid strategy, optimization goal, daily or total budget, currency, bid amount, dates, locale, audience expansion, offsite delivery, pacing, and political intent.
+- `ad_account_id` — the target LinkedIn ad account.
+- `fields` — a structured object containing at least `name`.
 
-Important constraints:
+**Supported fields include:**
 
-- Choose the ad format carefully. LinkedIn fixes formats such as standard update, single video, and carousel when the ad set is created; use a new ad set to change format.
-- Sponsored Content, Dynamic Ads, and Lead Gen require an associated advertiser entity. HireOtto normally resolves it from the account.
-- Dynamic Ads require both daily and total budgets plus an ad format.
-- A total-budget-only ad set requires an end date.
-- Connected TV requires offsite delivery.
-- Lead Generation cannot enable offsite delivery.
-- Use targeting discovery before creation so every included and excluded value is a valid LinkedIn URN.
+- `name` — required.
+- `status` — defaults to `DRAFT`.
+- `start`, `end` — scheduling.
+- `objective_type` — campaign objective.
+- `total_budget_amount`, `daily_budget_amount`, `currency_code` — budget configuration.
+- `budget_optimization_strategy`, `bid_strategy` — supported budget and bidding settings.
 
-#### Creative fields
+Use `validate_only=true` to preview the requested creation without submitting the create operation.
 
-The supported first-class path is a normal single-image Direct Sponsored Content ad. Supply an available `image_urn` plus `commentary`; optionally add `headline`, `landing_page`, `cta_label`, `image_alt_text`, internal `name`, and `intended_status`.
+### Create an ad set
 
-When a landing page is present, the CTA defaults to `LEARN_MORE`. Creation should normally use `DRAFT`. HireOtto builds the advertiser and Direct Sponsored Content context, so do not manually construct advanced inline content for a standard single-image ad.
+Use `create_linkedin_ad_set`.
 
-<Prompt description="Validate one draft LinkedIn single-image ad for account ACCOUNT_ID and ad set AD_SET_ID using image IMAGE_URN, primary text PRIMARY_TEXT, headline HEADLINE, landing page LANDING_PAGE, call to action LEARN_MORE, and alt text ALT_TEXT. Confirm the image is available and return the exact payload and review checklist. Validate only; create nothing." actions={["copy"]}>
-</Prompt>
+**Required parameters:**
 
-`validate_only=true` still performs read-only targeting-URN validation for ad sets and availability checks for first-class image creatives. It does not reserve IDs or guarantee that a later write will pass LinkedIn's permission and lifecycle checks.
+- `ad_account_id`
+- `campaign_group_id` — ID of the existing parent campaign group.
+- `fields` — structured ad-set configuration, including `name`.
 
-### `create_linkedin_campaign`
+**Supported configuration includes:**
 
-Creates or reuses a campaign group, then creates an ad set and optional creatives in order.
+- Status, campaign type, ad format, and objective.
+- Daily or total budget, currency, and bidding settings.
+- Start and end dates.
+- Audience inclusion and exclusion criteria.
+- Locale, audience expansion, and other supported delivery settings.
 
-| Parameter | Required | Default | Notes |
-| --- | --- | --- | --- |
-| `ad_account_id` | Yes | None | Sponsored-account ID |
-| `ad_set` | Yes | None | Complete ad-set settings |
-| `campaign_group` | No | None | Existing `campaign_group_id` or settings for a new group |
-| `creatives` | No | None | List of creative objects |
-| `profile_id` | No | `default` | Saved LinkedIn connection |
-| `validate_only` | No | `false` | Validate the hierarchy without creating it |
+Ad sets default to `DRAFT`.
 
-Validation uses 1 credit; a successful hierarchy create uses 10. Creation defaults to draft behavior.
+The ad format is fixed when the ad set is created. Some campaign formats also have additional budget and schedule requirements.
 
-This workflow is not transactional. If a child object fails, parents already created remain in LinkedIn. Keep every returned ID, inspect `partial_result`, and resume from the failed step with the single-entity tool. Do not rerun the entire hierarchy blindly.
+You can supply friendly `included_targeting` and `excluded_targeting` maps or a complete `targeting_criteria` object.
 
-<Prompt description="Validate a new LinkedIn campaign hierarchy for account ACCOUNT_ID using the approved objective, campaign-group settings, ad-set budget and dates, resolved targeting URNs, landing page, image, copy, call to action, and alt text below. Create nothing. Return the normalized configuration, every warning, and a preflight checklist covering account, Page, audience size, budget, schedule, destination, creative, and tracking." actions={["copy"]}>
-</Prompt>
+Use targeting discovery and audience estimation before creation when the audience is new or uncertain.
 
-After approval, ask for draft creation explicitly and require the returned campaign-group, ad-set, creative, and image IDs. Read the saved hierarchy back before activation.
+### Create a creative
+
+Use `create_linkedin_creative`.
+
+**Required parameters:**
+
+- `ad_account_id`
+- `ad_set_id` — ID of the existing parent ad set.
+- `fields` — structured creative configuration.
+
+The creative must specify a supported content source, such as:
+
+- `image_urn`
+- `content_reference`
+- `content`
+- `inline_content`
+
+For a single-image ad, you can provide an available `image_urn` together with fields such as `commentary`, `headline`, `landing_page`, and `cta_label`.
+
+Additional supported fields include `name`, `intended_status`, `image_alt_text`, and `leadgen_call_to_action`.
+
+Creatives default to `DRAFT` intended status.
+
+**Important:** The single-image creative workflow creates Direct Sponsored Content. Its underlying LinkedIn content may be created as `PUBLIC` and `PUBLISHED` even when the advertising creative has `DRAFT` intended status. This is not the same as publishing an ordinary organic post, and the distinction should be reviewed before creation.
+
+### Validation and safety
+
+All three dedicated creation tools support `validate_only=true`.
+
+Validation prepares the operation and may perform preflight reads or targeting checks. It does not submit the create request and does not guarantee that LinkedIn will accept the eventual mutation.
+
+Creation is additive: it does not automatically remove existing entities.
+
+Explicitly setting an entity to `ACTIVE` can enable advertising or spending, subject to LinkedIn's lifecycle and eligibility rules.
+
+If a creation request returns an uncertain result, inspect the current hierarchy before retrying to avoid duplicates.
+
+### Example prompts
+
+> Create a draft LinkedIn campaign group called "Q1 Lead Generation" in account [ACCOUNT_ID]. Set the objective to lead generation and show the proposed configuration before creating it.
+
+> Create a draft ad set under campaign group [CAMPAIGN_GROUP_ID]. Use the approved audience, schedule, and budget. Validate the setup and show any errors before applying.
+
+> Create a draft single-image creative under ad set [AD_SET_ID] using image [IMAGE_URN], headline [HEADLINE], commentary [COMMENTARY], and landing page [URL]. Show the proposed content before creation.
+
+> Inspect the campaign hierarchy for [CAMPAIGN_GROUP_ID] and identify which ad sets or creatives still need to be created. Reuse existing entities rather than duplicating them.
+
+For the complete campaign workflow, see [Create a LinkedIn Ads campaign with AI](https://docs.hireotto.com/linkedin-ads/create-campaign).
 
 ## Update campaign entities
 
-### `update_linkedin_ads_entities`
+HireOtto provides dedicated tools for changing existing LinkedIn campaign groups, ad sets, and creatives. It also supports batch updates, combined hierarchy updates, additive targeting exclusions, and deletion of eligible draft entities.
 
-Updates campaign groups, ad sets, or creatives; applies batch updates; updates a full campaign; adds targeting exclusions safely; or deletes eligible draft ad sets and creatives.
+These operations can change live advertising behavior. Inspect the existing configuration and validate proposed changes before applying them.
 
-| Parameter | Required | Default | Notes |
-| --- | --- | --- | --- |
-| `action` | Yes | None | Select one supported update or draft-delete action |
-| `ad_account_id` | Yes | None | Sponsored-account ID |
-| `entity_id` | For single-entity actions | None | Campaign-group, ad-set, or creative ID |
-| `updates` | For updates | None | Complete fields for the selected action |
-| `profile_id` | No | `default` | Saved LinkedIn connection |
-| `validate_only` | No | `false` | Validate without writing |
+### Available tools
 
-Supported actions include:
+| Tool | What it does |
+| :-- | :-- |
+| `update_linkedin_campaign_group` | Update a campaign group's name, status, schedule, budget, or supported settings. |
+| `update_linkedin_ad_set` | Update an ad set's status, budget, schedule, targeting, or supported delivery settings. |
+| `update_linkedin_creative` | Update a creative's intended status, name, or supported content fields. |
+| `add_linkedin_targeting_exclusions` | Add exclusions while preserving existing targeting criteria. |
+| `batch_update_linkedin_ad_sets` | Update multiple ad sets in the same account. |
+| `batch_update_linkedin_creatives` | Update multiple creatives in the same account. |
+| `update_linkedin_campaign_hierarchy` | Update campaign group, ad sets, and creatives in a combined workflow. |
+| `delete_linkedin_draft_ad_set` | Delete an eligible draft ad set. |
+| `delete_linkedin_draft_creative` | Delete an eligible draft creative. |
 
-- `update_campaign_group`
-- `update_ad_set`
-- `add_targeting_exclusions`
-- `update_creative`
-- `batch_update_ad_sets`
-- `batch_update_creatives`
-- `update_full_campaign`
-- `delete_draft_ad_set`
-- `delete_draft_creative`
+### Update individual entities
 
-Validation uses 1 credit; a successful update or eligible draft deletion uses 5.
+Use the corresponding update tool with `ad_account_id`, the entity ID, and a structured `updates` object.
 
-Use `add_targeting_exclusions` when only adding exclusions. A partial friendly include or exclude map sent through `update_ad_set` can replace the existing targeting configuration. For any broader targeting edit, read the full current targeting, resolve every new entity, estimate the revised audience, and review the complete diff before writing.
+**Campaign group updates**
 
-<Prompt description="For LinkedIn Ads account ACCOUNT_ID and ad set AD_SET_ID, read the full current targeting. Resolve the exact LinkedIn company entities in EXCLUSION_LIST, estimate the revised audience, and show a diff that preserves every existing inclusion and exclusion. Validate an additive exclusion update only. Do not write until I approve the exact company URNs and revised audience." actions={["copy"]}>
-</Prompt>
+Use `update_linkedin_campaign_group` with `campaign_group_id`.
 
-LinkedIn enforces lifecycle transitions. Activation can fail when a parent remains in draft, dates are stale, the account cannot serve, the creative is not eligible, or the connected role lacks permission. A validated payload does not override these platform rules.
+Supported updates include name, status, schedule, budget, objective, and supported native fields.
 
-After any approved write, read the object back and compare the live value with the proposed value. Keep activation separate from budget, targeting, creative, date, and bid changes so each decision remains reviewable.
+**Ad set updates**
+
+Use `update_linkedin_ad_set` with `ad_set_id`.
+
+Supported updates include status, name, budgets, schedule, targeting, locale, audience expansion, bidding-related settings, and other explicitly supported fields.
+
+**Creative updates**
+
+Use `update_linkedin_creative` with `creative_id`.
+
+Supported updates include intended status, name, content, and lead-generation call-to-action fields.
+
+Each update tool uses an explicit typed schema. Unsupported fields are rejected rather than forwarded as arbitrary API updates.
+
+The update schemas also expose `set_fields` and `delete_fields` for selected LinkedIn-native fields where supported. These can overwrite or remove stored values, so review the full proposed patch.
+
+### Targeting updates vs. additive exclusions
+
+Replacing targeting and adding exclusions are different operations.
+
+Use `update_linkedin_ad_set` when replacing the ad set's targeting configuration.
+
+For friendly targeting replacement, supply **both** `included_targeting` and `excluded_targeting`. Use an empty map for either side when intentionally leaving that side empty.
+
+A complete `targeting_criteria` object also replaces the existing criteria.
+
+Use `add_linkedin_targeting_exclusions` when you only want to add exclusions while retaining the existing targeting.
+
+Required parameters:
+
+- `ad_account_id`
+- `ad_set_id`
+- `excluded_targeting` — non-empty map of facets and resolved LinkedIn URNs.
+
+HireOtto reads the existing targeting, merges and deduplicates the new exclusions, then validates the resulting criteria.
+
+This tool cannot remove existing exclusions. Avoid concurrent targeting changes while using this read-modify-write workflow.
+
+### Batch updates
+
+Use `batch_update_linkedin_ad_sets` or `batch_update_linkedin_creatives` to change multiple entities in the same ad account.
+
+Both accept an `updates` object keyed by existing entity IDs or URNs.
+
+Each value follows the corresponding single-entity update schema.
+
+For example, you can prepare a batch to pause several ad sets, or update the intended statuses of multiple creatives.
+
+Batch requests may return item-level failures even when the overall request succeeds. Inspect individual results and read back the affected entities.
+
+### Update a campaign hierarchy
+
+Use `update_linkedin_campaign_hierarchy` when a change spans multiple levels of an existing campaign.
+
+Supported sections:
+
+- `campaign_group_update` — requires `campaign_group_id`.
+- `ad_set_updates` — map keyed by existing ad-set IDs.
+- `creative_updates` — map keyed by existing creative IDs.
+
+At least one section must be supplied.
+
+The tool processes the campaign group, ad-set updates, and creative updates sequentially.
+
+**Important:** This is not an atomic transaction. If a later operation fails, earlier successful changes are not automatically rolled back.
+
+For larger changes, validate the proposed updates, execute after approval, and verify each affected entity.
+
+### Delete eligible draft entities
+
+Use `delete_linkedin_draft_ad_set` or `delete_linkedin_draft_creative` only when permanent removal is intended.
+
+Required parameters are `ad_account_id` and the corresponding `ad_set_id` or `creative_id`.
+
+LinkedIn determines whether a draft is eligible for deletion.
+
+`validate_only=true` returns a deletion preview without issuing the DELETE request. It does not verify entity existence, permissions, or deletion eligibility.
+
+Deletion may be irreversible. Prefer changing status when the intent is to stop delivery rather than permanently remove an entity.
+
+### Validation and verification
+
+All update and deletion tools support `validate_only=true`.
+
+For updates, validation prepares the proposed patch and may perform necessary reads or targeting checks. It does not submit the mutation and does not guarantee LinkedIn's final acceptance.
+
+A successful validation is not a completed update.
+
+Recommended process:
+
+1. Retrieve the existing entity configuration.
+2. Identify the exact changes and affected IDs.
+3. Validate the proposed operation.
+4. Review the changes and approve execution.
+5. Apply the update.
+6. Retrieve the affected entities again to verify their saved state.
+
+If an execution returns an error, inspect the live state before retrying. A LinkedIn write may have succeeded even if a subsequent response or billing operation failed.
+
+### Example prompts
+
+> Inspect campaign group [CAMPAIGN_GROUP_ID] and prepare a change to its daily budget. Show the current budget and proposed new value before applying.
+
+> Pause ad sets [AD_SET_ID_1] and [AD_SET_ID_2]. Validate the batch update first, then verify the status of each ad set after execution.
+
+> Add company [COMPANY_URN] as a targeting exclusion to ad set [AD_SET_ID]. Preserve all existing targeting and validate the resulting criteria before applying.
+
+> Update the intended status of creatives [CREATIVE_ID_1] and [CREATIVE_ID_2] to PAUSED. Inspect their current lifecycle states and verify each result.
+
+> Review the full hierarchy under campaign group [CAMPAIGN_GROUP_ID]. Prepare coordinated updates to the campaign group, selected ad sets, and creatives. Show the proposed changes and potential partial-failure risks before execution.
+
+> Inspect draft creative [CREATIVE_ID] and check whether it can be deleted. Show the deletion preview without executing it.
 
 ## Check plan and credits
 

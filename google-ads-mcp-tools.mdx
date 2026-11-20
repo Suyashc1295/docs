@@ -318,6 +318,8 @@ Create new RSAs or update existing ones.
 
 - Requires: ad group, headlines (3–15, max 30 chars each), descriptions (2–4, max 90 chars each), final URL, and optional display URL paths
 - Supports headline and description pinning
+- Responsive Search Ads support keyword insertion (`{KeyWord:Default}`), location insertion (`{LOCATION(City):Default}`), and ad customizers (`{CUSTOMIZER.AttributeName:Fallback}`). Countdown insertion is also supported, with final rendering validation handled by Google Ads.
+- New responsive search ads and standard Search ad groups default to `PAUSED`. You can explicitly set `status="ENABLED"` during creation. Review the parent campaign status and ad content before enabling newly created entities.
 
 **Update**
 
